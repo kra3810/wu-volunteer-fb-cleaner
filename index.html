@@ -10,7 +10,8 @@
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
-        table { table-layout: auto; width: 100%; }
+        /* ลบ width: 100% ออกเพื่อไม่ให้ตารางบังคับยืดผิดธรรมชาติ */
+        table { table-layout: auto; }
 
         .thread-hidden { display: none !important; }
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
@@ -170,13 +171,13 @@
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 xl:mt-0">
                         <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
                         <div class="flex flex-wrap gap-2">
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">นามสกุล</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">สถานะ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ประเภทงาน</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไลก์</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ข้อความต้นฉบับ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="saveColumnsAndRender()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="saveColumnsAndRender()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="saveColumnsAndRender()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">นามสกุล</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="saveColumnsAndRender()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">สถานะ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="saveColumnsAndRender()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ประเภทงาน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="saveColumnsAndRender()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไลก์</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="saveColumnsAndRender()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ข้อความต้นฉบับ</div></label>
                         </div>
                     </div>
                 </div>
@@ -326,9 +327,15 @@
         let currentMode = 'separate';
         let activeThread = null; 
 
-        function openGuideModal() { document.getElementById('guideModal').classList.remove('hidden'); }
-        function closeGuideModal() { document.getElementById('guideModal').classList.add('hidden'); }
+        // --- ระบบ Guide Modal ---
+        function openGuideModal() {
+            document.getElementById('guideModal').classList.remove('hidden');
+        }
+        function closeGuideModal() {
+            document.getElementById('guideModal').classList.add('hidden');
+        }
 
+        // --- ระบบ Auto-Save ---
         function saveState() {
             try {
                 sessionStorage.setItem('allFilesData', JSON.stringify(allFilesData));
@@ -361,6 +368,7 @@
         
         window.addEventListener('DOMContentLoaded', loadState);
 
+        // --- ระบบ Feedback ---
         function toggleSeverityField() {
             const issueType = document.getElementById('issueType').value;
             const severityContainer = document.getElementById('severityContainer');
@@ -398,7 +406,11 @@
             btn.disabled = true;
 
             try {
-                let response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } });
+                let response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json' }
+                });
                 if (response.ok) {
                     form.classList.add('hidden');
                     document.getElementById('feedbackSuccessMsg').classList.remove('hidden');
@@ -414,6 +426,7 @@
             }
         }
 
+        // --- ระบบ Theme ---
         function applyTheme(theme) {
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
@@ -439,6 +452,7 @@
             applyTheme('light');
         }
 
+        // --- Core Functions ---
         function clearData() {
             if (!confirm("⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)")) {
                 return;
@@ -457,7 +471,6 @@
             sessionStorage.removeItem('fileNamesStr');
         }
 
-        // ฟังชันก์เลื่อนหน้าจอกลับไปบนสุด
         function resetScroll() {
             const tableContainer = document.querySelector('.table-container');
             if (tableContainer) { tableContainer.scrollTop = 0; }
@@ -465,7 +478,7 @@
 
         function switchFile() {
             renderTable();
-            resetScroll(); // รีเซ็ตการเลื่อนหน้าจอเฉพาะตอนเปลี่ยนไฟล์
+            resetScroll(); 
         }
 
         function switchMode(mode) {
@@ -473,8 +486,13 @@
             activeThread = null; 
             updateModeUI();
             renderTable();
-            resetScroll(); // รีเซ็ตการเลื่อนหน้าจอเฉพาะตอนสลับโหมด
+            resetScroll(); 
             saveState(); 
+        }
+
+        function saveColumnsAndRender() {
+            // ฟังก์ชันนี้ถูกเรียกตอนกดเปิด/ปิดคอลัมน์ เอา resetScroll ออกเพื่อไม่ให้จอเด้งเวลาแสดงผล
+            renderTable();
         }
 
         function getSelectedColumns() {
@@ -538,82 +556,63 @@
         }
 
         function cleanHonorifics(token) {
-            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
+            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส'];
             for (let p of prefixes) {
-                if (token.startsWith(p)) token = token.substring(p.length);
+                if (token.startsWith(p)) return token.substring(p.length).trim();
             }
             return token.trim();
         }
 
-        // ลอจิกใหม่: สกัดชื่อ-สกุลจากท่อนข้อความ โดยไม่ลบคำที่อาจเป็นชื่อทิ้ง
-        function extractStudentData(chunkText, fullText) {
+        // ลอจิกการแกะชื่อ-สกุล โครงสร้างดั้งเดิมที่เสถียรที่สุด
+        function extractStudentName(textChunk, studentId) {
+            const noiseWords = new Set([
+                'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 'รายงานตัว', 'ค่ะ', 'ครับ', 'คะ', 
+                'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
+                'ชั่วโมงทุน', 'วินัย', 'รู้วินัย', 'แก้ความประพฤติ', 'แก้คะแนน', 'แก้คะแนนรู้วินัย', 'แก้รู้วินัย', 'คะแนนความประพฤติ', 'รักชาติ', 'กตัญญู', 'นาย', 
+                'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
+                'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ'
+            ]);
+
+            const parts = textChunk.split(studentId);
+            for (let sideText of [parts[1] || "", parts[0] || ""]) {
+                let cleaned = sideText.replace(/\(.*?\)/g, ' ');
+                cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
+                let tokens = cleaned.split(/\s+/);
+                let nameTokens = [];
+                for (let t of tokens) {
+                    // กฎเหล็กที่ทำให้ลอจิกเก่าแม่นยำ: ตัดทิ้งทันทีเมื่อเจอคำที่ขึ้นต้นด้วยเหล่านี้
+                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/^[0-9]{7,9}$/)) break;
+                    
+                    if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
+                    nameTokens.push(t);
+                }
+                
+                // ถอดคำนำหน้าเฉพาะที่ชื่อแรก (nameTokens[0]) เพื่อป้องกัน "นายาว" โดนหั่นที่นามสกุล
+                if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
+                else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
+            }
+            return { firstName: "", lastName: "" };
+        }
+
+        function detectPointType(chunkText, fullText) {
             const categories = [
-                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] }, // เพิ่มหมวดภาวะผู้นำ
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] },
                 { name: "รักชาติ", keywords: ["รักชาติ"] },
                 { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
                 { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
-                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนนความประพฤติ", "แก้คะแนน"] },
+                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ"] },
                 { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
-                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนใจอาสา", "จิตอาสา", "คะแนนความดี", "กตัญญู", "ความดี"] } // เพิ่มจิตอาสา
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } 
             ];
-
-            let type = "ไม่ได้ระบุ";
             for (let cat of categories) {
-                if (cat.keywords.some(kw => chunkText.includes(kw))) { type = cat.name; break; }
+                if (cat.keywords.some(kw => chunkText.includes(kw))) return cat.name;
             }
-            if (type === "ไม่ได้ระบุ") {
-                for (let cat of categories) {
-                    if (cat.keywords.some(kw => fullText.includes(kw))) { type = cat.name; break; }
-                }
+            for (let cat of categories) {
+                if (cat.keywords.some(kw => fullText.includes(kw))) return cat.name;
             }
-            if (type === "ไม่ได้ระบุ") {
-                const teamMatch = (chunkText + " " + fullText).match(/ทีม\s*\d/);
-                if (teamMatch) type = teamMatch[0].replace(/\s+/g, '');
-            }
-
-            let nameStr = chunkText;
-            nameStr = nameStr.replace(/[\r\n]+/g, ' '); // แก้ปัญหาคนเคาะบรรทัดกลางชื่อ
-            nameStr = nameStr.replace(/\(.*\)/g, ' '); // เอาในวงเล็บออกให้หมด
-
-            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
-            for (let p of prefixes) {
-                let re = new RegExp("^\\s*" + p);
-                if (re.test(nameStr)) {
-                    nameStr = nameStr.replace(re, '').trim();
-                    break; // ตัดคำนำหน้าแค่อันเดียว และตัดเฉพาะตอนเริ่มต้นข้อความ
-                }
-            }
-
-            let tokens = nameStr.split(/\s+/).filter(t => t.length > 0 && !t.match(/^[0-9]+$/));
-            
-            const noiseWords = new Set([
-                'คะแนน', 'ค่ะ', 'ครับ', 'คะ', 'มาแทน', 'ทั้งคู่', 'เทอม', 'ทีม', 'รายงานตัว', 'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 
-                'ใจอาสา', 'จิตอาสา', 'ความดี', 'กตัญญู', 'วินัย', 'รู้วินัย', 'ชั่วโมงทุน', 'รักชาติ', 'ภาวะผู้นำ', 'ผู้นำ', 'แก้คะแนน'
-            ]);
-
-            let cleanTokens = [];
-            // คำที่จะตัดออกกรณีที่มันมาเกาะติดกับชื่อหรือนามสกุลแบบไม่มีสเปซบาร์
-            const kwsToRemove = ["คะแนนใจอาสา", "ใจอาสาค่ะ", "ใจอาสาครับ", "ใจอาสา", "จิตอาสา", "แก้ความประพฤติ", "แก้คะแนนรู้วินัย", "ชั่วโมงทุน", "รักชาติ", "ภาวะผู้นำ", "ผู้นำ", "คะแนนความดี", "คะแนนวินัย", "ค่ะ", "ครับ", "คะ", "คะแนน"];
-
-            for (let t of tokens) {
-                if (noiseWords.has(t)) continue;
-                
-                let tClean = t;
-                kwsToRemove.forEach(kw => {
-                    tClean = tClean.replace(kw, '');
-                });
-                
-                tClean = tClean.replace(/[-–,._/!@#$%^&*()\[\]{}|+:;"']/g, '');
-                
-                if (tClean.length > 0) {
-                    cleanTokens.push(tClean);
-                }
-            }
-
-            let firstName = cleanTokens.length > 0 ? cleanTokens[0] : "";
-            let lastName = cleanTokens.length > 1 ? cleanTokens.slice(1).join(" ") : "";
-
-            return { firstName, lastName, type };
+            const teamMatch = (chunkText + " " + fullText).match(/ทีม\s*\d/);
+            if (teamMatch) return teamMatch[0].replace(/\s+/g, '');
+            return "ไม่ได้ระบุ";
         }
 
         function parseCSVData(fileName, text) {
@@ -676,6 +675,7 @@
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
 
+                // กวาดรหัสนักศึกษาทั้งหมดใน 1 คอมเมนต์
                 const idRegex = /\b([0-9]{7,9})\b/g;
                 let match;
                 let foundIds = [];
@@ -690,25 +690,40 @@
                         if (currentMode === 'separate' && seenIdsInThisFile.has(studentId)) continue;
                         seenIdsInThisFile.add(studentId);
 
-                        // ตีกรอบหาข้อความเฉพาะของรหัสนักศึกษาคนนั้นๆ
-                        let startIdx = foundIds[j].index + studentId.length;
+                        // หั่นข้อความเพื่อให้แต่ละคนมีก้อนข้อความของตัวเอง (ไม่ไปกวนคนอื่น)
+                        let startIdx = foundIds[j].index;
                         let endIdx = (j + 1 < foundIds.length) ? foundIds[j+1].index : cleanFullText.length;
                         let rawChunk = cleanFullText.substring(startIdx, endIdx);
+                        
+                        // เอาเคาะบรรทัดออก เพื่อให้ชื่อ-สกุลที่ถูกเคาะบรรทัดต่อกันติด
+                        let flatChunk = rawChunk.replace(/\r?\n|<br\s*\/?>/gi, ' ');
 
                         const isIdValid = (studentId.length === 8);
-                        const extracted = extractStudentData(rawChunk, cleanFullText);
+                        const nameObj = extractStudentName(flatChunk, studentId);
+                        let firstName = nameObj.firstName;
+                        let lastName = nameObj.lastName;
+
+                        // ถ้าชื่อไม่มา ลองอีกรอบด้วยข้อความเต็มแบบบรรทัดเดียว
+                        if (!firstName) {
+                            let singleLineFull = cleanFullText.replace(/\r?\n|<br\s*\/?>/gi, ' ');
+                            const fullObj = extractStudentName(singleLineFull, studentId);
+                            firstName = fullObj.firstName;
+                            lastName = fullObj.lastName;
+                        }
+
+                        let pointType = detectPointType(flatChunk, cleanFullText);
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, 
                             "fileName": fileName,
                             "รหัสนักศึกษา": studentId,
                             "isIdValid": isIdValid,
-                            "ชื่อ": extracted.firstName,
-                            "นามสกุล": extracted.lastName,
+                            "ชื่อ": firstName,
+                            "นามสกุล": lastName,
                             "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก",
                             "สายสนทนา": threadNo,
                             "isReply": isReply,
-                            "ประเภทงาน": extracted.type,
+                            "ประเภทงาน": pointType,
                             "ยอดไลก์": likeCount,
                             "คอมเมนต์เต็มต้นฉบับ": fullText
                         });
@@ -838,15 +853,17 @@
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
+            // คอลัมน์ล่องหน (w-full) อยู่ท้ายสุด เพื่อบีบให้คอลัมน์ด้านหน้าชิดซ้ายสวยงามตามสัดส่วน
             let headerHtml = `<tr>`;
-            if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap">ไฟล์ต้นทาง</th>`;
-            if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap">รหัสนักศึกษา</th>`;
-            if (cols.name) headerHtml += `<th class="px-4 py-4 whitespace-nowrap">ชื่อ</th>`;
-            if (cols.surname) headerHtml += `<th class="px-4 py-4 whitespace-nowrap">นามสกุล</th>`;
-            if (cols.status) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap">สถานะ</th>`;
-            if (cols.type) headerHtml += `<th class="px-4 py-4 whitespace-nowrap">ประเภทงาน</th>`;
-            if (cols.likes) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap">ไลก์</th>`;
-            if (cols.original) headerHtml += `<th class="px-4 py-4 min-w-[250px]">คอมเมนต์ต้นฉบับ</th>`;
+            if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[1%]">ไฟล์ต้นทาง</th>`;
+            if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[1%]">รหัสนักศึกษา</th>`;
+            if (cols.name) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[15%]">ชื่อ</th>`;
+            if (cols.surname) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[15%]">นามสกุล</th>`;
+            if (cols.status) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[1%]">สถานะ</th>`;
+            if (cols.type) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[1%]">ประเภทงาน</th>`;
+            if (cols.likes) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[1%]">ไลก์</th>`;
+            if (cols.original) headerHtml += `<th class="px-4 py-4 border-b border-slate-200 dark:border-slate-700">คอมเมนต์ต้นฉบับ</th>`;
+            else headerHtml += `<th class="border-b border-slate-200 dark:border-slate-700 w-full"></th>`; // Filler Column กรณีไม่ได้เปิดช่องต้นฉบับ
             headerHtml += `</tr>`;
             thead.innerHTML = headerHtml;
 
@@ -917,7 +934,12 @@
                     if (cols.status) rowHtml += `<td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>`;
                     if (cols.type) rowHtml += pointTypeHtml;
                     if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
-                    if (cols.original) rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 max-w-sm overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
+                    
+                    if (cols.original) {
+                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 max-w-sm overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
+                    } else {
+                        rowHtml += `<td></td>`; // Filler Column ทำหน้าที่ดูดซับพื้นที่ว่างให้สัดส่วนตารางคงที่
+                    }
                     
                     tr.innerHTML = rowHtml;
                     tbody.appendChild(tr);
