@@ -10,20 +10,17 @@
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
-        /* คืนค่าสัดส่วนตารางแบบออริจินัล (จัดเลย์เอาต์อัตโนมัติ) */
         table { table-layout: auto; width: 100%; }
 
         .thread-hidden { display: none !important; }
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลงมาก ยกเว้นปุ่มซ่อนจะไม่โดนผลกระทบ */
         .row-faded { background-color: rgba(100, 116, 139, 0.05) !important; }
         .row-faded .row-content { opacity: 0.15; filter: grayscale(100%); pointer-events: none; transition: all 0.2s; }
         .row-faded:hover .row-content { opacity: 0.6; pointer-events: auto; filter: grayscale(0%); }
         .dark .row-faded { background-color: rgba(30, 41, 59, 0.4) !important; }
 
-        /* ปุ่มซ่อน/จางแถว: เกาะอยู่ที่ริมขอบซ้ายสุดของแถว ไม่ทับข้อความ และไม่จางตาม */
         .row-fade-action {
             position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
             opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 10;
@@ -33,7 +30,6 @@
             opacity: 1; pointer-events: auto;
         }
 
-        /* คืนค่าหน้าตากล่องให้เนียนไปกับตารางเหมือนเดิม แต่ป้องกันไม่ให้ดันตารางจนสเกลพัง */
         .editable-cell {
             outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; 
             transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
@@ -49,7 +45,6 @@
             background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
         }
 
-        /* ⚠️ แจ้งเตือนเมื่อช่องว่างเปล่า */
         .editable-cell:empty::before {
             content: "⚠️ (ว่าง)"; color: #ef4444; font-size: 0.75rem; font-weight: 600; pointer-events: none;
         }
@@ -76,9 +71,7 @@
 <body class="bg-slate-100 dark:bg-slate-900 min-h-screen py-4 md:py-8 px-2 md:px-4 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200">
     <div class="max-w-7xl mx-auto space-y-4 md:space-y-6">
 
-        <!-- Header & Upload Section -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden p-6 md:p-8 relative transition-colors duration-200">
-
             <button onclick="toggleTheme()" class="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500" title="สลับโหมดมืด/สว่าง">
                 <svg id="icon-sun" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 <svg id="icon-moon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -95,7 +88,6 @@
                 </div>
             </div>
 
-            <!-- Upload Area -->
             <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
                 <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
                 <div class="flex flex-col items-center justify-center">
@@ -107,7 +99,6 @@
             </div>
         </div>
 
-        <!-- โซนสอนการใช้งาน (Onboarding) -->
         <div id="initialOnboarding" class="space-y-6 animate-in fade-in duration-500">
             <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                 <div class="flex items-start gap-4">
@@ -141,10 +132,7 @@
             </div>
         </div>
 
-        <!-- Main Workspace -->
         <div id="mainWorkspace" class="hidden space-y-4 md:space-y-6">
-
-            <!-- Summary Dashboard -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center transition-colors">
                     <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">นักศึกษาทั้งหมด</span>
@@ -160,7 +148,6 @@
                 </div>
             </div>
 
-            <!-- Toolbar -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex flex-col lg:flex-row justify-between items-center gap-4 transition-colors">
                 <div class="relative w-full lg:w-1/3">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -180,7 +167,6 @@
                 </div>
             </div>
 
-            <!-- Settings Panel -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
                 <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center justify-between">
 
@@ -216,7 +202,6 @@
                 </div>
             </div>
 
-            <!-- Table Section -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 <div class="table-container overflow-x-auto max-h-[600px]">
                     <table class="min-w-full text-sm text-left">
@@ -229,13 +214,12 @@
         </div>
     </div>
 
-    <!-- 💬 ปุ่มลอยมุมขวาล่างสำหรับแจ้งปัญหา/ติชม -->
+    <!-- Modals -->
     <button onclick="openFeedbackModal()" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 md:p-3.5 rounded-full shadow-2xl flex items-center transition-all hover:scale-105 active:scale-95 group" title="แจ้งปัญหา / ติชม">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
         <span class="max-w-0 opacity-0 overflow-hidden group-hover:max-w-[150px] group-hover:opacity-100 group-hover:ml-2 transition-all duration-300 ease-in-out whitespace-nowrap text-sm hidden md:block">ติชม / แจ้งปัญหา</span>
     </button>
 
-    <!-- Modal คู่มือการใช้งาน (Guide) -->
     <div id="guideModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -245,7 +229,6 @@
                 </h3>
                 <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm">✕</button>
             </div>
-
             <div class="p-6 overflow-y-auto space-y-8 text-slate-700 dark:text-slate-300">
                 <div class="space-y-3">
                     <h4 class="text-lg font-bold flex items-center gap-2">
@@ -257,45 +240,13 @@
                         <img src="asset/Untitled.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/Untitled.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
-
-                <div class="space-y-3">
-                    <h4 class="text-lg font-bold flex items-center gap-2">
-                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 2</span>
-                        ไปที่โพสต์กิจกรรม
-                    </h4>
-                    <ul class="list-disc list-inside text-sm space-y-1 ml-1">
-                        <li>เปิด Facebook หน้ากิจกรรมของ <b>จิตอาสา ม.วลัยลักษณ์</b> ที่ต้องการดึงข้อมูล</li>
-                        <li>กดที่ <b>ไอคอนรูปจิ๊กซอว์ (Extensions)</b> มุมขวาบนของจอ</li>
-                        <li>คลิกเลือกส่วนเสริม <b>Post Comments Exporter</b></li>
-                    </ul>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
-                        <img src="asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/qs7cjYqM.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <h4 class="text-lg font-bold flex items-center gap-2">
-                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 3</span>
-                        กดเริ่มและดาวน์โหลด
-                    </h4>
-                    <ul class="list-disc list-inside text-sm space-y-1 ml-1">
-                        <li><b>ไม่ต้องตั้งค่าอะไรเพิ่มเติม</b> (ส่วนเสริมตั้งค่าทุกอย่างมาให้พร้อมใช้งานแล้ว)</li>
-                        <li>กดปุ่ม <b class="text-emerald-600 dark:text-emerald-400">Start</b> แล้วรอให้ระบบโหลดจนครบ 100%</li>
-                        <li>กดปุ่ม <b class="text-blue-600 dark:text-blue-400">Download</b> จะได้ไฟล์นามสกุล <code>.csv</code> ให้นำมาอัปโหลดเข้าระบบของเราได้เลย!</li>
-                    </ul>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
-                        <img src="asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/fwRX0ZzR.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
-                    </div>
-                </div>
             </div>
-
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-right">
                 <button onclick="closeGuideModal()" class="px-6 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition">เข้าใจแล้ว</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal ฟอร์มแจ้งปัญหา -->
     <div id="feedbackModal" class="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg overflow-hidden p-6 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-4">
@@ -325,14 +276,6 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">รายละเอียด *</label>
                     <textarea name="message" required rows="3" placeholder="อธิบายสิ่งที่ต้องการเสนอแนะ หรือปัญหาที่พบเจอ..." class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">แนบรูปภาพ / แคปหน้าจอ (ถ้ามี)</label>
-                    <input type="file" name="attachment" accept="image/*" class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 dark:hover:file:bg-indigo-900/50 transition cursor-pointer border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"/>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">อีเมลติดต่อกลับ (ไม่บังคับ)</label>
-                    <input type="email" name="email" placeholder="example@email.com" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                </div>
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                     <button type="button" onclick="closeFeedbackModal()" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">ยกเลิก</button>
                     <button type="submit" id="submitFeedbackBtn" class="px-5 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition">ส่งข้อความ</button>
@@ -341,7 +284,6 @@
             <div id="feedbackSuccessMsg" class="hidden text-center py-6 space-y-2">
                 <div class="text-emerald-500 text-4xl">✅</div>
                 <h4 class="font-bold text-slate-800 dark:text-white text-lg">ส่งข้อความสำเร็จแล้ว!</h4>
-                <p class="text-sm text-slate-500 dark:text-slate-400">ขอบคุณสำหรับคำติชม ข้อมูลได้ส่งตรงถึงผู้พัฒนาเรียบร้อยครับ</p>
             </div>
         </div>
     </div>
@@ -379,9 +321,7 @@
                         initUIAfterLoad();
                     }
                 }
-            } catch (e) {
-                console.error("โหลดข้อมูลที่บันทึกไว้ไม่สำเร็จ", e);
-            }
+            } catch (e) {}
         }
 
         window.addEventListener('DOMContentLoaded', loadState);
@@ -487,34 +427,16 @@
             if (tableContainer) { tableContainer.scrollTop = 0; }
         }
 
-        function switchFile() {
-            renderTable();
-            resetScroll(); 
-        }
-
+        function switchFile() { renderTable(); resetScroll(); }
         function switchMode(mode) {
-            currentMode = mode;
-            activeThread = null; 
-            updateModeUI();
-            renderTable();
-            resetScroll(); 
-            saveState(); 
-        }
-
-        function handleToggleColumn() {
-            setTimeout(() => {
-                renderTable();
-            }, 50); 
+            currentMode = mode; activeThread = null; updateModeUI(); renderTable(); resetScroll(); saveState(); 
         }
 
         function getSelectedColumns() {
             return {
-                id: document.getElementById('col_id').checked,
-                name: document.getElementById('col_name').checked,
-                surname: document.getElementById('col_surname').checked,
-                status: document.getElementById('col_status').checked,
-                type: document.getElementById('col_type').checked,
-                likes: document.getElementById('col_likes').checked,
+                id: document.getElementById('col_id').checked, name: document.getElementById('col_name').checked,
+                surname: document.getElementById('col_surname').checked, status: document.getElementById('col_status').checked,
+                type: document.getElementById('col_type').checked, likes: document.getElementById('col_likes').checked,
                 original: document.getElementById('col_original').checked
             };
         }
@@ -522,11 +444,9 @@
         function handleFiles(event) {
             const files = event.target.files;
             if (!files.length) return;
-
             let fileNamesStr = `เลือกแล้ว ${files.length} ไฟล์: `;
             let loadedCount = 0;
-            allFilesData = {};
-            activeThread = null; 
+            allFilesData = {}; activeThread = null; 
 
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
@@ -535,28 +455,20 @@
                     loadedCount++;
                     fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
                     document.getElementById('fileNames').innerText = fileNamesStr;
-
-                    if (loadedCount === files.length) {
-                        initUIAfterLoad();
-                        saveState(); 
-                    }
+                    if (loadedCount === files.length) { initUIAfterLoad(); saveState(); }
                 };
                 reader.readAsText(file, 'UTF-8');
             });
         }
 
         function parseCSVRobust(text) {
-            let rows = [];
-            let row = [''];
-            let inQuotes = false;
+            let rows = []; let row = ['']; let inQuotes = false;
             for (let i = 0; i < text.length; i++) {
-                let c = text[i];
-                let nextC = text[i + 1];
+                let c = text[i]; let nextC = text[i + 1];
                 if (c === '"') {
                     if (inQuotes && nextC === '"') { row[row.length - 1] += '"'; i++; } 
                     else { inQuotes = !inQuotes; }
-                } else if (c === ',' && !inQuotes) {
-                    row.push('');
+                } else if (c === ',' && !inQuotes) { row.push('');
                 } else if ((c === '\r' || c === '\n') && !inQuotes) {
                     if (c === '\r' && nextC === '\n') { i++; }
                     rows.push(row); row = [''];
@@ -569,9 +481,7 @@
 
         function cleanHonorifics(token) {
             const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
-            for (let p of prefixes) {
-                if (token.startsWith(p)) return token.substring(p.length).trim();
-            }
+            for (let p of prefixes) { if (token.startsWith(p)) return token.substring(p.length).trim(); }
             return token.trim();
         }
 
@@ -595,7 +505,12 @@
                 let tokens = cleaned.split(/\s+/);
                 let nameTokens = [];
                 for (let t of tokens) {
-                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/^[0-9]{7,9}$/)) break;
+                    /* ========================================================
+                       พระเอกอยู่ตรงนี้ครับ! เราเปลี่ยนจาก t.match(/^[0-9]{7,9}$/)
+                       มาเป็น t.match(/[0-9]{7,9}/) เพื่อสั่งให้ลอจิกหยุดอ่าน 
+                       ทันทีที่เจอข้อความอะไรก็ตามที่มีรหัสนักศึกษาซ่อนอยู่ 
+                    ======================================================== */
+                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/[0-9]{7,9}/)) break;
                     if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
                     nameTokens.push(t);
                 }
@@ -608,20 +523,13 @@
 
         function detectPointType(subLine, fullText) {
             const categories = [
-                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] },
-                { name: "รักชาติ", keywords: ["รักชาติ"] },
-                { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
-                { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] }, { name: "รักชาติ", keywords: ["รักชาติ"] },
+                { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] }, { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
                 { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] }, 
-                { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
-                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] }
+                { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] }, { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] }
             ];
-            for (let cat of categories) {
-                for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; }
-            }
-            for (let cat of categories) {
-                for (let kw of cat.keywords) { if (fullText.includes(kw)) return cat.name; }
-            }
+            for (let cat of categories) { for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; } }
+            for (let cat of categories) { for (let kw of cat.keywords) { if (fullText.includes(kw)) return cat.name; } }
             const teamMatch = (subLine + " " + fullText).match(/ทีม\s*\d/);
             if (teamMatch) return teamMatch[0].replace(/\s+/g, '');
             return "ไม่ได้ระบุ";
@@ -641,37 +549,30 @@
 
             if (commentIdx === -1) return;
 
-            let parentMap = {};
-            let allIds = [];
+            let parentMap = {}; let allIds = [];
             if (commentIdIdx !== -1) {
                 for (let i = 1; i < rows.length; i++) {
                     let cols = rows[i];
                     if (!cols || cols.length <= commentIdx) continue;
                     let id = cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                     let parentId = replyToIdx !== -1 && cols[replyToIdx] ? cols[replyToIdx].trim() : "";
-                    if (id) {
-                        allIds.push(id);
-                        if (parentId && parentId !== "undefined") parentMap[id] = parentId;
-                    }
+                    if (id) { allIds.push(id); if (parentId && parentId !== "undefined") parentMap[id] = parentId; }
                 }
             }
 
-            let threadCounter = 1;
-            let threadMap = {};
+            let threadCounter = 1; let threadMap = {};
             function getRoot(id) {
                 let curr = id; let depth = 0;
                 while (parentMap[curr] && depth < 10) { curr = parentMap[curr]; depth++; }
                 return curr;
             }
             for (let id of allIds) {
-                let rootId = getRoot(id);
-                let uniqueRootId = fileName + "_" + rootId;
+                let rootId = getRoot(id); let uniqueRootId = fileName + "_" + rootId;
                 if (!threadMap[uniqueRootId]) threadMap[uniqueRootId] = threadCounter++;
                 threadMap[fileName + "_" + id] = threadMap[uniqueRootId];
             }
 
-            let fileRecords = [];
-            const seenIdsInThisFile = new Set();
+            let fileRecords = []; const seenIdsInThisFile = new Set();
 
             for (let i = 1; i < rows.length; i++) {
                 let cols = rows[i];
@@ -703,8 +604,6 @@
                         let firstName = nameObj.firstName;
                         let lastName = nameObj.lastName;
 
-                        // แก้ไขจุดนี้: เพิ่มเงื่อนไข || !lastName เพื่อบังคับให้ระบบไปค้นใน cleanFullText 
-                        // ซึ่งเป็นโค้ดเดิมของคุณที่รัดกุมมากและไม่กระทบชื่ออื่น 100% ครับ
                         if (!firstName || !lastName) {
                             const fullObj = extractStudentName(cleanFullText, studentId);
                             if (fullObj.firstName) firstName = fullObj.firstName;
@@ -715,19 +614,11 @@
                         let pointType = detectPointType(cleanSubLine, cleanFullTextForCat);
 
                         fileRecords.push({
-                            "recordIndex": fileRecords.length, 
-                            "fileName": fileName,
-                            "รหัสนักศึกษา": studentId,
-                            "isIdValid": isIdValid,
-                            "ชื่อ": firstName,
-                            "นามสกุล": lastName,
-                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก",
-                            "สายสนทนา": threadNo,
-                            "isReply": isReply,
-                            "ประเภทงาน": pointType,
-                            "ยอดไลก์": likeCount,
-                            "คอมเมนต์เต็มต้นฉบับ": fullText,
-                            "isFaded": false
+                            "recordIndex": fileRecords.length, "fileName": fileName, "รหัสนักศึกษา": studentId,
+                            "isIdValid": isIdValid, "ชื่อ": firstName, "นามสกุล": lastName,
+                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", "สายสนทนา": threadNo,
+                            "isReply": isReply, "ประเภทงาน": pointType, "ยอดไลก์": likeCount,
+                            "คอมเมนต์เต็มต้นฉบับ": fullText, "isFaded": false
                         });
                     }
                 });
@@ -739,11 +630,8 @@
             let val = newValue.trim();
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
                 allFilesData[fileName][recordIndex][field] = val;
-                if (field === 'รหัสนักศึกษา') {
-                    allFilesData[fileName][recordIndex].isIdValid = (val.length === 8);
-                }
-                updateSummary(); 
-                saveState(); 
+                if (field === 'รหัสนักศึกษา') { allFilesData[fileName][recordIndex].isIdValid = (val.length === 8); }
+                updateSummary(); saveState(); 
             }
         }
 
@@ -751,30 +639,24 @@
             event.stopPropagation();
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
                 allFilesData[fileName][recordIndex].isFaded = !allFilesData[fileName][recordIndex].isFaded;
-                renderTable();
-                saveState();
+                renderTable(); saveState();
             }
         }
 
         function initUIAfterLoad() {
-            const dropdown = document.getElementById('fileSelectDropdown');
-            dropdown.innerHTML = "";
+            const dropdown = document.getElementById('fileSelectDropdown'); dropdown.innerHTML = "";
             Object.keys(allFilesData).forEach(fileName => {
-                let opt = document.createElement('option');
-                opt.value = fileName; opt.innerText = fileName;
+                let opt = document.createElement('option'); opt.value = fileName; opt.innerText = fileName;
                 dropdown.appendChild(opt);
             });
             document.getElementById('initialOnboarding').classList.add('hidden');
             document.getElementById('mainWorkspace').classList.remove('hidden');
-            updateModeUI();
-            renderTable();
+            updateModeUI(); renderTable();
         }
 
         function updateModeUI() {
-            const btnSep = document.getElementById('btnSeparate');
-            const btnMer = document.getElementById('btnMerged');
+            const btnSep = document.getElementById('btnSeparate'); const btnMer = document.getElementById('btnMerged');
             const fileSelector = document.getElementById('fileSelectorContainer');
-
             if (currentMode === 'separate') {
                 btnSep.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
                 btnMer.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
@@ -787,35 +669,22 @@
         }
 
         function handleToggleThreadClick(event, threadId, fileName, btnElement) {
-            let uniqueThreadId = fileName + "_" + threadId;
-            event.stopPropagation(); 
+            let uniqueThreadId = fileName + "_" + threadId; event.stopPropagation(); 
             let rowElement = btnElement.closest('tr');
-            if (activeThread === uniqueThreadId) { activeThread = null; } 
-            else { activeThread = uniqueThreadId; }
+            if (activeThread === uniqueThreadId) { activeThread = null; } else { activeThread = uniqueThreadId; }
             applyThreadFilter();
-            setTimeout(() => {
-                if(rowElement) rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 10);
+            setTimeout(() => { if(rowElement) rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 10);
         }
 
         function applyThreadFilter() {
             const rows = document.querySelectorAll('.data-row');
             rows.forEach(row => {
-                let rowThread = row.getAttribute('data-thread');
-                let rowFileName = row.getAttribute('data-filename');
+                let rowThread = row.getAttribute('data-thread'); let rowFileName = row.getAttribute('data-filename');
                 let uniqueRowThread = rowFileName + "_" + rowThread;
-                let activeUniqueThread = activeThread; 
-
-                if (activeThread === null) {
-                    row.classList.remove('thread-hidden', 'thread-highlight');
-                } else {
-                    if (uniqueRowThread === activeUniqueThread) {
-                        row.classList.remove('thread-hidden');
-                        row.classList.add('thread-highlight');
-                    } else {
-                        row.classList.add('thread-hidden');
-                        row.classList.remove('thread-highlight');
-                    }
+                if (activeThread === null) { row.classList.remove('thread-hidden', 'thread-highlight'); } 
+                else {
+                    if (uniqueRowThread === activeThread) { row.classList.remove('thread-hidden'); row.classList.add('thread-highlight'); } 
+                    else { row.classList.add('thread-hidden'); row.classList.remove('thread-highlight'); }
                 }
             });
         }
@@ -825,24 +694,16 @@
         function updateSummary() {
             let total = currentlyDisplayedData.length;
             let valid = currentlyDisplayedData.filter(d => d.isIdValid).length;
-
-            document.getElementById('sumTotal').innerText = total;
-            document.getElementById('sumValid').innerText = valid;
+            document.getElementById('sumTotal').innerText = total; document.getElementById('sumValid').innerText = valid;
 
             let counts = {};
-            currentlyDisplayedData.forEach(d => {
-                let t = d["ประเภทงาน"];
-                counts[t] = (counts[t] || 0) + 1;
-            });
+            currentlyDisplayedData.forEach(d => { let t = d["ประเภทงาน"]; counts[t] = (counts[t] || 0) + 1; });
 
             let catHtml = '';
             const colorMap = { 
-                "ภาวะผู้นำ": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-                "ใจอาสา": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400", 
-                "วินัย": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", 
-                "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400", 
-                "แก้ความประพฤติ": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400", 
-                "รักชาติ": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400", 
+                "ภาวะผู้นำ": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400", "ใจอาสา": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400", 
+                "วินัย": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400", 
+                "แก้ความประพฤติ": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400", "รักชาติ": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400", 
                 "ไม่ได้ระบุ": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" 
             };
 
@@ -851,7 +712,6 @@
                 catHtml += `<span class="px-2.5 py-1 rounded-lg ${badgeClass}">${cat}: ${counts[cat]} คน</span>`;
             });
             if(Object.keys(counts).length === 0) catHtml = '<span class="text-slate-400 dark:text-slate-500 font-normal">ไม่มีข้อมูล</span>';
-
             document.getElementById('sumCategories').innerHTML = catHtml;
         }
 
@@ -861,8 +721,7 @@
 
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = "";
-            activeThread = null; 
+            tbody.innerHTML = ""; activeThread = null; 
 
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -870,9 +729,7 @@
             let headerHtml = `<tr>`;
             let isFirstCol = true;
             function getThClass(baseClass) {
-                let cls = baseClass;
-                if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; }
-                return cls;
+                let cls = baseClass; if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; } return cls;
             }
 
             if (currentMode === 'merged') headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
@@ -891,22 +748,17 @@
                 const selectedFile = document.getElementById('fileSelectDropdown').value;
                 displayData = allFilesData[selectedFile] || [];
             } else {
-                Object.values(allFilesData).forEach(fileRecords => {
-                    displayData = displayData.concat(fileRecords);
-                });
+                Object.values(allFilesData).forEach(fileRecords => { displayData = displayData.concat(fileRecords); });
             }
 
             if (searchQuery.trim() !== "") {
                 displayData = displayData.filter(item => 
-                    item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) ||
-                    item["ชื่อ"].toLowerCase().includes(searchQuery) ||
-                    item["นามสกุล"].toLowerCase().includes(searchQuery) ||
-                    item["ประเภทงาน"].toLowerCase().includes(searchQuery)
+                    item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) || item["ชื่อ"].toLowerCase().includes(searchQuery) ||
+                    item["นามสกุล"].toLowerCase().includes(searchQuery) || item["ประเภทงาน"].toLowerCase().includes(searchQuery)
                 );
             }
 
-            currentlyDisplayedData = displayData;
-            updateSummary(); 
+            currentlyDisplayedData = displayData; updateSummary(); 
 
             if (displayData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
@@ -917,9 +769,7 @@
                     const fadeClass = item.isFaded ? " row-faded" : "";
 
                     tr.className = `data-row ${fadeClass} ${rowBgColor} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
-
-                    tr.setAttribute('data-thread', item["สายสนทนา"]);
-                    tr.setAttribute('data-filename', item["fileName"]); 
+                    tr.setAttribute('data-thread', item["สายสนทนา"]); tr.setAttribute('data-filename', item["fileName"]); 
                     if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
                     let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
@@ -941,7 +791,6 @@
                     </button>`;
 
                     let rowCells = [];
-
                     if (currentMode === 'merged') {
                         let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
                         rowCells.push({ content: `<div class="row-content"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></div>`, type: 'normal' });
@@ -956,18 +805,10 @@
                         rowCells.push({ content: idContent, type: 'mono' });
                     }
 
-                    if (cols.name) {
-                        rowCells.push({ content: `<div class="row-content">${nameSpan}</div>`, type: 'normal' });
-                    }
-
-                    if (cols.surname) {
-                        rowCells.push({ content: `<div class="row-content">${surnameSpan}</div>`, type: 'normal' });
-                    }
-
-                    if (cols.status) {
-                        rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center' });
-                    }
-
+                    if (cols.name) rowCells.push({ content: `<div class="row-content">${nameSpan}</div>`, type: 'normal' });
+                    if (cols.surname) rowCells.push({ content: `<div class="row-content">${surnameSpan}</div>`, type: 'normal' });
+                    if (cols.status) rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center' });
+                    
                     if (cols.type) {
                         let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
                             `<div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div>` : 
@@ -975,13 +816,8 @@
                         rowCells.push({ content: pointTypeHtml, type: 'normal' });
                     }
 
-                    if (cols.likes) {
-                        rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center' });
-                    }
-
-                    if (cols.original) {
-                        rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'comment' });
-                    }
+                    if (cols.likes) rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center' });
+                    if (cols.original) rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'comment' });
 
                     let trHtml = "";
                     rowCells.forEach((cell, cIndex) => {
@@ -1000,15 +836,11 @@
                     tbody.appendChild(tr);
                 });
             }
-
-            if (tableContainer) {
-                tableContainer.scrollTop = scrollPos;
-            }
+            if (tableContainer) tableContainer.scrollTop = scrollPos;
         }
 
         function downloadExcel() {
-            const cols = getSelectedColumns();
-            const workbook = XLSX.utils.book_new();
+            const cols = getSelectedColumns(); const workbook = XLSX.utils.book_new();
 
             function prepareRow(item, includeFileName = false) {
                 let obj = {};
@@ -1036,9 +868,7 @@
                 XLSX.writeFile(workbook, "Separate_Students_Report.xlsx");
             } else {
                 let mergedList = [];
-                Object.values(allFilesData).forEach(fileRecords => { 
-                    mergedList = mergedList.concat(fileRecords.filter(item => !item.isFaded)); 
-                });
+                Object.values(allFilesData).forEach(fileRecords => { mergedList = mergedList.concat(fileRecords.filter(item => !item.isFaded)); });
                 const cleanRecords = mergedList.map(item => prepareRow(item, true));
                 if(cleanRecords.length === 0) return;
                 const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
