@@ -10,6 +10,11 @@
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
+        /* สไตล์ไดนามิกสำหรับซ่อนคอลัมน์แบบลื่นไหล 100% (ไม่หน่วง ไม่กระตุก) */
+    </style>
+    <style id="dynamic-styles"></style>
+    <style>
+        /* คืนค่าสัดส่วนตารางดั้งเดิม ให้เบราว์เซอร์จัดสมดุลเอง */
         table { table-layout: auto; width: 100%; }
 
         .thread-hidden { display: none !important; }
@@ -17,7 +22,7 @@
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
         
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 30px; min-height: 24px;
         }
         .editable-cell:hover, .editable-cell:focus {
             background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
@@ -26,7 +31,8 @@
             background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
         }
 
-        .editable-cell:empty::before {
+        /* แจ้งเตือนสีแดงเมื่อช่องว่างเปล่า */
+        .empty-cell::before {
             content: "⚠️ (ว่าง)";
             color: #ef4444;
             font-size: 0.75rem;
@@ -56,6 +62,7 @@
 <body class="bg-slate-100 dark:bg-slate-900 min-h-screen py-4 md:py-8 px-2 md:px-4 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200">
     <div class="max-w-7xl mx-auto space-y-4 md:space-y-6">
         
+        <!-- Header & Upload Section -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden p-6 md:p-8 relative transition-colors duration-200">
             
             <button onclick="toggleTheme()" class="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500" title="สลับโหมดมืด/สว่าง">
@@ -74,6 +81,7 @@
                 </div>
             </div>
 
+            <!-- Upload Area -->
             <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
                 <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
                 <div class="flex flex-col items-center justify-center">
@@ -85,6 +93,7 @@
             </div>
         </div>
 
+        <!-- โซนสอนการใช้งาน (Onboarding) -->
         <div id="initialOnboarding" class="space-y-6 animate-in fade-in duration-500">
             <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                 <div class="flex items-start gap-4">
@@ -108,7 +117,7 @@
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">✨</div>
                     <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ช่องเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
                 </div>
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">📥</div>
@@ -118,8 +127,10 @@
             </div>
         </div>
 
+        <!-- Main Workspace -->
         <div id="mainWorkspace" class="hidden space-y-4 md:space-y-6">
             
+            <!-- Summary Dashboard -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center transition-colors">
                     <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">นักศึกษาทั้งหมด</span>
@@ -135,6 +146,7 @@
                 </div>
             </div>
 
+            <!-- Toolbar -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex flex-col lg:flex-row justify-between items-center gap-4 transition-colors">
                 <div class="relative w-full lg:w-1/3">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -154,6 +166,7 @@
                 </div>
             </div>
 
+            <!-- Settings Panel -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
                 <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center justify-between">
                     
@@ -170,14 +183,15 @@
 
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 xl:mt-0">
                         <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
+                        <!-- ใช้ updateColumnVisibility (CSS) ทำให้ปุ่มไม่หน่วง และไม่เด้งขึ้นบน -->
                         <div class="flex flex-wrap gap-2">
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">นามสกุล</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">สถานะ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ประเภทงาน</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไลก์</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ข้อความต้นฉบับ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="updateColumnVisibility()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="updateColumnVisibility()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="updateColumnVisibility()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">นามสกุล</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="updateColumnVisibility()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">สถานะ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="updateColumnVisibility()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ประเภทงาน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="updateColumnVisibility()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไลก์</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="updateColumnVisibility()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ข้อความต้นฉบับ</div></label>
                         </div>
                     </div>
                 </div>
@@ -188,7 +202,7 @@
                 </div>
             </div>
 
-            <!-- Table Section -->
+            <!-- Table Section (สัดส่วนกลับไปใช้ออริจินัล) -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 <div class="table-container overflow-x-auto max-h-[600px]">
                     <table class="min-w-full text-sm text-left">
@@ -201,13 +215,13 @@
         </div>
     </div>
 
-    <!-- 💬 ปุ่มลอยมุมขวาล่าง -->
+    <!-- 💬 ปุ่มลอยมุมขวาล่างสำหรับแจ้งปัญหา/ติชม -->
     <button onclick="openFeedbackModal()" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 md:p-3.5 rounded-full shadow-2xl flex items-center transition-all hover:scale-105 active:scale-95 group" title="แจ้งปัญหา / ติชม">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
         <span class="max-w-0 opacity-0 overflow-hidden group-hover:max-w-[150px] group-hover:opacity-100 group-hover:ml-2 transition-all duration-300 ease-in-out whitespace-nowrap text-sm hidden md:block">ติชม / แจ้งปัญหา</span>
     </button>
 
-    <!-- Modal คู่มือการใช้งาน -->
+    <!-- Modal คู่มือการใช้งาน (Guide) -->
     <div id="guideModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -217,7 +231,6 @@
                 </h3>
                 <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm">✕</button>
             </div>
-            
             <div class="p-6 overflow-y-auto space-y-8 text-slate-700 dark:text-slate-300">
                 <div class="space-y-3">
                     <h4 class="text-lg font-bold flex items-center gap-2">
@@ -229,7 +242,6 @@
                         <img src="asset/Untitled.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/Untitled.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
-
                 <div class="space-y-3">
                     <h4 class="text-lg font-bold flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 2</span>
@@ -244,7 +256,6 @@
                         <img src="asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/qs7cjYqM.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
-
                 <div class="space-y-3">
                     <h4 class="text-lg font-bold flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 3</span>
@@ -260,7 +271,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-right">
                 <button onclick="closeGuideModal()" class="px-6 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition">เข้าใจแล้ว</button>
             </div>
@@ -274,7 +284,6 @@
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">💡 แจ้งปัญหาหรือเสนอแนะ</h3>
                 <button onclick="closeFeedbackModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-1">✕</button>
             </div>
-            
             <form action="https://formspree.io/f/mzebogyz" method="POST" enctype="multipart/form-data" onsubmit="handleFeedbackSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">ประเภท *</label>
@@ -348,6 +357,9 @@
                         if (savedMode) currentMode = savedMode;
                         const savedNames = sessionStorage.getItem('fileNamesStr');
                         if (savedNames) document.getElementById('fileNames').innerText = savedNames;
+                        
+                        // สร้างสไตล์ล่องหนรอไว้เลยเพื่อความสมูท
+                        updateColumnVisibility();
                         initUIAfterLoad();
                     }
                 }
@@ -454,6 +466,7 @@
             sessionStorage.removeItem('fileNamesStr');
         }
 
+        // รีเซ็ตตำแหน่งหน้าจอให้กลับไปบนสุด
         function resetScroll() {
             const tableContainer = document.querySelector('.table-container');
             if (tableContainer) { tableContainer.scrollTop = 0; }
@@ -461,7 +474,7 @@
 
         function switchFile() {
             renderTable();
-            resetScroll(); 
+            resetScroll(); // เด้งขึ้นบนเฉพาะตอนเปลี่ยนไฟล์
         }
 
         function switchMode(mode) {
@@ -469,15 +482,24 @@
             activeThread = null; 
             updateModeUI();
             renderTable();
-            resetScroll(); 
+            resetScroll(); // เด้งขึ้นบนเฉพาะตอนเปลี่ยนโหมด
             saveState(); 
         }
 
-        // ถ่วงเวลาปุ่มเล็กน้อย ให้ UI ทำงานลื่นไหล
-        function handleToggleColumn() {
-            setTimeout(() => {
-                renderTable();
-            }, 50);
+        // --- ระบบซ่อนคอลัมน์ด้วย CSS (ลื่นไหล 100% หน้าจอไม่เด้ง) ---
+        function updateColumnVisibility() {
+            const cols = getSelectedColumns();
+            let styleStr = '';
+            if (!cols.id) styleStr += '.col-id { display: none !important; }\n';
+            if (!cols.name) styleStr += '.col-name { display: none !important; }\n';
+            if (!cols.surname) styleStr += '.col-surname { display: none !important; }\n';
+            if (!cols.status) styleStr += '.col-status { display: none !important; }\n';
+            if (!cols.type) styleStr += '.col-type { display: none !important; }\n';
+            if (!cols.likes) styleStr += '.col-likes { display: none !important; }\n';
+            if (!cols.original) styleStr += '.col-original { display: none !important; }\n';
+            
+            document.getElementById('dynamic-styles').innerHTML = styleStr;
+            // ไม่ใช้ renderTable() หน้าจอเลยไม่กระตุกและไม่เด้ง
         }
 
         function getSelectedColumns() {
@@ -510,6 +532,7 @@
                     document.getElementById('fileNames').innerText = fileNamesStr;
 
                     if (loadedCount === files.length) {
+                        updateColumnVisibility(); // เตรียม CSS ล่องหนไว้ก่อน
                         initUIAfterLoad();
                         saveState(); 
                     }
@@ -540,11 +563,11 @@
             return rows;
         }
 
-        // ลอจิกออริจินัลสุดๆ โครงสร้างเดิมที่ทำงานได้เป๊ะ ไม่พังข้ามบรรทัด
+        // --- ลอจิกการจับชื่อ-นามสกุลแบบออริจินัลสุดๆ ---
         function cleanHonorifics(token) {
-            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส'];
+            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
             for (let p of prefixes) {
-                if (token.startsWith(p)) token = token.substring(p.length);
+                if (token.startsWith(p)) return token.substring(p.length).trim();
             }
             return token.trim();
         }
@@ -555,47 +578,68 @@
                 'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
                 'ชั่วโมงทุน', 'วินัย', 'รู้วินัย', 'แก้ความประพฤติ', 'แก้คะแนน', 'แก้คะแนนรู้วินัย', 'แก้รู้วินัย', 'คะแนนความประพฤติ', 'รักชาติ', 'กตัญญู', 'นาย', 
                 'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
-                'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ', 'ประพฤติ'
+                'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ', 'ประพฤติ', 'ด้าน'
             ]);
 
             const parts = fullText.split(studentId);
             for (let sideText of [parts[1] || "", parts[0] || ""]) {
                 
-                // เครื่องดูดคำขยะ: กำจัดคำที่มักจะพิมพ์ติดกันก่อนเพื่อไม่ให้หลุดมาในชื่อ
-                let cleaned = sideText.replace(/\(.*?\)/g, ' ');
-                cleaned = cleaned.replace(/(คะแนน|ใจอาสา|จิตอาสา|ความดี|ชั่วโมงทุน|แก้ความประพฤติ|แก้คะแนน|รู้วินัย|วินัย|ภาวะผู้นำ|ผู้นำ|ประพฤติ)/g, ' $1 ');
-                cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
+                // --- เครื่องดูดคำขยะก่อนทำการแยกคำ ---
+                let cleaned = sideText.replace(/[()\[\]{}]/g, ' '); 
+                // เพิ่มช่องว่างรอบๆ คำที่มักจะถูกพิมพ์ติดกันเพื่อให้กลายเป็น Token เดี่ยวๆ และโดนดักทิ้งได้
+                cleaned = cleaned.replace(/(คะแนน|ใจอาสา|จิตอาสา|ความดี|ชั่วโมงทุน|แก้ความประพฤติ|แก้คะแนน|รู้วินัย|วินัย|ภาวะผู้นำ|ผู้นำ|ประพฤติ|กตัญญู|รักชาติ|ค่ะ|ครับ|คะ)/g, ' $1 ');
+                cleaned = cleaned.replace(/[-–,._/!@#$%^&*|+:;"']/g, ' ');
+                cleaned = cleaned.replace(/[\r\n]+/g, ' '); // ป้องกันการเคาะบรรทัดคั่นกลางชื่อ
                 
                 let tokens = cleaned.split(/\s+/);
                 let nameTokens = [];
+
                 for (let t of tokens) {
-                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/^[0-9]{7,9}$/)) break;
+                    // กฎออริจินัล: หยุดหาทันทีเมื่อเจอคำต่อไปนี้ (ป้องกันการลากไปกินข้อมูลคนอื่น)
+                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.startsWith('แก้') || t.match(/^[0-9]{7,9}$/)) break;
+                    
                     if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
                     nameTokens.push(t);
                 }
                 
-                // แก้บั๊กนายาว: ตัดเฉพาะ Token แรก (ชื่อ) ไม่ให้กระทบ Token หลัง (นามสกุล)
-                if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
-                else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
+                // แก้บั๊กนายาว: หักคำนำหน้าทิ้ง "เฉพาะคำแรกสุด" เท่านั้น นามสกุลจะไม่กระทบเลย
+                if (nameTokens.length > 0) {
+                    const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
+                    let firstT = nameTokens[0];
+                    for(let p of prefixes) {
+                        if (firstT === p) { 
+                            nameTokens.shift(); 
+                            break; 
+                        }
+                        if (firstT.startsWith(p)) { 
+                            nameTokens[0] = firstT.substring(p.length).trim(); 
+                            if (nameTokens[0] === "") nameTokens.shift();
+                            break; 
+                        }
+                    }
+                }
+
+                if (nameTokens.length >= 2) return { firstName: nameTokens[0], lastName: nameTokens.slice(1).join(" ") };
+                else if (nameTokens.length === 1) return { firstName: nameTokens[0], lastName: "" };
             }
             return { firstName: "", lastName: "" };
         }
 
         function detectPointType(subLine, fullText) {
             const categories = [
-                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] },
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ", "ด้านภาวะผู้นำ"] }, 
                 { name: "รักชาติ", keywords: ["รักชาติ"] },
                 { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
                 { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
-                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] },
+                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] }, 
                 { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
-                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } 
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } // จิตอาสาก็ลงที่นี่
             ];
             for (let cat of categories) {
-                for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; }
+                if (cat.keywords.some(kw => subLine.includes(kw))) return cat.name;
             }
             for (let cat of categories) {
-                for (let kw of cat.keywords) { if (fullText.includes(kw)) return cat.name; }
+                if (cat.keywords.some(kw => fullText.includes(kw))) return cat.name;
             }
             const teamMatch = (subLine + " " + fullText).match(/ทีม\s*\d/);
             if (teamMatch) return teamMatch[0].replace(/\s+/g, '');
@@ -662,6 +706,7 @@
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
 
+                // ระบบทำงานแบบออริจินัล (แยกทีละบรรทัด ไม่เอามามัดรวมกันให้รวน)
                 const subLines = fullText.split('\n');
                 subLines.forEach(subLine => {
                     subLine = subLine.trim();
@@ -674,22 +719,19 @@
                         seenIdsInThisFile.add(studentId);
 
                         const isIdValid = (studentId.length === 8);
-                        // ถ้าพิมพ์ติดกัน ก็ให้อ่านจาก subLine ก่อน
                         const nameObj = extractStudentName(cleanSubLine, studentId);
                         let firstName = nameObj.firstName;
                         let lastName = nameObj.lastName;
 
-                        // ถ้าเคาะบรรทัดชื่อจะหาย ให้ลองหาจาก fullText อีกรอบ โดยเอา \n ออก
                         if (!firstName) {
-                            let flatFullText = cleanFullText.replace(/[\r\n]+/g, ' ');
-                            const fullObj = extractStudentName(flatFullText, studentId);
+                            const fullObj = extractStudentName(cleanFullText, studentId);
                             firstName = fullObj.firstName;
                             lastName = fullObj.lastName;
                         }
                         
-                        // เอา fullText มาต่อกันเป็นแถวเดียวเพื่อดักประเภทงานที่พิมพ์ข้ามบรรทัด
-                        let flatFullTextForType = cleanFullText.replace(/[\r\n]+/g, ' ');
-                        let pointType = detectPointType(cleanSubLine, flatFullTextForType);
+                        // เอาข้อความทั้งหมดมาต่อกันเฉพาะตอนตรวจหมวดหมู่ เผื่อเขาเคาะบรรทัดทิ้ง
+                        let cleanFullTextForCat = cleanFullText.replace(/[\r\n]+/g, ' '); 
+                        let pointType = detectPointType(cleanSubLine, cleanFullTextForCat);
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, 
@@ -698,7 +740,7 @@
                             "isIdValid": isIdValid,
                             "ชื่อ": firstName,
                             "นามสกุล": lastName,
-                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", 
+                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก",
                             "สายสนทนา": threadNo,
                             "isReply": isReply,
                             "ประเภทงาน": pointType,
@@ -823,27 +865,24 @@
         }
 
         function renderTable() {
-            // ดึงค่าการเลื่อนหน้าจอปัจจุบันเก็บไว้
-            const tableContainer = document.querySelector('.table-container');
-            const scrollPos = tableContainer ? tableContainer.scrollTop : 0;
-
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = "";
             activeThread = null; 
             
-            const cols = getSelectedColumns();
+            // อ่านค่าจาก checkbox โดยตรง ไม่ต้องดึงจาก parameter
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
+            // คืนค่าตารางแบบออริจินัลสุดๆ ปล่อยให้เบราว์เซอร์จัดสัดส่วนเอง ไม่ใช้ w-full
             let headerHtml = `<tr>`;
-            if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ไฟล์ต้นทาง</th>`;
-            if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">รหัสนักศึกษา</th>`;
-            if (cols.name) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ชื่อ</th>`;
-            if (cols.surname) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">นามสกุล</th>`;
-            if (cols.status) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700">สถานะ</th>`;
-            if (cols.type) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ประเภทงาน</th>`;
-            if (cols.likes) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ไลก์</th>`;
-            if (cols.original) headerHtml += `<th class="px-4 py-4 border-b border-slate-200 dark:border-slate-700">คอมเมนต์ต้นฉบับ</th>`;
+            headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 col-file ${currentMode === 'merged' ? '' : 'hidden'}">ไฟล์ต้นทาง</th>`;
+            headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 col-id">รหัสนักศึกษา</th>`;
+            headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 col-name">ชื่อ</th>`;
+            headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 col-surname">นามสกุล</th>`;
+            headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 col-status">สถานะ</th>`;
+            headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 col-type">ประเภทงาน</th>`;
+            headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 col-likes">ไลก์</th>`;
+            headerHtml += `<th class="px-4 py-4 border-b border-slate-200 dark:border-slate-700 col-original">คอมเมนต์ต้นฉบับ</th>`;
             headerHtml += `</tr>`;
             thead.innerHTML = headerHtml;
 
@@ -880,22 +919,27 @@
                     
                     tr.setAttribute('data-thread', item["สายสนทนา"]);
                     tr.setAttribute('data-filename', item["fileName"]); 
-                    if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
                     let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                    let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap">`;
+                    let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap col-id">`;
                     if (item.isReply) idCellHtml += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
                     idCellHtml += idSpan;
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                     idCellHtml += `</td>`;
 
-                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${item["นามสกุล"]}</span>`;
-                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell w-full">${item["ประเภทงาน"]}</span>`;
+                    // ตรวจสอบและแสดงแจ้งเตือนถ้าว่างเปล่า
+                    let fName = item["ชื่อ"].trim();
+                    let lName = item["นามสกุล"].trim();
+                    let nameEmptyClass = fName === "" ? "empty-cell" : "";
+                    let surnameEmptyClass = lName === "" ? "empty-cell" : "";
+
+                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 ${nameEmptyClass}">${fName}</span>`;
+                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 ${surnameEmptyClass}">${lName}</span>`;
+                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
 
                     let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
-                        `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
-                        `<td class="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">${typeSpan}</td>`;
+                        `<td class="px-4 py-3 font-bold whitespace-nowrap col-type"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
+                        `<td class="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap col-type">${typeSpan}</td>`;
 
                     let isMain = item["สถานะ"] === "เม้นหลัก";
                     let statusBadge = isMain ? 
@@ -903,30 +947,22 @@
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
                     let rowHtml = "";
-                    if (currentMode === 'merged') {
-                        let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
-                        rowHtml += `<td class="px-4 py-3 whitespace-nowrap"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></td>`;
-                    }
+                    let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
+                    rowHtml += `<td class="px-4 py-3 whitespace-nowrap col-file ${currentMode === 'merged' ? '' : 'hidden'}"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></td>`;
+                    rowHtml += idCellHtml;
+                    rowHtml += `<td class="px-4 py-3 whitespace-nowrap col-name">${nameSpan}</td>`;
+                    rowHtml += `<td class="px-4 py-3 whitespace-nowrap col-surname">${surnameSpan}</td>`;
+                    rowHtml += `<td class="px-4 py-3 text-center whitespace-nowrap col-status">${statusBadge}</td>`;
+                    rowHtml += pointTypeHtml;
+                    rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap col-likes">${item["ยอดไลก์"]}</td>`;
                     
-                    if (cols.id) rowHtml += idCellHtml;
-                    if (cols.name) rowHtml += `<td class="px-4 py-3 whitespace-nowrap align-top">${nameSpan}</td>`;
-                    if (cols.surname) rowHtml += `<td class="px-4 py-3 whitespace-nowrap align-top">${surnameSpan}</td>`;
-                    if (cols.status) rowHtml += `<td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>`;
-                    if (cols.type) rowHtml += pointTypeHtml;
-                    if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
-                    
-                    if (cols.original) {
-                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed min-w-[250px]"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
-                    }
+                    // คอมเมนต์ต้นฉบับจะแสดง title Tooltip หากถูกซ่อนไว้
+                    tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
+                    rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed col-original"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
                     
                     tr.innerHTML = rowHtml;
                     tbody.appendChild(tr);
                 });
-            }
-
-            // คืนค่าการเลื่อนหน้าจอกลับไปที่เดิมเป๊ะๆ หลังจากเรนเดอร์ตารางเสร็จ
-            if (tableContainer) {
-                tableContainer.scrollTop = scrollPos;
             }
         }
 
