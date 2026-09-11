@@ -17,31 +17,37 @@
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลงมาก ยกเว้นปุ่มซ่อนจะไม่โดนผลกระทบ */
+        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลง แต่ปุ่มซ่อนไม่จางตาม */
         .row-faded { background-color: rgba(100, 116, 139, 0.05) !important; }
-        .row-faded .row-content { opacity: 0.15; filter: grayscale(100%); pointer-events: none; transition: all 0.2s; }
-        .row-faded:hover .row-content { opacity: 0.6; pointer-events: auto; filter: grayscale(0%); }
+        .row-faded .row-content { opacity: 0.15; filter: grayscale(100%); transition: all 0.2s; }
+        .row-faded:hover .row-content { opacity: 0.6; filter: grayscale(0%); }
         .dark .row-faded { background-color: rgba(30, 41, 59, 0.4) !important; }
 
         /* ปุ่มซ่อน/จางแถว: เกาะอยู่ที่ริมขอบซ้ายสุดของแถว ไม่ทับข้อความ และไม่จางตาม */
         .row-fade-action {
-            position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
-            opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 10;
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 10;
         }
         .data-row:hover .row-fade-action,
         .data-row.row-faded .row-fade-action {
-            opacity: 1; pointer-events: auto;
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        /* คืนค่าขนาดช่องกรอกข้อมูลเดิม พร้อมจำกัดความกว้างไม่ให้ดันสเกลตารางเพี้ยน */
+        /* คืนค่าขนาดช่องกรอกข้อมูลเดิม 100% ป้องกันดันสเกลตาราง */
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; 
-            transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
-            max-width: 160px; /* ฟิกขนาดสูงสุดไม่ให้ดันตาราง */
-            overflow-x: auto; /* เลื่อนซ้ายขวาได้ถ้าข้อความยาวเกิน */
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
+            max-width: 160px;
+            overflow-x: auto;
             white-space: nowrap;
         }
-        .editable-cell::-webkit-scrollbar { display: none; } /* ซ่อน scrollbar ให้ดูสะอาด */
+        .editable-cell::-webkit-scrollbar { display: none; }
         .editable-cell:hover, .editable-cell:focus {
             background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
         }
@@ -51,7 +57,11 @@
 
         /* ⚠️ แจ้งเตือนเมื่อช่องว่างเปล่า */
         .editable-cell:empty::before {
-            content: "⚠️ (ว่าง)"; color: #ef4444; font-size: 0.75rem; font-weight: 600; pointer-events: none;
+            content: "⚠️ (ว่าง)";
+            color: #ef4444;
+            font-size: 0.75rem;
+            font-weight: 600;
+            pointer-events: none;
         }
 
         .checkbox-container input:checked + div {
@@ -853,19 +863,6 @@
             document.getElementById('sumCategories').innerHTML = catHtml;
         }
 
-        function focusCell(tdElement) {
-            const editable = tdElement.querySelector('.editable-cell');
-            if (editable && document.activeElement !== editable) {
-                editable.focus();
-                const range = document.createRange();
-                const sel = window.getSelection();
-                range.selectNodeContents(editable);
-                range.collapse(false);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
-        }
-
         function renderTable() {
             const tableContainer = document.querySelector('.table-container');
             const scrollPos = tableContainer ? tableContainer.scrollTop : 0;
@@ -999,14 +996,11 @@
                         let alignClass = cell.type === 'center' ? 'text-center' : '';
                         let monoClass = cell.type === 'mono' ? 'font-mono' : '';
                         
-                        let hasEditable = cell.content.includes('editable-cell');
-                        let clickAttr = hasEditable ? 'onclick="focusCell(this)"' : '';
-                        let cursorClass = hasEditable ? 'cursor-text hover:bg-slate-50 dark:hover:bg-slate-700/40' : '';
-
+                        // คืนค่ากลับไปแบบออริจินัล: ไม่มีการจับการคลิกที่ td อีกต่อไป
                         if (cIndex === 0) {
-                            trHtml += `<td ${clickAttr} class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass} ${cursorClass} relative pl-10 transition-colors">${fadeBtn}${cell.content}</td>`;
+                            trHtml += `<td class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
                         } else {
-                            trHtml += `<td ${clickAttr} class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass} ${cursorClass} transition-colors">${cell.content}</td>`;
+                            trHtml += `<td class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass}">${cell.content}</td>`;
                         }
                     });
 
