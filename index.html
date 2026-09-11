@@ -66,14 +66,23 @@
                 </div>
             </div>
 
-            <!-- Upload Area -->
-            <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
-                <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
-                <div class="flex flex-col items-center justify-center">
-                    <svg class="w-10 h-10 md:w-12 md:h-12 text-indigo-400 dark:text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    <p class="text-slate-700 dark:text-slate-200 font-semibold text-base md:text-lg">คลิกที่นี่เพื่ออัปโหลดไฟล์ CSV</p>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-1">รองรับการอัปโหลดหลายไฟล์ (แท็บเล็ตสามารถกดเลือกไฟล์ได้เลย)</p>
-                    <p id="fileNames" class="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 mt-3 font-medium"></p>
+            <!-- Upload Area & Guide Button -->
+            <div class="flex flex-col gap-4">
+                <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
+                    <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
+                    <div class="flex flex-col items-center justify-center">
+                        <svg class="w-10 h-10 md:w-12 md:h-12 text-indigo-400 dark:text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="text-slate-700 dark:text-slate-200 font-semibold text-base md:text-lg">คลิกที่นี่เพื่ออัปโหลดไฟล์ CSV</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-1">รองรับการอัปโหลดหลายไฟล์ (แท็บเล็ตสามารถกดเลือกไฟล์ได้เลย)</p>
+                        <p id="fileNames" class="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 mt-3 font-medium"></p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button onclick="openGuideModal()" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 dark:bg-slate-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-4 py-2 rounded-lg transition-colors border border-slate-200 dark:border-slate-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        วิธีดึงไฟล์ CSV จาก Facebook
+                    </button>
                 </div>
             </div>
         </div>
@@ -188,7 +197,7 @@
                 </div>
             </div>
 
-            <!-- Table Section -->
+            <!-- Table Section (Clean Design) -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 <div class="table-container overflow-x-auto max-h-[600px]">
                     <table class="min-w-full text-sm text-left">
@@ -228,7 +237,8 @@
                     </h4>
                     <p class="text-sm">ติดตั้งเครื่องมือ <b>Post Comments Exporter</b> เพื่อใช้ดึงข้อมูล <a href="https://chromewebstore.google.com/detail/post-comments-exporter/inooeahlmjlhjdblojocgcoohmpjbhif" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold text-xs ml-1">(คลิกที่นี่เพื่อไปหน้าดาวน์โหลด)</a></p>
                     <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
-                        <img src="./asset/Untitled.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800">
+                        <!-- แก้ Path ให้เริ่มจาก root directory เพื่อแก้ปัญหาภาพไม่ขึ้นบน GitHub Pages -->
+                        <img src="asset/Untitled.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/Untitled.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
 
@@ -244,11 +254,12 @@
                         <li>คลิกเลือกส่วนเสริม <b>Post Comments Exporter</b></li>
                     </ul>
                     <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
-                        <img src="./asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800">
+                        <!-- แก้ Path -->
+                        <img src="asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/qs7cjYqM.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
 
-                <!-- Step 3 (แก้ไขแล้ว) -->
+                <!-- Step 3 -->
                 <div class="space-y-3">
                     <h4 class="text-lg font-bold flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 3</span>
@@ -260,7 +271,8 @@
                         <li>กดปุ่ม <b class="text-blue-600 dark:text-blue-400">Download</b> จะได้ไฟล์นามสกุล <code>.csv</code> ให้นำมาอัปโหลดเข้าระบบของเราได้เลย!</li>
                     </ul>
                     <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
-                        <img src="./asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800">
+                        <!-- แก้ Path -->
+                        <img src="asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/fwRX0ZzR.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
             </div>
@@ -463,7 +475,6 @@
             document.getElementById('fileNames').innerText = "";
             document.getElementById('searchInput').value = "";
             
-            // ปิดตาราง แล้วสลับกลับไปหน้าสอนการใช้งาน
             document.getElementById('mainWorkspace').classList.add('hidden');
             document.getElementById('initialOnboarding').classList.remove('hidden');
             
@@ -710,7 +721,6 @@
                 opt.value = fileName; opt.innerText = fileName;
                 dropdown.appendChild(opt);
             });
-            // ซ่อนหน้า Onboarding แล้วโชว์ตาราง
             document.getElementById('initialOnboarding').classList.add('hidden');
             document.getElementById('mainWorkspace').classList.remove('hidden');
             updateModeUI();
@@ -864,7 +874,7 @@
                 tr.className = `data-row ${rowBgColor} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
                 
                 tr.setAttribute('data-thread', item["สายสนทนา"]);
-                tr.setAttribute('data-filename', item["fileName"]);
+                tr.setAttribute('data-filename', item["fileName"]); 
                 if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
                 let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
