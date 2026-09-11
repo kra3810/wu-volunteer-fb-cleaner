@@ -10,14 +10,12 @@
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
-        /* คืนค่าสัดส่วนตารางแบบออริจินัล (จัดเลย์เอาต์อัตโนมัติ) */
         table { table-layout: auto; width: 100%; }
 
         .thread-hidden { display: none !important; }
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
         
-        /* ขยาย padding ให้กดง่ายขึ้น */
         .editable-cell {
             outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
         }
@@ -28,7 +26,6 @@
             background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
         }
 
-        /* ⚠️ แจ้งเตือนเมื่อช่องว่างเปล่า */
         .editable-cell:empty::before {
             content: "⚠️ (ว่าง)";
             color: #ef4444;
@@ -59,7 +56,6 @@
 <body class="bg-slate-100 dark:bg-slate-900 min-h-screen py-4 md:py-8 px-2 md:px-4 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200">
     <div class="max-w-7xl mx-auto space-y-4 md:space-y-6">
         
-        <!-- Header & Upload Section -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden p-6 md:p-8 relative transition-colors duration-200">
             
             <button onclick="toggleTheme()" class="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500" title="สลับโหมดมืด/สว่าง">
@@ -78,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- Upload Area -->
             <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
                 <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
                 <div class="flex flex-col items-center justify-center">
@@ -90,7 +85,6 @@
             </div>
         </div>
 
-        <!-- โซนสอนการใช้งาน (Onboarding) -->
         <div id="initialOnboarding" class="space-y-6 animate-in fade-in duration-500">
             <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                 <div class="flex items-start gap-4">
@@ -124,10 +118,8 @@
             </div>
         </div>
 
-        <!-- Main Workspace -->
         <div id="mainWorkspace" class="hidden space-y-4 md:space-y-6">
             
-            <!-- Summary Dashboard -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center transition-colors">
                     <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">นักศึกษาทั้งหมด</span>
@@ -143,7 +135,6 @@
                 </div>
             </div>
 
-            <!-- Toolbar -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex flex-col lg:flex-row justify-between items-center gap-4 transition-colors">
                 <div class="relative w-full lg:w-1/3">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -163,7 +154,6 @@
                 </div>
             </div>
 
-            <!-- Settings Panel -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
                 <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center justify-between">
                     
@@ -180,7 +170,6 @@
 
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 xl:mt-0">
                         <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
-                        <!-- ใช้ handleToggleColumn เพื่อให้สวิตช์ขยับก่อนแล้วค่อยเรนเดอร์ (แก้ปัญหาหน่วง) -->
                         <div class="flex flex-wrap gap-2">
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="handleToggleColumn()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
@@ -199,7 +188,7 @@
                 </div>
             </div>
 
-            <!-- Table Section (ระบบ Layout กลับไปใช้ออริจินัล) -->
+            <!-- Table Section -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 <div class="table-container overflow-x-auto max-h-[600px]">
                     <table class="min-w-full text-sm text-left">
@@ -212,13 +201,13 @@
         </div>
     </div>
 
-    <!-- 💬 ปุ่มลอยมุมขวาล่างสำหรับแจ้งปัญหา/ติชม -->
+    <!-- 💬 ปุ่มลอยมุมขวาล่าง -->
     <button onclick="openFeedbackModal()" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 md:p-3.5 rounded-full shadow-2xl flex items-center transition-all hover:scale-105 active:scale-95 group" title="แจ้งปัญหา / ติชม">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
         <span class="max-w-0 opacity-0 overflow-hidden group-hover:max-w-[150px] group-hover:opacity-100 group-hover:ml-2 transition-all duration-300 ease-in-out whitespace-nowrap text-sm hidden md:block">ติชม / แจ้งปัญหา</span>
     </button>
 
-    <!-- Modal คู่มือการใช้งาน (Guide) -->
+    <!-- Modal คู่มือการใช้งาน -->
     <div id="guideModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -465,7 +454,6 @@
             sessionStorage.removeItem('fileNamesStr');
         }
 
-        // ฟังชันก์เลื่อนหน้าจอกลับไปบนสุดเวลาเปลี่ยนไฟล์เท่านั้น
         function resetScroll() {
             const tableContainer = document.querySelector('.table-container');
             if (tableContainer) { tableContainer.scrollTop = 0; }
@@ -485,11 +473,11 @@
             saveState(); 
         }
 
-        // แก้ไขปุ่มหน่วง: ถ่วงเวลา 50ms ให้สวิตช์อนิเมชันทำงานเสร็จก่อน
+        // ถ่วงเวลาปุ่มเล็กน้อย ให้ UI ทำงานลื่นไหล
         function handleToggleColumn() {
             setTimeout(() => {
                 renderTable();
-            }, 50); 
+            }, 50);
         }
 
         function getSelectedColumns() {
@@ -552,35 +540,32 @@
             return rows;
         }
 
+        // ลอจิกออริจินัลสุดๆ โครงสร้างเดิมที่ทำงานได้เป๊ะ ไม่พังข้ามบรรทัด
         function cleanHonorifics(token) {
-            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
+            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส'];
             for (let p of prefixes) {
-                if (token.startsWith(p)) return token.substring(p.length).trim();
+                if (token.startsWith(p)) token = token.substring(p.length);
             }
             return token.trim();
         }
 
-        // ระบบจับคำ (ออริจินัล) แต่สอดไส้การลบคำขยะออกก่อนแยกชื่อ
         function extractStudentName(fullText, studentId) {
             const noiseWords = new Set([
                 'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 'รายงานตัว', 'ค่ะ', 'ครับ', 'คะ', 
                 'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
                 'ชั่วโมงทุน', 'วินัย', 'รู้วินัย', 'แก้ความประพฤติ', 'แก้คะแนน', 'แก้คะแนนรู้วินัย', 'แก้รู้วินัย', 'คะแนนความประพฤติ', 'รักชาติ', 'กตัญญู', 'นาย', 
                 'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
-                'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ'
+                'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ', 'ประพฤติ'
             ]);
 
             const parts = fullText.split(studentId);
             for (let sideText of [parts[1] || "", parts[0] || ""]) {
                 
-                // เครื่องดูดคำกวนใจ (ลบวงเล็บ และเพิ่มช่องว่างให้คำที่มักพิมพ์ติดกันเพื่อแยกเป็น Token ให้ได้)
-                let cleaned = sideText.replace(/\(.*?\)/g, ' '); 
-                cleaned = cleaned.replace(/(คะแนน|ใจอาสา|จิตอาสา|ความดี|ชั่วโมงทุน|แก้ความประพฤติ|แก้คะแนน|รู้วินัย|วินัย|ภาวะผู้นำ)/g, ' $1 ');
+                // เครื่องดูดคำขยะ: กำจัดคำที่มักจะพิมพ์ติดกันก่อนเพื่อไม่ให้หลุดมาในชื่อ
+                let cleaned = sideText.replace(/\(.*?\)/g, ' ');
+                cleaned = cleaned.replace(/(คะแนน|ใจอาสา|จิตอาสา|ความดี|ชั่วโมงทุน|แก้ความประพฤติ|แก้คะแนน|รู้วินัย|วินัย|ภาวะผู้นำ|ผู้นำ|ประพฤติ)/g, ' $1 ');
                 cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
                 
-                // แปลง Enter เป็น Spacebar กันคนเคาะบรรทัดกลางชื่อ
-                cleaned = cleaned.replace(/[\r\n]+/g, ' ');
-
                 let tokens = cleaned.split(/\s+/);
                 let nameTokens = [];
                 for (let t of tokens) {
@@ -589,7 +574,7 @@
                     nameTokens.push(t);
                 }
                 
-                // แก้บั๊ก "นายาว" : สั่งตัดคำนำหน้าเฉพาะที่ nameTokens[0] เท่านั้น! นามสกุลจะไม่โดนหั่น
+                // แก้บั๊กนายาว: ตัดเฉพาะ Token แรก (ชื่อ) ไม่ให้กระทบ Token หลัง (นามสกุล)
                 if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
                 else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
             }
@@ -598,13 +583,13 @@
 
         function detectPointType(subLine, fullText) {
             const categories = [
-                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] }, // เพิ่มหมวดผู้นำ
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] },
                 { name: "รักชาติ", keywords: ["รักชาติ"] },
                 { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
                 { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
-                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] }, 
+                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] },
                 { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
-                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } // จิตอาสาจับลงใจอาสา
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } 
             ];
             for (let cat of categories) {
                 for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; }
@@ -677,7 +662,6 @@
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
 
-                // ลอจิกออริจินัล (วนลูปแยกทีละบรรทัด)
                 const subLines = fullText.split('\n');
                 subLines.forEach(subLine => {
                     subLine = subLine.trim();
@@ -690,19 +674,22 @@
                         seenIdsInThisFile.add(studentId);
 
                         const isIdValid = (studentId.length === 8);
+                        // ถ้าพิมพ์ติดกัน ก็ให้อ่านจาก subLine ก่อน
                         const nameObj = extractStudentName(cleanSubLine, studentId);
                         let firstName = nameObj.firstName;
                         let lastName = nameObj.lastName;
 
-                        // ถ้าชื่อไม่มาในบรรทัดเดียวกัน ให้ลองควานหาในบรรทัดอื่นดู
+                        // ถ้าเคาะบรรทัดชื่อจะหาย ให้ลองหาจาก fullText อีกรอบ โดยเอา \n ออก
                         if (!firstName) {
-                            const fullObj = extractStudentName(cleanFullText, studentId);
+                            let flatFullText = cleanFullText.replace(/[\r\n]+/g, ' ');
+                            const fullObj = extractStudentName(flatFullText, studentId);
                             firstName = fullObj.firstName;
                             lastName = fullObj.lastName;
                         }
                         
-                        let cleanFullTextForCat = cleanFullText.replace(/[\r\n]+/g, ' '); 
-                        let pointType = detectPointType(cleanSubLine, cleanFullTextForCat);
+                        // เอา fullText มาต่อกันเป็นแถวเดียวเพื่อดักประเภทงานที่พิมพ์ข้ามบรรทัด
+                        let flatFullTextForType = cleanFullText.replace(/[\r\n]+/g, ' ');
+                        let pointType = detectPointType(cleanSubLine, flatFullTextForType);
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, 
@@ -711,7 +698,7 @@
                             "isIdValid": isIdValid,
                             "ชื่อ": firstName,
                             "นามสกุล": lastName,
-                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก",
+                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", 
                             "สายสนทนา": threadNo,
                             "isReply": isReply,
                             "ประเภทงาน": pointType,
@@ -836,7 +823,7 @@
         }
 
         function renderTable() {
-            // ระบบบันทึกตำแหน่งหน้าจอ (เพื่อไม่ให้ตารางเด้งไปบนสุดตอนเปิด/ปิดคอลัมน์)
+            // ดึงค่าการเลื่อนหน้าจอปัจจุบันเก็บไว้
             const tableContainer = document.querySelector('.table-container');
             const scrollPos = tableContainer ? tableContainer.scrollTop : 0;
 
@@ -848,7 +835,6 @@
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
-            // กลับไปใช้สัดส่วนออริจินัล (Table Layout: Auto) เพื่อความสมดุล
             let headerHtml = `<tr>`;
             if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ไฟล์ต้นทาง</th>`;
             if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">รหัสนักศึกษา</th>`;
@@ -903,7 +889,6 @@
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                     idCellHtml += `</td>`;
 
-                    // หากข้อมูลว่างเปล่า (เช่น <span></span>) คลาส :empty ใน CSS จะแสดงคำว่า ⚠️ (ว่าง) ทันที
                     let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${item["นามสกุล"]}</span>`;
                     let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell w-full">${item["ประเภทงาน"]}</span>`;
@@ -931,7 +916,7 @@
                     if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
                     
                     if (cols.original) {
-                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed w-full"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
+                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed min-w-[250px]"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
                     }
                     
                     tr.innerHTML = rowHtml;
@@ -939,7 +924,7 @@
                 });
             }
 
-            // คืนค่า Scroll Position หลังจากสร้างตารางเสร็จ
+            // คืนค่าการเลื่อนหน้าจอกลับไปที่เดิมเป๊ะๆ หลังจากเรนเดอร์ตารางเสร็จ
             if (tableContainer) {
                 tableContainer.scrollTop = scrollPos;
             }
