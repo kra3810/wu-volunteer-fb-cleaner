@@ -17,13 +17,30 @@
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* แถวที่ถูกซ่อน/ทำให้จางลง */
+        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลง แต่ปุ่มซ่อนไม่จาง */
         .row-faded { background-color: rgba(100, 116, 139, 0.08) !important; }
+        .row-faded .row-content { opacity: 0.35; transition: opacity 0.2s; }
+        .row-faded:hover .row-content { opacity: 0.8; }
         .dark .row-faded { background-color: rgba(51, 65, 85, 0.4) !important; }
-        .row-faded td:not(:first-child) { color: #94a3b8 !important; }
-        .row-faded .editable-cell { color: #94a3b8 !important; }
 
-        /* คืนค่าสไตล์ช่องข้อความแบบออริจินัล 100% ไม่บีบตัว */
+        /* ปุ่มซ่อน/จางแถว: เกาะอยู่ที่ริมขอบซ้ายสุดของแถว ไม่ทับข้อความ และไม่จางตาม */
+        .row-fade-action {
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+        }
+        .data-row:hover .row-fade-action,
+        .data-row.row-faded .row-fade-action {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* คืนค่าขนาดช่องกรอกข้อมูลเดิม 100% ไม่บีบตัว */
         .editable-cell {
             outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
         }
@@ -120,7 +137,7 @@
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">✨</div>
                     <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือคลิกที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
                 </div>
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">📥</div>
@@ -200,8 +217,8 @@
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (เพิ่มคอลัมน์จัดการแยกเฉพาะตัว ไม่กวนช่องอื่น)</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะที่ข้อความเพื่อแก้ไขโดยตรง</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (เกาะอยู่ที่ริมขอบซ้ายสุดของแถว หน้าสุด)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แก้ไขข้อมูล (ช่องขนาดเดิม 100%)</span>
                 </div>
             </div>
 
@@ -569,7 +586,7 @@
                 'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 'รายงานตัว', 'ค่ะ', 'ครับ', 'คะ', 
                 'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
                 'ชั่วโมงทุน', 'วินัย', 'รู้วินัย', 'แก้ความประพฤติ', 'แก้คะแนน', 'แก้คะแนนรู้วินัย', 'แก้รู้วินัย', 'คะแนนความประพฤติ', 'รักชาติ', 'กตัญญู', 'นาย', 
-                'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
+                'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'e และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
                 'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ'
             ]);
 
@@ -894,7 +911,6 @@
                 displayData.forEach((item, index) => {
                     const tr = document.createElement('tr');
                     const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
-                    // เปลี่ยนชื่อคลาสตรงนี้เป็น .row-faded ให้ตรงกับสไตล์ CSS ที่กำหนดไว้เพื่อให้แถวจางลงเมื่อกดซ่อน
                     const fadeClass = item.isFaded ? " row-faded" : "";
 
                     tr.className = `data-row ${fadeClass} ${rowBgColor} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
@@ -904,27 +920,27 @@
                     if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
                     let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                    let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap">`;
+                    let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap"><div class="row-content flex items-center">`;
                     if (item.isReply) idCellHtml += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
                     idCellHtml += idSpan;
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
-                    idCellHtml += `</td>`;
+                    idCellHtml += `</div></td>`;
 
                     let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
                     let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
 
                     let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
-                        `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
-                        `<td class="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">${typeSpan}</td>`;
+                        `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div></td>` : 
+                        `<td class="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap"><div class="row-content">${typeSpan}</div></td>`;
 
                     let isMain = item["สถานะ"] === "เม้นหลัก";
                     let statusBadge = isMain ? 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
-                    // ปุ่มซ่อน/จางแถว: วางไว้ที่ช่อง "สถานะ" ในคอมเทนเนอร์แบบ absolute ที่ขอบซ้ายสุดของช่องโดยไม่ไปเบียดความกว้างของคอลัมน์เดิม
-                    let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
+                    // ปุ่มซ่อน/จางแถว: วางไว้ที่ริมขอบซ้ายสุดของแถว (หน้าสุด) แยกอยู่นอก .row-content ทำให้เวลาแถวจาง ตัวปุ่มจะไม่จางตาม
+                    let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${item.isFaded ? 
                             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>' :
@@ -932,26 +948,35 @@
                         </svg>
                     </button>`;
 
-                    let statusCellContent = `<div class="relative pl-7 inline-flex items-center">${fadeBtn}${statusBadge}</div>`;
-
-                    let rowHtml = "";
+                    let cells = [];
                     if (currentMode === 'merged') {
                         let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
-                        rowHtml += `<td class="px-4 py-3 whitespace-nowrap"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></td>`;
+                        cells.push(`<td class="px-4 py-3 whitespace-nowrap"><div class="row-content"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></div></td>`);
                     }
 
-                    if (cols.id) rowHtml += idCellHtml;
-                    if (cols.name) rowHtml += `<td class="px-4 py-3 whitespace-nowrap align-middle">${nameSpan}</td>`;
-                    if (cols.surname) rowHtml += `<td class="px-4 py-3 whitespace-nowrap align-middle">${surnameSpan}</td>`;
-                    if (cols.status) rowHtml += `<td class="px-4 py-3 text-center whitespace-nowrap">${statusCellContent}</td>`;
-                    if (cols.type) rowHtml += pointTypeHtml;
-                    if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
+                    if (cols.id) cells.push(idCellHtml);
+                    if (cols.name) cells.push(`<td class="px-4 py-3 whitespace-nowrap align-middle"><div class="row-content">${nameSpan}</div></td>`);
+                    if (cols.surname) cells.push(`<td class="px-4 py-3 whitespace-nowrap align-middle"><div class="row-content">${surnameSpan}</div></td>`);
+                    if (cols.status) cells.push(`<td class="px-4 py-3 text-center whitespace-nowrap"><div class="row-content">${statusBadge}</div></td>`);
+                    if (cols.type) cells.push(pointTypeHtml);
+                    if (cols.likes) cells.push(`<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap"><div class="row-content">${item["ยอดไลก์"]}</div></td>`);
+                    if (cols.original) cells.push(`<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="row-content"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div></td>`);
 
-                    if (cols.original) {
-                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
+                    // ให้เซลล์แรกสุดทำหน้าที่เป็นจุดอ้างอิงตำแหน่ง (relative) และเว้น padding ซ้าย (pl-10) เพื่อให้ปุ่มซ่อนลอยอยู่ริมซ้ายสุดโดยไม่ทับข้อมูล
+                    if (cells.length > 0) {
+                        let firstCell = cells[0];
+                        firstCell = firstCell.replace(/<td\b([^>]*)>/, function(match, attr) {
+                            if (attr.includes('class=')) {
+                                return attr.replace(/class="([^"]*)"/, 'class="$1 relative pl-10"');
+                            } else {
+                                return `<td ${attr} class="relative pl-10">`;
+                            }
+                        });
+                        firstCell = firstCell.replace(/(<td\b[^>]*>)/, `$1${fadeBtn}`);
+                        cells[0] = firstCell;
                     }
 
-                    tr.innerHTML = rowHtml;
+                    tr.innerHTML = cells.join('');
                     tbody.appendChild(tr);
                 });
             }
@@ -997,7 +1022,7 @@
                 const cleanRecords = mergedList.map(item => prepareRow(item, true));
                 if(cleanRecords.length === 0) return;
                 const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
-                worksheet['!cols'] = Object.keys(cleanRecords[0].length ? cleanRecords[0] : {}).map(() => ({wch: 22}));
+                worksheet['!cols'] = Object.keys(cleanRecords[0]).map(() => ({wch: 22}));
                 XLSX.utils.book_append_sheet(workbook, worksheet, "All_Merged_Students");
                 XLSX.writeFile(workbook, "Merged_All_Students_Report.xlsx");
             }
