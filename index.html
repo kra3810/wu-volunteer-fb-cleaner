@@ -22,7 +22,7 @@
         .row-faded:hover { opacity: 0.8; }
         .dark .row-faded { opacity: 0.3; }
 
-        /* ปุ่มซ่อน/จางแถว (ซ่อนสนิทเมื่อไม่ชี้ และจะแสดงขึ้นมาเฉพาะตอนเอาเมาส์ชี้ที่แถวนั้น) */
+        /* ปุ่มซ่อน/จางแถว: ซ่อนเมื่อไม่ชี้ แต่ถ้ากดซ่อนแล้ว (row-faded) ปุ่มจะแสดงค้างไว้ตลอดเพื่อให้กดคืนค่าได้ง่าย */
         .row-fade-action {
             position: absolute;
             left: 8px;
@@ -32,7 +32,8 @@
             pointer-events: none;
             transition: opacity 0.15s ease;
         }
-        .data-row:hover .row-fade-action {
+        .data-row:hover .row-fade-action,
+        .data-row.row-faded .row-fade-action {
             opacity: 1;
             pointer-events: auto;
         }
@@ -214,7 +215,7 @@
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ซ่อนสนิทเมื่อไม่ชี้ จะโผล่ขึ้นมาเฉพาะตอนเอาเมาส์ชี้แถวนั้น สะอาด ไม่รกตา)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ซ่อนสนิทเมื่อไม่ชี้ จะโผล่ขึ้นมาเฉพาะตอนเอาเมาส์ชี้แถวนั้น และจะค้างแสดงไว้เสมอหากแถวถูกกดซ่อนแล้ว)</span>
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะที่ข้อความเพื่อแก้ไขโดยตรง (Inline edit)</span>
                 </div>
             </div>
@@ -491,6 +492,7 @@
         }
 
         function switchFile() {
+            renderTable();
             renderTable();
             resetScroll(); 
         }
@@ -936,7 +938,7 @@
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
-                    // ปุ่มซ่อน/จางแถว ที่ซ่อนสนิทตามที่ต้องการ และจะโผล่ขึ้นมาเฉพาะตอนเอาเมาส์ชี้แถวนั้น
+                    // ปุ่มซ่อน/จางแถว: จะซ่อนสนิทเมื่อไม่ชี้ และจะโผล่ขึ้นมาเฉพาะเมื่อเอาเมาส์ชี้แถวนั้น หรือถ้าถูกกดซ่อนไปแล้ว ปุ่มจะแสดงค้างไว้ตลอดเพื่อให้กดเปิดคืนได้ง่าย
                     let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white/90 dark:bg-slate-800/90 shadow border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${item.isFaded ? 
@@ -962,12 +964,12 @@
                         rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
                     }
 
-                    // ปรับช่องแรกสุดให้เป็น relative เพื่อให้ปุ่มซ่อนตัวอยู่ริมขอบซ้ายได้อย่างสะอาดหมดจดโดยไม่มีคอลัมน์เพิ่ม
+                    // จัดช่องแรกสุดให้เป็น relative พร้อมขยับ padding ซ้ายเพื่อเผื่อพื้นที่ให้ปุ่มซ่อนลอยอยู่ริมซ้ายสุดโดยไม่ทับกับข้อความ
                     rowHtml = rowHtml.replace(/<td\b([^>]*)>/, function(match, p1) {
                         if (p1.includes('class=')) {
-                            return match.replace(/class="([^"]*)"/, 'class="$1 relative pl-9"');
+                            return match.replace(/class="([^"]*)"/, 'class="$1 relative pl-10"');
                         } else {
-                            return `<td ${p1} class="relative pl-9">`;
+                            return `<td ${p1} class="relative pl-10">`;
                         }
                     });
                     rowHtml = rowHtml.replace(/(<td\b[^>]*>)/, `$1${fadeBtn}`);
