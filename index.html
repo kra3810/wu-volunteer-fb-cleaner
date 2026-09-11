@@ -10,31 +10,22 @@
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
-        /* กำหนด table-layout: fixed และกำหนดความกว้างแต่ละคอลัมน์ให้สมดุลเท่ากัน ไม่กองซ้ายหรือขวา */
-        table { table-layout: fixed; width: 100%; }
-
-        /* กำหนดสัดส่วนความกว้างคอลัมน์ให้บาลานซ์ */
-        th:nth-child(1), td:nth-child(1) { width: 14%; } /* รหัส */
-        th:nth-child(2), td:nth-child(2) { width: 15%; } /* ชื่อ */
-        th:nth-child(3), td:nth-child(3) { width: 15%; } /* นามสกุล */
-        th:nth-child(4), td:nth-child(4) { width: 16%; text-align: center; } /* สถานะ */
-        th:nth-child(5), td:nth-child(5) { width: 14%; } /* ประเภทงาน */
-        th:nth-child(6), td:nth-child(6) { width: 8%; text-align: center; }  /* ไลก์ */
-        th:nth-child(7), td:nth-child(7) { width: 18%; } /* ข้อความต้นฉบับ */
+        /* คืนค่าสัดส่วนตารางแบบออริจินัล (จัดเลย์เอาต์อัตโนมัติ) */
+        table { table-layout: auto; width: 100%; }
 
         .thread-hidden { display: none !important; }
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* ขยาย padding ให้กดง่ายขึ้น และจัดการข้อความไม่ให้ดันตารางพัง */
+        /* ขยาย padding ให้กดง่ายขึ้น */
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; width: 100%; min-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
         }
         .editable-cell:hover, .editable-cell:focus {
-            background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4); white-space: normal;
+            background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
         }
         .dark .editable-cell:hover, .dark .editable-cell:focus {
-            background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047; white-space: normal;
+            background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
         }
 
         /* ⚠️ แจ้งเตือนเมื่อช่องว่างเปล่า */
@@ -856,6 +847,7 @@
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
+            // กลับไปใช้สัดส่วนออริจินัล (Table Layout: Auto) เพื่อความสมดุล
             let headerHtml = `<tr>`;
             if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ไฟล์ต้นทาง</th>`;
             if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">รหัสนักศึกษา</th>`;
@@ -910,9 +902,10 @@
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                     idCellHtml += `</td>`;
 
-                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
-                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
+                    // หากข้อมูลว่างเปล่า (เช่น <span></span>) คลาส :empty ใน CSS จะแสดงคำว่า ⚠️ (ว่าง) ทันที
+                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${item["นามสกุล"]}</span>`;
+                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell w-full">${item["ประเภทงาน"]}</span>`;
 
                     let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
                         `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
@@ -937,7 +930,7 @@
                     if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
                     
                     if (cols.original) {
-                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
+                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed w-full"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
                     }
                     
                     tr.innerHTML = rowHtml;
