@@ -6,16 +6,18 @@
     <title>Facebook Comment Clean & Export</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <style>
-        /* สัดส่วนออริจินัล สมดุล ซ้าย-ขวา */
         table { table-layout: auto; width: 100%; }
+
         .thread-hidden { display: none !important; }
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
         
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 30px;
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 8px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 30px;
         }
         .editable-cell:hover, .editable-cell:focus {
             background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
@@ -24,46 +26,49 @@
             background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
         }
 
-        /* แจ้งเตือนเมื่อช่องว่าง */
-        .editable-cell:empty::before {
-            content: "⚠️ (ว่าง)";
-            color: #ef4444;
-            font-size: 0.8rem;
-            font-weight: bold;
-            pointer-events: none;
+        .checkbox-container input:checked + div {
+            background-color: #4f46e5; border-color: #4f46e5; color: white;
+        }
+        .dark .checkbox-container input:checked + div {
+            background-color: #6366f1; border-color: #6366f1; color: white;
         }
 
-        .checkbox-container input:checked + div { background-color: #4f46e5; border-color: #4f46e5; color: white; }
-        .dark .checkbox-container input:checked + div { background-color: #6366f1; border-color: #6366f1; color: white; }
         .table-container { -webkit-overflow-scrolling: touch; }
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
         .dark ::-webkit-scrollbar-track { background: #1e293b; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 min-h-screen py-4 md:py-8 px-2 md:px-4 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200">
     <div class="max-w-7xl mx-auto space-y-4 md:space-y-6">
         
-        <!-- Header -->
+        <!-- Header & Upload Section -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden p-6 md:p-8 relative transition-colors duration-200">
-            <button onclick="toggleTheme()" class="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            
+            <button onclick="toggleTheme()" class="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500" title="สลับโหมดมืด/สว่าง">
                 <svg id="icon-sun" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 <svg id="icon-moon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
             </button>
+
             <div class="flex justify-between items-start mb-4 md:mb-6">
                 <div class="pr-12">
                     <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">📊 ระบบจัดการคอมเมนต์ Facebook</h1>
                     <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-2 flex flex-wrap items-center gap-2">
                         อัปโหลดไฟล์ CSV จัดกลุ่มและสกัดข้อมูล 
-                        <button onclick="openGuideModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline mx-1 font-semibold">(📖 วิธีดึงไฟล์ CSV)</button>
+                        <button onclick="openGuideModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline mx-1 cursor-pointer font-semibold transition-colors">(📖 วิธีดึงไฟล์ CSV)</button>
                         <span class="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">💾 บันทึกอัตโนมัติ</span>
                     </p>
                 </div>
             </div>
+
             <!-- Upload Area -->
-            <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
+            <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
                 <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
                 <div class="flex flex-col items-center justify-center">
                     <svg class="w-10 h-10 md:w-12 md:h-12 text-indigo-400 dark:text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -74,74 +79,115 @@
             </div>
         </div>
 
+        <!-- โซนสอนการใช้งาน -->
         <div id="initialOnboarding" class="space-y-6 animate-in fade-in duration-500">
             <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                 <div class="flex items-start gap-4">
                     <div class="text-3xl">💡</div>
                     <div>
-                        <h4 class="font-bold text-indigo-900 dark:text-indigo-200">เพิ่งเคยใช้งานครั้งแรกใช่ไหม?</h4>
+                        <h4 class="font-bold text-indigo-900 dark:text-indigo-200 text-base md:text-lg">เพิ่งเคยใช้งานครั้งแรกใช่ไหม?</h4>
                         <p class="text-sm text-indigo-700 dark:text-indigo-400 mt-0.5">ไม่ต้องกังวล! เรามีวิธีดึงไฟล์คอมเมนต์จากกลุ่ม Facebook มาให้ดูแบบง่ายๆ</p>
                     </div>
                 </div>
-                <button onclick="openGuideModal()" class="shrink-0 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2.5 px-6 rounded-lg shadow-md transition whitespace-nowrap hover:-translate-y-0.5">📖 อ่านวิธีดึงไฟล์ CSV</button>
+                <button onclick="openGuideModal()" class="shrink-0 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2.5 px-6 rounded-lg shadow-md transition whitespace-nowrap hover:-translate-y-0.5">
+                    📖 อ่านวิธีดึงไฟล์ CSV
+                </button>
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-left">
-                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"><div class="text-4xl mb-4">📂</div><h4 class="font-extrabold text-slate-800 dark:text-white">1. อัปโหลดไฟล์</h4><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">เลือกไฟล์ CSV ที่โหลดมาจากโพสต์ สามารถกดอัปโหลดหลายๆ ไฟล์พร้อมกันได้เลย</p></div>
-                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"><div class="text-4xl mb-4">✨</div><h4 class="font-extrabold text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ หรือแตะที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p></div>
-                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"><div class="text-4xl mb-4">📥</div><h4 class="font-extrabold text-slate-800 dark:text-white">3. ส่งออก Excel</h4><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">เลือกว่าจะรวมตารางหรือแยกหน้า เปิดปิดคอลัมน์ที่ต้องการ แล้วกดโหลดไปส่งอาจารย์ได้เลย!</p></div>
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="text-4xl mb-4">📂</div>
+                    <h4 class="font-extrabold text-base text-slate-800 dark:text-white">1. อัปโหลดไฟล์</h4>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">เลือกไฟล์ CSV ที่โหลดมาจากโพสต์ สามารถกดอัปโหลดหลายๆ ไฟล์พร้อมกันได้เลย</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="text-4xl mb-4">✨</div>
+                    <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="text-4xl mb-4">📥</div>
+                    <h4 class="font-extrabold text-base text-slate-800 dark:text-white">3. ส่งออก Excel</h4>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">เลือกว่าจะรวมตารางหรือแยกหน้า เปิดปิดคอลัมน์ที่ต้องการ แล้วกดโหลดไปส่งอาจารย์ได้เลย!</p>
+                </div>
             </div>
         </div>
 
+        <!-- Main Workspace -->
         <div id="mainWorkspace" class="hidden space-y-4 md:space-y-6">
+            
+            <!-- Summary Dashboard -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center"><span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">นักศึกษาทั้งหมด</span><span id="sumTotal" class="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white">0</span></div>
-                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center"><span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">รหัสครบ 8 หลัก</span><span id="sumValid" class="text-2xl md:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span></div>
-                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center col-span-2"><span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-2">สรุปประเภทงาน</span><div id="sumCategories" class="flex flex-wrap gap-1.5 md:gap-2 text-xs md:text-sm font-semibold"></div></div>
+                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center transition-colors">
+                    <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">นักศึกษาทั้งหมด</span>
+                    <span id="sumTotal" class="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white">0</span>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center transition-colors">
+                    <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">รหัสครบ 8 หลัก</span>
+                    <span id="sumValid" class="text-2xl md:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center col-span-2 transition-colors">
+                    <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-2">สรุปประเภทงาน</span>
+                    <div id="sumCategories" class="flex flex-wrap gap-1.5 md:gap-2 text-xs md:text-sm font-semibold"></div>
+                </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+            <!-- Toolbar -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex flex-col lg:flex-row justify-between items-center gap-4 transition-colors">
                 <div class="relative w-full lg:w-1/3">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
-                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="ค้นหารหัส หรือ ชื่อ-นามสกุล..." class="block w-full pl-10 pr-3 py-2.5 md:py-2 border border-slate-300 dark:border-slate-600 rounded-lg leading-5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="ค้นหารหัส หรือ ชื่อ-นามสกุล..." class="block w-full pl-10 pr-3 py-2.5 md:py-2 border border-slate-300 dark:border-slate-600 rounded-lg leading-5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base md:text-sm transition">
                 </div>
                 <div class="flex w-full lg:w-auto items-center gap-2 md:gap-3">
-                    <button onclick="clearData()" class="flex-1 lg:flex-none justify-center bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-semibold py-2.5 px-4 rounded-lg shadow-sm transition flex items-center gap-2 text-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>เริ่มใหม่</button>
-                    <button onclick="downloadExcel()" class="flex-1 lg:flex-none justify-center bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition flex items-center gap-2 text-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>โหลด Excel</button>
+                    <button onclick="clearData()" class="flex-1 lg:flex-none justify-center bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-semibold py-2.5 px-4 rounded-lg shadow-sm transition flex items-center gap-2 text-sm whitespace-nowrap">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        เริ่มใหม่
+                    </button>
+                    <button onclick="downloadExcel()" class="flex-1 lg:flex-none justify-center bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition flex items-center gap-2 text-sm whitespace-nowrap">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        โหลด Excel
+                    </button>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5">
+            <!-- Settings Panel -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
                 <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center justify-between">
+                    
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center w-full xl:w-auto">
                         <div class="inline-flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg shrink-0 w-full sm:w-auto">
                             <button id="btnSeparate" onclick="switchMode('separate')" class="flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition">แยกใบงาน</button>
-                            <button id="btnMerged" onclick="switchMode('merged')" class="flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition">รวมหน้าเดียว</button>
+                            <button id="btnMerged" onclick="switchMode('merged')" class="flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition">รวมหน้าเดียว</button>
                         </div>
                         <div id="fileSelectorContainer" class="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                             <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">เลือกไฟล์:</span>
                             <select id="fileSelectDropdown" onchange="switchFile()" class="w-full sm:flex-1 min-w-[200px] border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 md:py-1.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"></select>
                         </div>
                     </div>
+
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 xl:mt-0">
                         <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
                         <div class="flex flex-wrap gap-2">
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 transition select-none">รหัส</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 transition select-none">ชื่อ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 transition select-none">นามสกุล</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 transition select-none">สถานะ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 transition select-none">ประเภทงาน</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 transition select-none">ไลก์</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 transition select-none">ข้อความต้นฉบับ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">นามสกุล</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">สถานะ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ประเภทงาน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไลก์</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ข้อความต้นฉบับ</div></label>
                         </div>
                     </div>
                 </div>
+                
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold">💬 เม้นหลัก</kbd> = แตะเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold">✏️</kbd> = แตะที่ข้อความเพื่อแก้ไขโดยตรง (Inline edit)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะที่ข้อความเพื่อแก้ไขโดยตรง (Inline edit)</span>
                 </div>
             </div>
 
-            <!-- Table Section (กลับไปใช้ออริจินัลเลย์เอาต์) -->
+            <!-- Table Section -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 <div class="table-container overflow-x-auto max-h-[600px]">
                     <table class="min-w-full text-sm text-left">
@@ -150,46 +196,61 @@
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 
-    <!-- ปุ่มแจ้งปัญหา & โหมดวิธีใช้ -->
+    <!-- ปุ่มลอย -->
     <button onclick="openFeedbackModal()" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 md:p-3.5 rounded-full shadow-2xl flex items-center transition-all hover:scale-105 active:scale-95 group" title="แจ้งปัญหา / ติชม">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
         <span class="max-w-0 opacity-0 overflow-hidden group-hover:max-w-[150px] group-hover:opacity-100 group-hover:ml-2 transition-all duration-300 ease-in-out whitespace-nowrap text-sm hidden md:block">ติชม / แจ้งปัญหา</span>
     </button>
 
+    <!-- Modal Guide -->
     <div id="guideModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                 <h3 class="text-xl font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
-                    <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg> วิธีดึงไฟล์คอมเมนต์จาก Facebook
+                    <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    วิธีดึงไฟล์คอมเมนต์จาก Facebook
                 </h3>
                 <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm">✕</button>
             </div>
             <div class="p-6 overflow-y-auto space-y-8 text-slate-700 dark:text-slate-300">
                 <div class="space-y-3">
-                    <h4 class="text-lg font-bold flex items-center gap-2"><span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 1</span> ติดตั้งส่วนเสริมบน Chrome</h4>
+                    <h4 class="text-lg font-bold flex items-center gap-2">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 1</span> ติดตั้งส่วนเสริมบน Chrome
+                    </h4>
                     <p class="text-sm">ติดตั้งเครื่องมือ <b>Post Comments Exporter</b> เพื่อใช้ดึงข้อมูล <a href="https://chromewebstore.google.com/detail/post-comments-exporter/inooeahlmjlhjdblojocgcoohmpjbhif" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold text-xs ml-1">(คลิกที่นี่เพื่อไปหน้าดาวน์โหลด)</a></p>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2"><img src="asset/Untitled.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.style.display='none'"></div>
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
+                        <img src="asset/Untitled.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/Untitled.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
+                    </div>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-lg font-bold flex items-center gap-2"><span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 2</span> ไปที่โพสต์กิจกรรม</h4>
+                    <h4 class="text-lg font-bold flex items-center gap-2">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 2</span> ไปที่โพสต์กิจกรรม
+                    </h4>
                     <ul class="list-disc list-inside text-sm space-y-1 ml-1">
                         <li>เปิด Facebook หน้ากิจกรรมของ <b>จิตอาสา ม.วลัยลักษณ์</b> ที่ต้องการดึงข้อมูล</li>
                         <li>กดที่ <b>ไอคอนรูปจิ๊กซอว์ (Extensions)</b> มุมขวาบนของจอ</li>
                         <li>คลิกเลือกส่วนเสริม <b>Post Comments Exporter</b></li>
                     </ul>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2"><img src="asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.style.display='none'"></div>
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
+                        <img src="asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/qs7cjYqM.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
+                    </div>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-lg font-bold flex items-center gap-2"><span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 3</span> กดเริ่มและดาวน์โหลด</h4>
+                    <h4 class="text-lg font-bold flex items-center gap-2">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 3</span> กดเริ่มและดาวน์โหลด
+                    </h4>
                     <ul class="list-disc list-inside text-sm space-y-1 ml-1">
                         <li><b>ไม่ต้องตั้งค่าอะไรเพิ่มเติม</b> (ส่วนเสริมตั้งค่าทุกอย่างมาให้พร้อมใช้งานแล้ว)</li>
                         <li>กดปุ่ม <b class="text-emerald-600 dark:text-emerald-400">Start</b> แล้วรอให้ระบบโหลดจนครบ 100%</li>
                         <li>กดปุ่ม <b class="text-blue-600 dark:text-blue-400">Download</b> จะได้ไฟล์นามสกุล <code>.csv</code> ให้นำมาอัปโหลดเข้าระบบของเราได้เลย!</li>
                     </ul>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2"><img src="asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.style.display='none'"></div>
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
+                        <img src="asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/fwRX0ZzR.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
+                    </div>
                 </div>
             </div>
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-right">
@@ -205,15 +266,47 @@
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">💡 แจ้งปัญหาหรือเสนอแนะ</h3>
                 <button onclick="closeFeedbackModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-1">✕</button>
             </div>
+            
             <form action="https://formspree.io/f/mzebogyz" method="POST" enctype="multipart/form-data" onsubmit="handleFeedbackSubmit(event)" class="space-y-4">
-                <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">ประเภท *</label><select name="issueType" id="issueType" required onchange="toggleSeverityField()" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"><option value="suggestion">💡 เสนอแนะ / พูดคุยทั่วไป</option><option value="bug">🐛 แจ้งปัญหาการใช้งาน / บั๊ก</option><option value="other">❓ อื่นๆ</option></select></div>
-                <div id="severityContainer" class="hidden"><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">ระดับความรุนแรง (สำหรับบั๊ก) *</label><select name="severity" id="severity" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"><option value="" disabled selected>-- เลือกระดับความรุนแรง --</option><option value="low">🟡 เล็กน้อย (หน้าตาเว็บเพี้ยน แต่ทำงานต่อได้)</option><option value="medium">🟠 ปานกลาง (บางฟังก์ชันรวน / ค้าง)</option><option value="high">🔴 ร้ายแรง (หน้าเว็บพัง / ทำงานต่อไม่ได้เลย)</option></select></div>
-                <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">รายละเอียด *</label><textarea name="message" required rows="3" placeholder="อธิบายสิ่งที่ต้องการเสนอแนะ หรือปัญหาที่พบเจอ..." class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea></div>
-                <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">แนบรูปภาพ / แคปหน้าจอ (ถ้ามี)</label><input type="file" name="attachment" accept="image/*" class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition cursor-pointer border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"/></div>
-                <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">อีเมลติดต่อกลับ (ไม่บังคับ)</label><input type="email" name="email" placeholder="example@email.com" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></div>
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700"><button type="button" onclick="closeFeedbackModal()" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">ยกเลิก</button><button type="submit" id="submitFeedbackBtn" class="px-5 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition">ส่งข้อความ</button></div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">ประเภท *</label>
+                    <select name="issueType" id="issueType" required onchange="toggleSeverityField()" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="suggestion">💡 เสนอแนะ / พูดคุยทั่วไป</option>
+                        <option value="bug">🐛 แจ้งปัญหาการใช้งาน / บั๊ก</option>
+                        <option value="other">❓ อื่นๆ</option>
+                    </select>
+                </div>
+                <div id="severityContainer" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">ระดับความรุนแรง (สำหรับบั๊ก) *</label>
+                    <select name="severity" id="severity" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="" disabled selected>-- เลือกระดับความรุนแรง --</option>
+                        <option value="low">🟡 เล็กน้อย (หน้าตาเว็บเพี้ยน แต่ทำงานต่อได้)</option>
+                        <option value="medium">🟠 ปานกลาง (บางฟังก์ชันรวน / ค้าง)</option>
+                        <option value="high">🔴 ร้ายแรง (หน้าเว็บพัง / ทำงานต่อไม่ได้เลย)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">รายละเอียด *</label>
+                    <textarea name="message" required rows="3" placeholder="อธิบายสิ่งที่ต้องการเสนอแนะ หรือปัญหาที่พบเจอ..." class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">แนบรูปภาพ / แคปหน้าจอ (ถ้ามี)</label>
+                    <input type="file" name="attachment" accept="image/*" class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 dark:hover:file:bg-indigo-900/50 transition cursor-pointer border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">อีเมลติดต่อกลับ (ไม่บังคับ)</label>
+                    <input type="email" name="email" placeholder="example@email.com" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeFeedbackModal()" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">ยกเลิก</button>
+                    <button type="submit" id="submitFeedbackBtn" class="px-5 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition">ส่งข้อความ</button>
+                </div>
             </form>
-            <div id="feedbackSuccessMsg" class="hidden text-center py-6 space-y-2"><div class="text-emerald-500 text-4xl">✅</div><h4 class="font-bold text-slate-800 dark:text-white text-lg">ส่งข้อความสำเร็จแล้ว!</h4><p class="text-sm text-slate-500 dark:text-slate-400">ขอบคุณสำหรับคำติชม ข้อมูลได้ส่งตรงถึงผู้พัฒนาเรียบร้อยครับ</p></div>
+            <div id="feedbackSuccessMsg" class="hidden text-center py-6 space-y-2">
+                <div class="text-emerald-500 text-4xl">✅</div>
+                <h4 class="font-bold text-slate-800 dark:text-white text-lg">ส่งข้อความสำเร็จแล้ว!</h4>
+                <p class="text-sm text-slate-500 dark:text-slate-400">ขอบคุณสำหรับคำติชม ข้อมูลได้ส่งตรงถึงผู้พัฒนาเรียบร้อยครับ</p>
+            </div>
         </div>
     </div>
 
@@ -231,7 +324,9 @@
                 sessionStorage.setItem('currentMode', currentMode);
                 const fileNamesStr = document.getElementById('fileNames').innerText;
                 if (fileNamesStr) sessionStorage.setItem('fileNamesStr', fileNamesStr);
-            } catch (e) { console.warn("ข้อมูลใหญ่เกินไป ไม่สามารถบันทึกชั่วคราวได้"); }
+            } catch (e) {
+                console.warn("ข้อมูลใหญ่เกินไป ไม่สามารถบันทึกชั่วคราวได้");
+            }
         }
 
         function loadState() {
@@ -248,87 +343,133 @@
                         initUIAfterLoad();
                     }
                 }
-            } catch (e) { console.error("โหลดข้อมูลที่บันทึกไว้ไม่สำเร็จ", e); }
+            } catch (e) {
+                console.error("โหลดข้อมูลที่บันทึกไว้ไม่สำเร็จ", e);
+            }
         }
+        
         window.addEventListener('DOMContentLoaded', loadState);
 
         function toggleSeverityField() {
             const issueType = document.getElementById('issueType').value;
             const severityContainer = document.getElementById('severityContainer');
             const severityInput = document.getElementById('severity');
-            if (issueType === 'bug') { severityContainer.classList.remove('hidden'); severityInput.setAttribute('required', 'required'); } 
-            else { severityContainer.classList.add('hidden'); severityInput.removeAttribute('required'); severityInput.value = ''; }
+            if (issueType === 'bug') {
+                severityContainer.classList.remove('hidden');
+                severityInput.setAttribute('required', 'required');
+            } else {
+                severityContainer.classList.add('hidden');
+                severityInput.removeAttribute('required');
+                severityInput.value = '';
+            }
         }
 
-        function openFeedbackModal() { document.getElementById('feedbackModal').classList.remove('hidden'); toggleSeverityField(); }
-        function closeFeedbackModal() { 
+        function openFeedbackModal() {
+            document.getElementById('feedbackModal').classList.remove('hidden');
+            toggleSeverityField(); 
+        }
+        
+        function closeFeedbackModal() {
             document.getElementById('feedbackModal').classList.add('hidden');
-            setTimeout(() => { document.querySelector('#feedbackModal form').reset(); toggleSeverityField(); document.querySelector('#feedbackModal form').classList.remove('hidden'); document.getElementById('feedbackSuccessMsg').classList.add('hidden'); }, 200);
+            setTimeout(() => {
+                document.querySelector('#feedbackModal form').reset();
+                toggleSeverityField(); 
+                document.querySelector('#feedbackModal form').classList.remove('hidden');
+                document.getElementById('feedbackSuccessMsg').classList.add('hidden');
+            }, 200);
         }
 
         async function handleFeedbackSubmit(event) {
             event.preventDefault();
             const form = event.target;
             const btn = document.getElementById('submitFeedbackBtn');
-            btn.innerText = "กำลังอัปโหลดและส่ง..."; btn.disabled = true;
+            btn.innerText = "กำลังอัปโหลดและส่ง...";
+            btn.disabled = true;
+
             try {
                 let response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } });
-                if (response.ok) { form.classList.add('hidden'); document.getElementById('feedbackSuccessMsg').classList.remove('hidden'); } 
-                else { alert('เกิดข้อผิดพลาดในการส่ง กรุณาลองใหม่อีกครั้ง'); btn.innerText = "ส่งข้อความ"; btn.disabled = false; }
-            } catch (error) { alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'); btn.innerText = "ส่งข้อความ"; btn.disabled = false; }
+                if (response.ok) {
+                    form.classList.add('hidden');
+                    document.getElementById('feedbackSuccessMsg').classList.remove('hidden');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการส่ง กรุณาลองใหม่อีกครั้ง');
+                    btn.innerText = "ส่งข้อความ";
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบอินเทอร์เน็ต');
+                btn.innerText = "ส่งข้อความ";
+                btn.disabled = false;
+            }
         }
 
         function applyTheme(theme) {
-            if (theme === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('icon-sun').classList.remove('hidden'); document.getElementById('icon-moon').classList.add('hidden'); } 
-            else { document.documentElement.classList.remove('dark'); document.getElementById('icon-sun').classList.add('hidden'); document.getElementById('icon-moon').classList.remove('hidden'); }
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('icon-sun').classList.remove('hidden');
+                document.getElementById('icon-moon').classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('icon-sun').classList.add('hidden');
+                document.getElementById('icon-moon').classList.remove('hidden');
+            }
         }
+
         function toggleTheme() {
             const isDark = document.documentElement.classList.contains('dark');
             const newTheme = isDark ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme); applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
         }
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { applyTheme('dark'); } 
-        else { applyTheme('light'); }
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            applyTheme('dark');
+        } else {
+            applyTheme('light');
+        }
 
         function clearData() {
-            if (!confirm("⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)")) return;
-            allFilesData = {}; activeThread = null;
-            document.getElementById('csvFiles').value = ""; document.getElementById('fileNames').innerText = ""; document.getElementById('searchInput').value = "";
-            document.getElementById('mainWorkspace').classList.add('hidden'); document.getElementById('initialOnboarding').classList.remove('hidden');
-            sessionStorage.removeItem('allFilesData'); sessionStorage.removeItem('currentMode'); sessionStorage.removeItem('fileNamesStr');
-        }
-
-        // --- แก้อาการเด้ง ---
-        // ฟังก์ชัน renderTable จะทำการล็อกตำแหน่งหน้าจอเอาไว้ไม่ให้เลื่อนขึ้นลงเวลากดสวิตช์
-        function renderTable() {
-            const container = document.querySelector('.table-container');
-            const currentScroll = container ? container.scrollTop : 0;
+            if (!confirm("⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)")) {
+                return;
+            }
+            allFilesData = {};
+            activeThread = null;
+            document.getElementById('csvFiles').value = "";
+            document.getElementById('fileNames').innerText = "";
+            document.getElementById('searchInput').value = "";
             
-            buildTableHTML();
+            document.getElementById('mainWorkspace').classList.add('hidden');
+            document.getElementById('initialOnboarding').classList.remove('hidden');
             
-            if (container) container.scrollTop = currentScroll;
+            sessionStorage.removeItem('allFilesData');
+            sessionStorage.removeItem('currentMode');
+            sessionStorage.removeItem('fileNamesStr');
         }
 
         function switchFile() {
-            buildTableHTML();
-            const container = document.querySelector('.table-container');
-            if (container) container.scrollTop = 0; // เด้งขึ้นบนเฉพาะตอนสลับไฟล์
+            renderTable();
+            const tableContainer = document.querySelector('.table-container');
+            if (tableContainer) { tableContainer.scrollTop = 0; } // เด้งขึ้นบนเฉพาะตอนสลับไฟล์
         }
 
         function switchMode(mode) {
-            currentMode = mode; activeThread = null; 
+            currentMode = mode;
+            activeThread = null; 
             updateModeUI();
-            buildTableHTML();
-            const container = document.querySelector('.table-container');
-            if (container) container.scrollTop = 0; // เด้งขึ้นบนเฉพาะตอนสลับโหมด
+            renderTable();
+            const tableContainer = document.querySelector('.table-container');
+            if (tableContainer) { tableContainer.scrollTop = 0; } // เด้งขึ้นบนเฉพาะตอนสลับโหมด
             saveState(); 
         }
 
         function getSelectedColumns() {
             return {
-                id: document.getElementById('col_id').checked, name: document.getElementById('col_name').checked,
-                surname: document.getElementById('col_surname').checked, status: document.getElementById('col_status').checked,
-                type: document.getElementById('col_type').checked, likes: document.getElementById('col_likes').checked,
+                id: document.getElementById('col_id').checked,
+                name: document.getElementById('col_name').checked,
+                surname: document.getElementById('col_surname').checked,
+                status: document.getElementById('col_status').checked,
+                type: document.getElementById('col_type').checked,
+                likes: document.getElementById('col_likes').checked,
                 original: document.getElementById('col_original').checked
             };
         }
@@ -336,9 +477,11 @@
         function handleFiles(event) {
             const files = event.target.files;
             if (!files.length) return;
+
             let fileNamesStr = `เลือกแล้ว ${files.length} ไฟล์: `;
             let loadedCount = 0;
-            allFilesData = {}; activeThread = null; 
+            allFilesData = {};
+            activeThread = null; 
 
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
@@ -347,20 +490,29 @@
                     loadedCount++;
                     fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
                     document.getElementById('fileNames').innerText = fileNamesStr;
-                    if (loadedCount === files.length) { initUIAfterLoad(); saveState(); }
+
+                    if (loadedCount === files.length) {
+                        initUIAfterLoad();
+                        saveState(); 
+                    }
                 };
                 reader.readAsText(file, 'UTF-8');
             });
         }
 
         function parseCSVRobust(text) {
-            let rows = []; let row = ['']; let inQuotes = false;
+            let rows = [];
+            let row = [''];
+            let inQuotes = false;
             for (let i = 0; i < text.length; i++) {
-                let c = text[i]; let nextC = text[i + 1];
+                let c = text[i];
+                let nextC = text[i + 1];
                 if (c === '"') {
-                    if (inQuotes && nextC === '"') { row[row.length - 1] += '"'; i++; } else { inQuotes = !inQuotes; }
-                } else if (c === ',' && !inQuotes) { row.push(''); } 
-                else if ((c === '\r' || c === '\n') && !inQuotes) {
+                    if (inQuotes && nextC === '"') { row[row.length - 1] += '"'; i++; } 
+                    else { inQuotes = !inQuotes; }
+                } else if (c === ',' && !inQuotes) {
+                    row.push('');
+                } else if ((c === '\r' || c === '\n') && !inQuotes) {
                     if (c === '\r' && nextC === '\n') { i++; }
                     rows.push(row); row = [''];
                 } else { row[row.length - 1] += c; }
@@ -370,55 +522,62 @@
             return rows;
         }
 
-        // --- ลอจิกการดึงคำที่ถูกต้อง (Surgical Fix) ---
-        function extractStudentData(chunkText, fullText) {
-            // 1. ตรวจสอบประเภทงานก่อน
+        // ระบบจับคำออริจินัลสุดๆ (ตัวที่คุณโอเคที่สุด)
+        function cleanHonorifics(token) {
+            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
+            for (let p of prefixes) {
+                if (token.startsWith(p)) return token.substring(p.length).trim();
+            }
+            return token.trim();
+        }
+
+        function extractStudentName(fullText, studentId) {
+            const noiseWords = new Set([
+                'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 'รายงานตัว', 'ค่ะ', 'ครับ', 'คะ', 
+                'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
+                'ชั่วโมงทุน', 'วินัย', 'รู้วินัย', 'แก้ความประพฤติ', 'แก้คะแนน', 'แก้คะแนนรู้วินัย', 'แก้รู้วินัย', 'คะแนนความประพฤติ', 'รักชาติ', 'กตัญญู', 'นาย', 
+                'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
+                'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ', 'ประพฤติ'
+            ]);
+
+            const parts = fullText.split(studentId);
+            for (let sideText of [parts[1] || "", parts[0] || ""]) {
+                let cleaned = sideText.replace(/\(.*?\)/g, ' ');
+                cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
+                let tokens = cleaned.split(/\s+/);
+                let nameTokens = [];
+                for (let t of tokens) {
+                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/^[0-9]{7,9}$/)) break;
+                    if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
+                    nameTokens.push(t);
+                }
+                
+                // แก้บั๊ก "นายาว" : ตัดคำนำหน้าแค่ชื่อแรกเท่านั้น นามสกุลจะไม่เปลี่ยน
+                if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
+                else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
+            }
+            return { firstName: "", lastName: "" };
+        }
+
+        function detectPointType(subLine, fullText) {
             const categories = [
-                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ", "ด้านภาวะผู้นำ"] },
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] }, // เพิ่มหมวด
                 { name: "รักชาติ", keywords: ["รักชาติ"] },
                 { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
                 { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
                 { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] },
                 { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
-                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนใจอาสา", "จิตอาสา", "คะแนนความดี", "กตัญญู", "ความดี"] }
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } // จิตอาสาลงที่นี่
             ];
-            let type = "ไม่ได้ระบุ";
-            for (let cat of categories) { if (cat.keywords.some(kw => chunkText.includes(kw))) { type = cat.name; break; } }
-            if (type === "ไม่ได้ระบุ") { for (let cat of categories) { if (cat.keywords.some(kw => fullText.includes(kw))) { type = cat.name; break; } } }
-            if (type === "ไม่ได้ระบุ") { const teamMatch = (chunkText + " " + fullText).match(/ทีม\s*\d/); if (teamMatch) type = teamMatch[0].replace(/\s+/g, ''); }
-
-            // 2. ลบคำขยะและแยกชื่อ-สกุล
-            // ดึงวงเล็บและตัวอักษรพิเศษออก
-            let nameStr = chunkText.replace(/[\(\)\[\]{}]/g, ' '); 
-            
-            // กรองคำที่มักจะถูกพิมพ์ติดกับชื่อ-นามสกุลออกไปก่อน (เช่น คะแนนใจอาสา)
-            const stopWords = ["คะแนนใจอาสา", "ใจอาสาค่ะ", "ใจอาสาครับ", "ใจอาสา", "จิตอาสา", "คะแนนความดี", "ความดี", "คะแนนวินัย", "รู้วินัย", "วินัย", "ชั่วโมงทุน", "ชม.ทุน", "รักชาติ", "ด้านภาวะผู้นำ", "ภาวะผู้นำ", "ผู้นำ", "แก้คะแนนรู้วินัย", "แก้ความประพฤติ", "แก้คะแนนความประพฤติ", "แก้คะแนน", "ประพฤติ", "คะแนน", "ทั้งคู่", "ทั้งสองคน", "ทั้ง3คน", "ค่ะ", "ครับ", "คะ", "มาแทน"];
-            stopWords.forEach(sw => { nameStr = nameStr.replace(new RegExp(sw, 'gi'), ' '); });
-            
-            nameStr = nameStr.replace(/[-–,._/!@#$%^&*|+:;"']/g, ' '); // เอาเครื่องหมายวรรคตอนออก
-            nameStr = nameStr.replace(/[\r\n]+/g, ' '); // เอาขึ้นบรรทัดใหม่ออกกันชื่อขาด
-            nameStr = nameStr.trim();
-
-            let tokens = nameStr.split(/\s+/).filter(t => t.length > 0 && !t.match(/^[0-9]+$/));
-            
-            // 3. หั่นคำนำหน้าทิ้ง เฉพาะที่ "Token แรกสุด" (เพื่อไม่ให้บั๊กชื่อ นายาว)
-            if (tokens.length > 0) {
-                const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
-                for (let p of prefixes) {
-                    if (tokens[0] === p) { tokens.shift(); break; } 
-                    else if (tokens[0].startsWith(p)) {
-                        tokens[0] = tokens[0].substring(p.length).trim();
-                        if (tokens[0] === "") tokens.shift();
-                        break;
-                    }
-                }
+            for (let cat of categories) {
+                for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; }
             }
-
-            return {
-                firstName: tokens.length > 0 ? tokens[0] : "",
-                lastName: tokens.length > 1 ? tokens.slice(1).join(" ") : "",
-                type: type
-            };
+            for (let cat of categories) {
+                for (let kw of cat.keywords) { if (fullText.includes(kw)) return cat.name; }
+            }
+            const teamMatch = (subLine + " " + fullText).match(/ทีม\s*\d/);
+            if (teamMatch) return teamMatch[0].replace(/\s+/g, '');
+            return "ไม่ได้ระบุ";
         }
 
         function parseCSVData(fileName, text) {
@@ -435,33 +594,43 @@
 
             if (commentIdx === -1) return;
 
-            let parentMap = {}; let allIds = [];
+            let parentMap = {};
+            let allIds = [];
             if (commentIdIdx !== -1) {
                 for (let i = 1; i < rows.length; i++) {
                     let cols = rows[i];
                     if (!cols || cols.length <= commentIdx) continue;
                     let id = cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                     let parentId = replyToIdx !== -1 && cols[replyToIdx] ? cols[replyToIdx].trim() : "";
-                    if (id) { allIds.push(id); if (parentId && parentId !== "undefined") parentMap[id] = parentId; }
+                    if (id) {
+                        allIds.push(id);
+                        if (parentId && parentId !== "undefined") parentMap[id] = parentId;
+                    }
                 }
             }
 
-            let threadCounter = 1; let threadMap = {};
-            function getRoot(id) { let curr = id; let depth = 0; while (parentMap[curr] && depth < 10) { curr = parentMap[curr]; depth++; } return curr; }
+            let threadCounter = 1;
+            let threadMap = {};
+            function getRoot(id) {
+                let curr = id; let depth = 0;
+                while (parentMap[curr] && depth < 10) { curr = parentMap[curr]; depth++; }
+                return curr;
+            }
             for (let id of allIds) {
-                let rootId = getRoot(id); let uniqueRootId = fileName + "_" + rootId;
+                let rootId = getRoot(id);
+                let uniqueRootId = fileName + "_" + rootId;
                 if (!threadMap[uniqueRootId]) threadMap[uniqueRootId] = threadCounter++;
                 threadMap[fileName + "_" + id] = threadMap[uniqueRootId];
             }
 
-            let fileRecords = []; const seenIdsInThisFile = new Set();
+            let fileRecords = [];
+            const seenIdsInThisFile = new Set();
 
             for (let i = 1; i < rows.length; i++) {
                 let cols = rows[i];
                 if (!cols || cols.length <= commentIdx) continue;
 
                 let fullText = cols[commentIdx] || "";
-                let cleanFullText = fullText.replace(/เเ/g, 'แ'); // แก้สระแ
                 
                 const parentId = replyToIdx !== -1 && cols[replyToIdx] ? cols[replyToIdx].trim() : "";
                 const isReply = parentId !== "" && parentId !== "undefined";
@@ -470,41 +639,53 @@
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
 
-                // หากพบรหัสนักศึกษาให้ทำงานทีละคน
-                const idRegex = /(?:^|\D)([0-9]{7,9})(?=\D|$)/g;
-                let match; let foundIds = [];
-                while ((match = idRegex.exec(cleanFullText)) !== null) { foundIds.push({ id: match[1], index: match.index }); }
+                // ลอจิกดั้งเดิม: แยกเป็นบรรทัดย่อย ไม่ให้ลากคำข้ามบรรทัด
+                const subLines = fullText.split('\n');
+                subLines.forEach(subLine => {
+                    subLine = subLine.trim();
+                    let cleanSubLine = subLine.replace(/เเ/g, 'แ');
 
-                if (foundIds.length > 0) {
-                    for (let j = 0; j < foundIds.length; j++) {
-                        let studentId = foundIds[j].id;
-
-                        if (currentMode === 'separate' && seenIdsInThisFile.has(studentId)) continue;
+                    const idMatch = cleanSubLine.match(/\b([0-9]{7,9})\b/);
+                    if (idMatch) {
+                        const studentId = idMatch[1];
+                        if (currentMode === 'separate' && seenIdsInThisFile.has(studentId)) return;
                         seenIdsInThisFile.add(studentId);
 
-                        let startIdx = foundIds[j].index + studentId.length;
-                        let endIdx = (j + 1 < foundIds.length) ? foundIds[j+1].index : cleanFullText.length;
-                        let rawChunk = cleanFullText.substring(startIdx, endIdx);
-
                         const isIdValid = (studentId.length === 8);
-                        const extracted = extractStudentData(rawChunk, cleanFullText);
+                        
+                        // ก่อนสกัดชื่อ แอบลบคำว่า "คะแนนใจอาสา" หรือ "(ใจอาสา)" ทิ้งก่อน จะได้ไม่หลุดเข้านามสกุล
+                        let textForNameExtract = cleanSubLine.replace(/\(.*?\)/g, ' ').replace(/(คะแนนใจอาสา|ใจอาสาค่ะ|ใจอาสาครับ|ใจอาสา|จิตอาสา|คะแนนความดี)/g, ' ');
+                        const nameObj = extractStudentName(textForNameExtract, studentId);
+                        
+                        let firstName = nameObj.firstName;
+                        let lastName = nameObj.lastName;
+
+                        if (!firstName) {
+                            let textFullForNameExtract = fullText.replace(/เเ/g, 'แ').replace(/\(.*?\)/g, ' ').replace(/(คะแนนใจอาสา|ใจอาสาค่ะ|ใจอาสาครับ|ใจอาสา|จิตอาสา|คะแนนความดี)/g, ' ');
+                            const fullObj = extractStudentName(textFullForNameExtract, studentId);
+                            firstName = fullObj.firstName;
+                            lastName = fullObj.lastName;
+                        }
+                        
+                        let cleanFullTextForCat = fullText.replace(/เเ/g, 'แ').replace(/[\r\n]+/g, ' '); 
+                        let pointType = detectPointType(cleanSubLine, cleanFullTextForCat);
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, 
                             "fileName": fileName,
                             "รหัสนักศึกษา": studentId,
                             "isIdValid": isIdValid,
-                            "ชื่อ": extracted.firstName,
-                            "นามสกุล": extracted.lastName,
-                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก",
+                            "ชื่อ": firstName,
+                            "นามสกุล": lastName,
+                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", // เปลี่ยนเป็นเม้นหลัก/ย่อย
                             "สายสนทนา": threadNo,
                             "isReply": isReply,
-                            "ประเภทงาน": extracted.type,
+                            "ประเภทงาน": pointType,
                             "ยอดไลก์": likeCount,
                             "คอมเมนต์เต็มต้นฉบับ": fullText
                         });
                     }
-                }
+                });
             }
             allFilesData[fileName] = fileRecords;
         }
@@ -513,8 +694,11 @@
             let val = newValue.trim();
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
                 allFilesData[fileName][recordIndex][field] = val;
-                if (field === 'รหัสนักศึกษา') allFilesData[fileName][recordIndex].isIdValid = (val.length === 8);
-                updateSummary(); saveState(); 
+                if (field === 'รหัสนักศึกษา') {
+                    allFilesData[fileName][recordIndex].isIdValid = (val.length === 8);
+                }
+                updateSummary(); 
+                saveState(); 
             }
         }
 
@@ -522,7 +706,9 @@
             const dropdown = document.getElementById('fileSelectDropdown');
             dropdown.innerHTML = "";
             Object.keys(allFilesData).forEach(fileName => {
-                let opt = document.createElement('option'); opt.value = fileName; opt.innerText = fileName; dropdown.appendChild(opt);
+                let opt = document.createElement('option');
+                opt.value = fileName; opt.innerText = fileName;
+                dropdown.appendChild(opt);
             });
             document.getElementById('initialOnboarding').classList.add('hidden');
             document.getElementById('mainWorkspace').classList.remove('hidden');
@@ -550,22 +736,34 @@
             let uniqueThreadId = fileName + "_" + threadId;
             event.stopPropagation(); 
             let rowElement = btnElement.closest('tr');
-            if (activeThread === uniqueThreadId) { activeThread = null; } else { activeThread = uniqueThreadId; }
-            
+            if (activeThread === uniqueThreadId) { activeThread = null; } 
+            else { activeThread = uniqueThreadId; }
+            applyThreadFilter();
+            setTimeout(() => {
+                if(rowElement) rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 10);
+        }
+
+        function applyThreadFilter() {
             const rows = document.querySelectorAll('.data-row');
             rows.forEach(row => {
                 let rowThread = row.getAttribute('data-thread');
                 let rowFileName = row.getAttribute('data-filename');
                 let uniqueRowThread = rowFileName + "_" + rowThread;
+                let activeUniqueThread = activeThread; 
+
                 if (activeThread === null) {
                     row.classList.remove('thread-hidden', 'thread-highlight');
                 } else {
-                    if (uniqueRowThread === activeThread) { row.classList.remove('thread-hidden'); row.classList.add('thread-highlight'); } 
-                    else { row.classList.add('thread-hidden'); row.classList.remove('thread-highlight'); }
+                    if (uniqueRowThread === activeUniqueThread) {
+                        row.classList.remove('thread-hidden');
+                        row.classList.add('thread-highlight');
+                    } else {
+                        row.classList.add('thread-hidden');
+                        row.classList.remove('thread-highlight');
+                    }
                 }
             });
-
-            setTimeout(() => { if(rowElement) rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 10);
         }
 
         let currentlyDisplayedData = [];
@@ -573,10 +771,15 @@
         function updateSummary() {
             let total = currentlyDisplayedData.length;
             let valid = currentlyDisplayedData.filter(d => d.isIdValid).length;
-            document.getElementById('sumTotal').innerText = total; document.getElementById('sumValid').innerText = valid;
+            
+            document.getElementById('sumTotal').innerText = total;
+            document.getElementById('sumValid').innerText = valid;
 
             let counts = {};
-            currentlyDisplayedData.forEach(d => { let t = d["ประเภทงาน"]; counts[t] = (counts[t] || 0) + 1; });
+            currentlyDisplayedData.forEach(d => {
+                let t = d["ประเภทงาน"];
+                counts[t] = (counts[t] || 0) + 1;
+            });
 
             let catHtml = '';
             const colorMap = { 
@@ -594,18 +797,24 @@
                 catHtml += `<span class="px-2.5 py-1 rounded-lg ${badgeClass}">${cat}: ${counts[cat]} คน</span>`;
             });
             if(Object.keys(counts).length === 0) catHtml = '<span class="text-slate-400 dark:text-slate-500 font-normal">ไม่มีข้อมูล</span>';
+            
             document.getElementById('sumCategories').innerHTML = catHtml;
         }
 
-        function buildTableHTML() {
+        function renderTable() {
+            // ดึงพิกัดหน้าจอปัจจุบันเก็บไว้ก่อน
+            const tableContainer = document.querySelector('.table-container');
+            const currentScrollPos = tableContainer ? tableContainer.scrollTop : 0;
+
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = ""; activeThread = null; 
+            tbody.innerHTML = "";
+            activeThread = null; 
             
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
-            // คืนค่าตารางเดิม ไม่มีบังคับความกว้าง (Width)
+            // คืนค่าตารางแบบออริจินัล 100% ไม่มี width บังคับ ทำให้มันสมดุลเป๊ะ
             let headerHtml = `<tr>`;
             if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ไฟล์ต้นทาง</th>`;
             if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">รหัสนักศึกษา</th>`;
@@ -623,13 +832,17 @@
                 const selectedFile = document.getElementById('fileSelectDropdown').value;
                 displayData = allFilesData[selectedFile] || [];
             } else {
-                Object.values(allFilesData).forEach(fileRecords => { displayData = displayData.concat(fileRecords); });
+                Object.values(allFilesData).forEach(fileRecords => {
+                    displayData = displayData.concat(fileRecords);
+                });
             }
 
             if (searchQuery.trim() !== "") {
                 displayData = displayData.filter(item => 
-                    item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) || item["ชื่อ"].toLowerCase().includes(searchQuery) ||
-                    item["นามสกุล"].toLowerCase().includes(searchQuery) || item["ประเภทงาน"].toLowerCase().includes(searchQuery)
+                    item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) ||
+                    item["ชื่อ"].toLowerCase().includes(searchQuery) ||
+                    item["นามสกุล"].toLowerCase().includes(searchQuery) ||
+                    item["ประเภทงาน"].toLowerCase().includes(searchQuery)
                 );
             }
 
@@ -644,6 +857,7 @@
                     const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
                     
                     tr.className = `data-row ${rowBgColor} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
+                    
                     tr.setAttribute('data-thread', item["สายสนทนา"]);
                     tr.setAttribute('data-filename', item["fileName"]); 
                     if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
@@ -655,15 +869,12 @@
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                     idCellHtml += `</td>`;
 
-                    // ตรวจสอบและแสดงแจ้งเตือนถ้าว่างเปล่า (ใส่คลาส empty-cell)
                     let fName = item["ชื่อ"].trim();
                     let lName = item["นามสกุล"].trim();
-                    let nameEmptyClass = fName === "" ? "empty-cell" : "";
-                    let surnameEmptyClass = lName === "" ? "empty-cell" : "";
-
-                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 ${nameEmptyClass}">${fName}</span>`;
-                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 ${surnameEmptyClass}">${lName}</span>`;
-                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
+                    
+                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${fName}</span>`;
+                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full">${lName}</span>`;
+                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell w-full">${item["ประเภทงาน"]}</span>`;
 
                     let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
                         `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
@@ -694,6 +905,11 @@
                     tr.innerHTML = rowHtml;
                     tbody.appendChild(tr);
                 });
+            }
+
+            // คืนค่า Scroll Position ให้หน้าจออยู่ที่เดิม (ไม่เด้งขึ้นบน)
+            if (tableContainer) {
+                tableContainer.scrollTop = currentScrollPos;
             }
         }
 
