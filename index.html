@@ -37,7 +37,7 @@
         .editable-cell {
             outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; 
             transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
-            max-width: 100%; /* ไม่ฟิกขนาดตายตัว แต่จำกัดไม่ให้ล้นเซลล์ */
+            max-width: 100%; 
             overflow-x: auto;
             white-space: nowrap;
         }
@@ -865,7 +865,6 @@
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
-            // ปรับสมดุลความกว้างของคอลัมน์ชื่อและนามสกุล ไม่ให้มันไปกองเว้นว่างฝั่งใดฝั่งหนึ่งมากเกินไป (ใส่ w-1/5 เพื่อกระจายสัดส่วนให้พอดี)
             let headerHtml = `<tr>`;
             let isFirstCol = true;
             function getThClass(baseClass) {
@@ -885,10 +884,8 @@
             if (cols.type) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ประเภทงาน</th>`;
             if (cols.likes) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไลก์</th>`;
             
-            // เอาคำสั่ง w-1/3 ที่กินพื้นที่เกินไปออก แล้วปล่อยให้ความกว้างไหลไปตามปกติ
-            if (cols.original) {
-                rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'normal' });
-            }
+            // จำกัดพื้นที่ช่องคอมเมนต์ให้พอดี ไม่ให้แคบหรือกว้างไปจนกินที่ชาวบ้าน
+            if (cols.original) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[250px] max-w-[400px] border-b border-slate-200 dark:border-slate-700')}">คอมเมนต์ต้นฉบับ</th>`;
             
             headerHtml += `</tr>`;
             thead.innerHTML = headerHtml;
@@ -987,19 +984,21 @@
                     }
 
                     if (cols.original) {
-                        rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'normal' });
+                        // บังคับให้ช่องข้อความต้นฉบับไม่ขยายตัวกว้างเกิน 400px และอนุญาตให้ปัดบรรทัดได้ (type: 'comment')
+                        rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'comment' });
                     }
 
                     let trHtml = "";
                     rowCells.forEach((cell, cIndex) => {
                         let alignClass = cell.type === 'center' ? 'text-center' : '';
                         let monoClass = cell.type === 'mono' ? 'font-mono' : '';
+                        // ปลดล็อคไม่ให้กล่องคอลัมน์คอมเมนต์เป็นเส้นตรงยาวๆ (whitespace-nowrap)
+                        let noWrap = cell.type === 'comment' ? '' : 'whitespace-nowrap';
                         
-                        // เอาคำสั่งคลิกที่ td ทุกอย่างออกไปหมดแล้ว
                         if (cIndex === 0) {
-                            trHtml += `<td class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
+                            trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
                         } else {
-                            trHtml += `<td class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass}">${cell.content}</td>`;
+                            trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass}">${cell.content}</td>`;
                         }
                     });
 
