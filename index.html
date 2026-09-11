@@ -17,13 +17,13 @@
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* สไตล์สำหรับแถวที่ถูกซ่อน/ทำให้จางลง (ใช้การดรอปสีข้อความแทน opacity ทั้งแถว เพื่อให้ปุ่มยังชัดเจน) */
+        /* แถวที่ถูกซ่อน/จางลง: เปลี่ยนสีข้อความและพื้นหลังแทนการใช้ opacity ทั้งแถว เพื่อไม่ให้ปุ่มซ่อนจางตามไปด้วย */
         .row-faded { background-color: rgba(100, 116, 139, 0.08) !important; }
         .dark .row-faded { background-color: rgba(51, 65, 85, 0.4) !important; }
         .row-faded td { color: #94a3b8 !important; }
         .row-faded .editable-cell { color: #94a3b8 !important; }
 
-        /* ปุ่มซ่อน/จางแถว: ซ่อนเมื่อไม่ชี้ แต่ถ้ากดซ่อนแล้ว ปุ่มจะแสดงค้างไว้ตลอด และไม่จางตามตัวหนังสือ */
+        /* ปุ่มซ่อน/จางแถว: ซ่อนสนิทเมื่อไม่ชี้ แต่จะแสดงค้างไว้ชัดเจนตลอดหากแถวนี้ถูกกดซ่อนแล้ว */
         .row-fade-action {
             position: absolute;
             left: 8px;
@@ -39,16 +39,14 @@
             pointer-events: auto;
         }
 
-        /* ขยาย padding ให้กดง่ายขึ้น */
+        /* กล่องข้อความแก้ไขได้: ปรับให้ขนาดพอดีกับตัวหนังสือ ไม่สร้างพื้นที่ว่างรอบตัวที่ทำให้เผลอกดโดนง่ายบนแท็บเล็ต */
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: default; display: inline-block; min-width: 40px; min-height: 24px;
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 2px 4px; transition: all 0.2s; cursor: text; display: inline;
         }
-        /* เมื่ออยู่ในสถานะกำลังแก้ไข (contenteditable=true) ถึงจะเปลี่ยนเคอร์เซอร์เป็นข้อความ */
-        .editable-cell[contenteditable="true"] {
-            cursor: text;
+        .editable-cell:hover, .editable-cell:focus {
             background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
         }
-        .dark .editable-cell[contenteditable="true"] {
+        .dark .editable-cell:hover, .dark .editable-cell:focus {
             background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
         }
 
@@ -138,7 +136,7 @@
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">✨</div>
                     <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือดับเบิลคลิกที่ข้อความเพื่อพิมพ์แก้ไข</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ตัวหนังสือเพื่อพิมพ์แก้ไข</p>
                 </div>
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">📥</div>
@@ -218,8 +216,8 @@
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ซ่อนเมื่อไม่ชี้ / ค้างแสดงชัดเจนเมื่อถูกซ่อน)</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = ดับเบิลคลิก/แตะสองครั้งที่ข้อความเพื่อแก้ไข</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ปุ่มสีชัดเจน ไม่จางตามแถว)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะเฉพาะที่ตัวหนังสือในกล่องเพื่อพิมพ์แก้ไข (ไม่เผลอกดโดนพื้นที่ว่าง)</span>
                 </div>
             </div>
 
@@ -740,23 +738,7 @@
             allFilesData[fileName] = fileRecords;
         }
 
-        /* ฟังก์ชันเปิดโหมดแก้ไขเฉพาะเมื่อดับเบิลคลิก (ป้องกันแท็บเล็ตเผลอกด) */
-        function enableEdit(el) {
-            el.setAttribute('contenteditable', 'true');
-            el.focus();
-            // ย้ายcursorไปท้ายสุด
-            const range = document.createRange();
-            const sel = window.getSelection();
-            range.selectNodeContents(el);
-            range.collapse(false);
-            sel.removeAllRanges();
-            sel.addRange(range);
-        }
-
-        function updateRecord(fileName, recordIndex, field, newValue, el) {
-            if (el) {
-                el.setAttribute('contenteditable', 'false');
-            }
+        function updateRecord(fileName, recordIndex, field, newValue) {
             let val = newValue.trim();
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
                 allFilesData[fileName][recordIndex][field] = val;
@@ -936,17 +918,16 @@
                     tr.setAttribute('data-filename', item["fileName"]); 
                     if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    // ใช้ contenteditable="false" และเปิดใช้งานผ่าน ondblclick เพื่อป้องกันการเผลอกดบนแท็บเล็ต
-                    let idSpan = `<span contenteditable="false" spellcheck="false" onclick="event.stopPropagation()" ondblclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText, this)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
+                    let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
                     let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap">`;
                     if (item.isReply) idCellHtml += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
                     idCellHtml += idSpan;
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                     idCellHtml += `</td>`;
 
-                    let nameSpan = `<span contenteditable="false" spellcheck="false" onclick="event.stopPropagation()" ondblclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText, this)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="false" spellcheck="false" onclick="event.stopPropagation()" ondblclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText, this)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
-                    let typeSpan = `<span contenteditable="false" spellcheck="false" onclick="event.stopPropagation()" ondblclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText, this)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
+                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
+                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
 
                     let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
                         `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
@@ -957,7 +938,7 @@
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
-                    // ปุ่มซ่อน/จางแถว: จะไม่จางตามแถว เพราะแยกสไตล์ออกจากการใช้ opacity ของแถวโดยตรง
+                    // ปุ่มซ่อน/จางแถว: อยู่ในกล่องของตัวเอง แยกจากความจางของข้อความในแถว ทำให้ปุ่มสว่าง ชัดเจน และกดง่ายเสมอ
                     let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${item.isFaded ? 
