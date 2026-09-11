@@ -703,10 +703,12 @@
                         let firstName = nameObj.firstName;
                         let lastName = nameObj.lastName;
 
-                        if (!firstName) {
+                        // แก้ไขจุดนี้: เพิ่มเงื่อนไข || !lastName เพื่อบังคับให้ระบบไปค้นใน cleanFullText 
+                        // ซึ่งเป็นโค้ดเดิมของคุณที่รัดกุมมากและไม่กระทบชื่ออื่น 100% ครับ
+                        if (!firstName || !lastName) {
                             const fullObj = extractStudentName(cleanFullText, studentId);
-                            firstName = fullObj.firstName;
-                            lastName = fullObj.lastName;
+                            if (fullObj.firstName) firstName = fullObj.firstName;
+                            if (fullObj.lastName) lastName = fullObj.lastName;
                         }
 
                         let cleanFullTextForCat = cleanFullText.replace(/[\r\n]+/g, ' '); 
@@ -875,18 +877,12 @@
 
             if (currentMode === 'merged') headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
             if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
-            
-            // ใส่ min-w-[140px] เพื่อรับประกันว่าช่องชื่อและนามสกุลจะไม่ถูกตารางบีบให้แคบกว่านี้
             if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
             if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
-            
             if (cols.status) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">สถานะ</th>`;
             if (cols.type) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ประเภทงาน</th>`;
             if (cols.likes) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไลก์</th>`;
-            
-            // จำกัดพื้นที่ช่องคอมเมนต์ให้พอดี ไม่ให้แคบหรือกว้างไปจนกินที่ชาวบ้าน
             if (cols.original) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[250px] max-w-[400px] border-b border-slate-200 dark:border-slate-700')}">คอมเมนต์ต้นฉบับ</th>`;
-            
             headerHtml += `</tr>`;
             thead.innerHTML = headerHtml;
 
@@ -984,7 +980,6 @@
                     }
 
                     if (cols.original) {
-                        // บังคับให้ช่องข้อความต้นฉบับไม่ขยายตัวกว้างเกิน 400px และอนุญาตให้ปัดบรรทัดได้ (type: 'comment')
                         rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'comment' });
                     }
 
@@ -992,7 +987,6 @@
                     rowCells.forEach((cell, cIndex) => {
                         let alignClass = cell.type === 'center' ? 'text-center' : '';
                         let monoClass = cell.type === 'mono' ? 'font-mono' : '';
-                        // ปลดล็อคไม่ให้กล่องคอลัมน์คอมเมนต์เป็นเส้นตรงยาวๆ (whitespace-nowrap)
                         let noWrap = cell.type === 'comment' ? '' : 'whitespace-nowrap';
                         
                         if (cIndex === 0) {
