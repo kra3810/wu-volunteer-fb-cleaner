@@ -17,33 +17,27 @@
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลง แต่ปุ่มซ่อนไม่จางตาม */
+        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลงมาก ยกเว้นปุ่มซ่อนจะไม่โดนผลกระทบ */
         .row-faded { background-color: rgba(100, 116, 139, 0.05) !important; }
-        .row-faded .row-content { opacity: 0.15; filter: grayscale(100%); transition: all 0.2s; }
-        .row-faded:hover .row-content { opacity: 0.6; filter: grayscale(0%); }
+        .row-faded .row-content { opacity: 0.15; filter: grayscale(100%); pointer-events: none; transition: all 0.2s; }
+        .row-faded:hover .row-content { opacity: 0.6; pointer-events: auto; filter: grayscale(0%); }
         .dark .row-faded { background-color: rgba(30, 41, 59, 0.4) !important; }
 
         /* ปุ่มซ่อน/จางแถว: เกาะอยู่ที่ริมขอบซ้ายสุดของแถว ไม่ทับข้อความ และไม่จางตาม */
         .row-fade-action {
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-            z-index: 10;
+            position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+            opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 10;
         }
         .data-row:hover .row-fade-action,
         .data-row.row-faded .row-fade-action {
-            opacity: 1;
-            pointer-events: auto;
+            opacity: 1; pointer-events: auto;
         }
 
-        /* คืนค่าขนาดช่องกรอกข้อมูลเดิม 100% ป้องกันดันสเกลตาราง */
+        /* คืนค่าหน้าตากล่องให้เนียนไปกับตารางเหมือนเดิม แต่ป้องกันไม่ให้ดันตารางจนสเกลพัง */
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
-            max-width: 160px;
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; 
+            transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
+            max-width: 100%; /* ไม่ฟิกขนาดตายตัว แต่จำกัดไม่ให้ล้นเซลล์ */
             overflow-x: auto;
             white-space: nowrap;
         }
@@ -57,11 +51,7 @@
 
         /* ⚠️ แจ้งเตือนเมื่อช่องว่างเปล่า */
         .editable-cell:empty::before {
-            content: "⚠️ (ว่าง)";
-            color: #ef4444;
-            font-size: 0.75rem;
-            font-weight: 600;
-            pointer-events: none;
+            content: "⚠️ (ว่าง)"; color: #ef4444; font-size: 0.75rem; font-weight: 600; pointer-events: none;
         }
 
         .checkbox-container input:checked + div {
@@ -875,6 +865,7 @@
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
+            // ปรับสมดุลความกว้างของคอลัมน์ชื่อและนามสกุล ไม่ให้มันไปกองเว้นว่างฝั่งใดฝั่งหนึ่งมากเกินไป (ใส่ w-1/5 เพื่อกระจายสัดส่วนให้พอดี)
             let headerHtml = `<tr>`;
             let isFirstCol = true;
             function getThClass(baseClass) {
@@ -885,8 +876,8 @@
 
             if (currentMode === 'merged') headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
             if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
-            if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
-            if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
+            if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 w-1/5 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
+            if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 w-1/5 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
             if (cols.status) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">สถานะ</th>`;
             if (cols.type) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ประเภทงาน</th>`;
             if (cols.likes) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไลก์</th>`;
@@ -996,7 +987,7 @@
                         let alignClass = cell.type === 'center' ? 'text-center' : '';
                         let monoClass = cell.type === 'mono' ? 'font-mono' : '';
                         
-                        // คืนค่ากลับไปแบบออริจินัล: ไม่มีการจับการคลิกที่ td อีกต่อไป
+                        // เอาคำสั่งคลิกที่ td ทุกอย่างออกไปหมดแล้ว
                         if (cIndex === 0) {
                             trHtml += `<td class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
                         } else {
