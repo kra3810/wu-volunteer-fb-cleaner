@@ -17,13 +17,13 @@
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* แถวที่ถูกซ่อน/จางลง: เปลี่ยนสีข้อความและพื้นหลังแทนการใช้ opacity ทั้งแถว เพื่อไม่ให้ปุ่มซ่อนจางตามไปด้วย */
+        /* แถวที่ถูกซ่อน/จางลง: ปรับเฉพาะสีข้อความและพื้นหลังแถว โดยไม่ให้กระทบกับปุ่มซ่อน */
         .row-faded { background-color: rgba(100, 116, 139, 0.08) !important; }
         .dark .row-faded { background-color: rgba(51, 65, 85, 0.4) !important; }
         .row-faded td { color: #94a3b8 !important; }
         .row-faded .editable-cell { color: #94a3b8 !important; }
 
-        /* ปุ่มซ่อน/จางแถว: ซ่อนสนิทเมื่อไม่ชี้ แต่จะแสดงค้างไว้ชัดเจนตลอดหากแถวนี้ถูกกดซ่อนแล้ว */
+        /* ปุ่มซ่อน/จางแถว: แยกชั้นอิสระ สีชัดเจน ไม่จางตามตัวหนังสือในแถว และแสดงค้างไว้ทันทีเมื่อแถวถูกซ่อน */
         .row-fade-action {
             position: absolute;
             left: 8px;
@@ -39,15 +39,15 @@
             pointer-events: auto;
         }
 
-        /* กล่องข้อความแก้ไขได้: ปรับให้ขนาดพอดีกับตัวหนังสือ ไม่สร้างพื้นที่ว่างรอบตัวที่ทำให้เผลอกดโดนง่ายบนแท็บเล็ต */
+        /* กล่องข้อความแก้ไขได้: ตัด Padding ส่วนเกินออกเพื่อให้คลิกโดนเฉพาะตัวหนังสือจริงๆ ป้องกันการเผลอกดโดนพื้นที่ว่าง */
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 2px 4px; transition: all 0.2s; cursor: text; display: inline;
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 0 2px; transition: all 0.2s; cursor: text; display: inline;
         }
         .editable-cell:hover, .editable-cell:focus {
-            background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
+            background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4); padding: 2px 4px;
         }
         .dark .editable-cell:hover, .dark .editable-cell:focus {
-            background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
+            background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047; padding: 2px 4px;
         }
 
         /* ⚠️ แจ้งเตือนเมื่อช่องว่างเปล่า */
@@ -136,7 +136,7 @@
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">✨</div>
                     <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ตัวหนังสือเพื่อพิมพ์แก้ไข</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือคลิกเฉพาะที่ตัวหนังสือเพื่อแก้ไข</p>
                 </div>
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">📥</div>
@@ -216,8 +216,8 @@
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ปุ่มสีชัดเจน ไม่จางตามแถว)</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะเฉพาะที่ตัวหนังสือในกล่องเพื่อพิมพ์แก้ไข (ไม่เผลอกดโดนพื้นที่ว่าง)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ปุ่มสีทึบคมชัด ไม่จางตามแถว)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะเฉพาะตัวหนังสือเพื่อแก้ไข (ไม่มีพื้นที่ว่างรอบตัวให้เผลอกดโดน)</span>
                 </div>
             </div>
 
@@ -938,8 +938,8 @@
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
-                    // ปุ่มซ่อน/จางแถว: อยู่ในกล่องของตัวเอง แยกจากความจางของข้อความในแถว ทำให้ปุ่มสว่าง ชัดเจน และกดง่ายเสมอ
-                    let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
+                    // ปุ่มซ่อน/จางแถว: แยกออกจาก .row-faded อย่างเด็ดขาด ทำให้ปุ่มทึบแสง คมชัด และกดง่ายตลอดเวลา
+                    let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${item.isFaded ? 
                             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>' :
