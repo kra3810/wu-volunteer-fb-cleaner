@@ -17,13 +17,23 @@
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
         
         .editable-cell {
-            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 2px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 20px;
+            outline: none; border: 1px solid transparent; border-radius: 4px; padding: 2px 6px; transition: all 0.2s; cursor: text; display: inline-block; min-width: 30px;
         }
         .editable-cell:hover, .editable-cell:focus {
             background-color: #fef08a; border-color: #fde047; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
         }
         .dark .editable-cell:hover, .dark .editable-cell:focus {
             background-color: rgba(133, 77, 14, 0.3); border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.4); color: #fde047;
+        }
+
+        /* ทำให้ช่องที่ว่างเปล่าแสดงข้อความแจ้งเตือนสีแดง */
+        .editable-cell:empty::before {
+            content: "⚠️ กดพิมพ์...";
+            color: #ef4444;
+            font-size: 0.75rem;
+            font-style: italic;
+            opacity: 0.8;
+            pointer-events: none;
         }
 
         .checkbox-container input:checked + div {
@@ -103,7 +113,7 @@
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">✨</div>
                     <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ช่องเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
                 </div>
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">📥</div>
@@ -188,11 +198,11 @@
             </div>
 
             <!-- Table Section -->
-            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden transition-colors">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 <div class="table-container overflow-x-auto max-h-[600px]">
-                    <table class="min-w-full text-sm text-left border-collapse">
+                    <table class="min-w-full text-sm text-left">
                         <thead id="tableHeader" class="bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 uppercase font-bold sticky top-0 z-10 shadow-sm text-xs border-b border-slate-200 dark:border-slate-700"></thead>
-                        <tbody id="tableBody" class="bg-white dark:bg-slate-800"></tbody>
+                        <tbody id="tableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700/50"></tbody>
                     </table>
                 </div>
             </div>
@@ -326,8 +336,12 @@
         let currentMode = 'separate';
         let activeThread = null; 
 
-        function openGuideModal() { document.getElementById('guideModal').classList.remove('hidden'); }
-        function closeGuideModal() { document.getElementById('guideModal').classList.add('hidden'); }
+        function openGuideModal() {
+            document.getElementById('guideModal').classList.remove('hidden');
+        }
+        function closeGuideModal() {
+            document.getElementById('guideModal').classList.add('hidden');
+        }
 
         function saveState() {
             try {
@@ -481,7 +495,10 @@
         }
 
         function saveColumnsAndRender() {
-            renderTable();
+            // ใช้ Timeout 10ms เพื่อให้สวิตช์เช็คบ็อกซ์ทำงานเสร็จก่อนค่อยเรนเดอร์ตาราง ป้องกันอาการหน่วง/กระตุก
+            setTimeout(() => {
+                renderTable();
+            }, 10);
         }
 
         function getSelectedColumns() {
@@ -544,38 +561,36 @@
             return rows;
         }
 
-        // ลอจิกดั้งเดิมที่เสถียรที่สุด 
         function cleanHonorifics(token) {
-            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส'];
+            const prefixes = ['นางสาว', 'นาย', 'นาง', 'น.ส.', 'น.ส', 'ด.ช.', 'ด.ญ.'];
             for (let p of prefixes) {
                 if (token.startsWith(p)) token = token.substring(p.length);
             }
             return token.trim();
         }
 
+        // ระบบจับคำ (ดั้งเดิมแบบ 100% แต่เพิ่มตัวกรองคำรบกวนก่อนประมวลผล)
         function extractStudentName(fullText, studentId) {
-            const noiseWords = new Set([
-                'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 'รายงานตัว', 'ค่ะ', 'ครับ', 'คะ', 
-                'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
-                'ชั่วโมงทุน', 'วินัย', 'รู้วินัย', 'แก้ความประพฤติ', 'แก้คะแนน', 'แก้คะแนนรู้วินัย', 'แก้รู้วินัย', 'คะแนนความประพฤติ', 'รักชาติ', 'กตัญญู', 'นาย', 
-                'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
-                'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน'
-            ]);
-
+            const breakWords = ['เทอม', 'คะแนน', 'มาแทน', 'ทั้ง', 'ใจอาสา', 'จิตอาสา', 'ความดี', 'วินัย', 'ชั่วโมงทุน', 'รักชาติ', 'กตัญญู', 'ภาวะผู้นำ', 'ผู้นำ', 'ประพฤติ'];
             const parts = fullText.split(studentId);
+            
             for (let sideText of [parts[1] || "", parts[0] || ""]) {
-                let cleaned = sideText.replace(/\(.*?\)/g, ' ');
-                cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
+                
+                // เครื่องดูดคำรบกวน (ดึงวงเล็บและคำที่มักพิมพ์ติดกันออกเป็นช่องว่าง)
+                let cleaned = sideText.replace(/[()\[\]]/g, ' '); 
+                cleaned = cleaned.replace(/(คะแนน|ใจอาสา|จิตอาสา|ความดี|ชั่วโมงทุน|แก้ความประพฤติ|แก้คะแนน|รู้วินัย|วินัย)/g, ' $1 ');
+                cleaned = cleaned.replace(/[-–,._/!@#$%^&*|+]/g, ' ');
+                
                 let tokens = cleaned.split(/\s+/);
                 let nameTokens = [];
+                
                 for (let t of tokens) {
-                    // กฎเหล็กที่ทำให้ไม่พัง: หยุดดึงชื่อทันทีเมื่อเจอคำแปลกๆ 
-                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/^[0-9]{7,9}$/)) break;
-                    if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
+                    // หากเจอคำหยุด (Break Word) หรือเจอตัวเลขรหัส ให้เลิกจับชื่อนามสกุลต่อทันที
+                    if (breakWords.some(bw => t.startsWith(bw)) || t.match(/^[0-9]{6,10}$/)) break;
+                    if (!t || t.length <= 1) continue;
                     nameTokens.push(t);
                 }
                 
-                // แก้เฉพาะบั๊กนามสกุลหาย โดยให้ตัดคำนำหน้า (cleanHonorifics) แค่ชื่อแรกเท่านั้น นามสกุลจะไม่ถูกตัด
                 if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
                 else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
             }
@@ -584,13 +599,13 @@
 
         function detectPointType(subLine, fullText) {
             const categories = [
-                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] }, // เพิ่มหมวดผู้นำ
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] },
                 { name: "รักชาติ", keywords: ["รักชาติ"] },
-                { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน"] },
+                { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
                 { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
-                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ"] },
+                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] }, // เพิ่มคำว่าประพฤติ
                 { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
-                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } // จิตอาสาจับลงใจอาสา
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } 
             ];
             for (let cat of categories) {
                 for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; }
@@ -654,7 +669,6 @@
                 if (!cols || cols.length <= commentIdx) continue;
 
                 let fullText = cols[commentIdx] || "";
-                let cleanFullText = fullText.replace(/เเ/g, 'แ'); 
                 
                 const parentId = replyToIdx !== -1 && cols[replyToIdx] ? cols[replyToIdx].trim() : "";
                 const isReply = parentId !== "" && parentId !== "undefined";
@@ -663,11 +677,10 @@
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
 
-                // ลอจิกดั้งเดิมที่เสถียรที่สุด แยกทีละบรรทัด (ป้องกันการลากคำมั่ว)
                 const subLines = fullText.split('\n');
                 subLines.forEach(subLine => {
                     subLine = subLine.trim();
-                    let cleanSubLine = subLine.replace(/เเ/g, 'แ');
+                    let cleanSubLine = subLine.replace(/เเ/g, 'แ'); // แก้บั๊กพิมพ์สระ แ เป็น เเ
 
                     const idMatch = cleanSubLine.match(/\b([0-9]{7,9})\b/);
                     if (idMatch) {
@@ -681,11 +694,14 @@
                         let lastName = nameObj.lastName;
 
                         if (!firstName) {
+                            let cleanFullText = fullText.replace(/เเ/g, 'แ');
                             const fullObj = extractStudentName(cleanFullText, studentId);
                             firstName = fullObj.firstName;
                             lastName = fullObj.lastName;
                         }
-                        let pointType = detectPointType(cleanSubLine, cleanFullText);
+                        
+                        let cleanFullTextForCat = fullText.replace(/เเ/g, 'แ').replace(/[\r\n]+/g, ' '); 
+                        let pointType = detectPointType(cleanSubLine, cleanFullTextForCat);
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, 
@@ -694,7 +710,7 @@
                             "isIdValid": isIdValid,
                             "ชื่อ": firstName,
                             "นามสกุล": lastName,
-                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", // เปลี่ยนคำตามที่ขอ
+                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", 
                             "สายสนทนา": threadNo,
                             "isReply": isReply,
                             "ประเภทงาน": pointType,
@@ -827,16 +843,16 @@
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
-            // คืนค่าหัวตารางเดิมที่ใช้งานได้เป๊ะ เพื่อรักษาสัดส่วน
+            // จัดความกว้าง (Width) แบบกระจายเปอร์เซ็นต์ เพื่อป้องกันปัญหาเนื้อหากองรวมกันฝั่งซ้าย
             let headerHtml = `<tr>`;
-            if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ไฟล์ต้นทาง</th>`;
-            if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">รหัสนักศึกษา</th>`;
-            if (cols.name) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ชื่อ</th>`;
-            if (cols.surname) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">นามสกุล</th>`;
-            if (cols.status) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700">สถานะ</th>`;
-            if (cols.type) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ประเภทงาน</th>`;
-            if (cols.likes) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700">ไลก์</th>`;
-            if (cols.original) headerHtml += `<th class="px-4 py-4 border-b border-slate-200 dark:border-slate-700">คอมเมนต์ต้นฉบับ</th>`;
+            if (currentMode === 'merged') headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[10%]">ไฟล์ต้นทาง</th>`;
+            if (cols.id) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[12%]">รหัสนักศึกษา</th>`;
+            if (cols.name) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[18%]">ชื่อ</th>`;
+            if (cols.surname) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[18%]">นามสกุล</th>`;
+            if (cols.status) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[12%]">สถานะ</th>`;
+            if (cols.type) headerHtml += `<th class="px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[15%]">ประเภทงาน</th>`;
+            if (cols.likes) headerHtml += `<th class="px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-[5%]">ไลก์</th>`;
+            if (cols.original) headerHtml += `<th class="px-4 py-4 border-b border-slate-200 dark:border-slate-700 w-[20%]">คอมเมนต์ต้นฉบับ</th>`;
             headerHtml += `</tr>`;
             thead.innerHTML = headerHtml;
 
@@ -882,9 +898,9 @@
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                     idCellHtml += `</td>`;
 
-                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
-                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
+                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full min-h-[24px] inline-block">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300 w-full min-h-[24px] inline-block">${item["นามสกุล"]}</span>`;
+                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell min-h-[24px] inline-block">${item["ประเภทงาน"]}</span>`;
 
                     let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
                         `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
