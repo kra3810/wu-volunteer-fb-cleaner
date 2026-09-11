@@ -17,7 +17,7 @@
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* แถวที่ถูกซ่อน/จางลง: ปรับเฉพาะสีข้อความและพื้นหลังแถว โดยไม่ใช้ opacity เพื่อให้ปุ่มซ่อนคงความคมชัด 100% */
+        /* แถวที่ถูกซ่อน/จางลง: ปรับเฉพาะสีข้อความและพื้นหลังแถว โดยไม่ใช้ opacity เพื่อให้ปุ่มซ่อนคมชัดไม่จางตาม */
         .row-faded { background-color: rgba(100, 116, 139, 0.08) !important; }
         .dark .row-faded { background-color: rgba(51, 65, 85, 0.3) !important; }
         .row-faded td { color: #94a3b8 !important; }
@@ -25,6 +25,10 @@
 
         /* ปุ่มซ่อน/จางแถว: ซ่อนเมื่อไม่ชี้ และจะแสดงค้างไว้ชัดเจนเมื่อแถวถูกกดซ่อนแล้ว */
         .row-fade-action {
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.15s ease;
@@ -212,8 +216,8 @@
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (แถวจางลง แต่ปุ่มทึบแสงชัดเจน ไม่จางตาม)</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะที่ข้อความเพื่อแก้ไขโดยตรง</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (แถวจางลง แต่ปุ่มคมชัดไม่จางตาม)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะที่ช่องข้อมูลเพื่อแก้ไข</span>
                 </div>
             </div>
 
@@ -934,8 +938,8 @@
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
-                    // ปุ่มซ่อน/จางแถว: จัดวางแบบสะอาดตาโดยไม่ใช้ position:absolute ทับซ้อนกับตัวหนังสือ และไม่จางตามแถว
-                    let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition shrink-0 ml-1" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
+                    // ปุ่มซ่อน/จางแถว: วางไว้ที่ช่องแรกสุดโดยไม่ใช้ absolute ทำให้คอลัมน์ไม่เบี้ยว ไม่ทับข้อความ และแยกความจางออกจากตัวแถวได้สมบูรณ์
+                    let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition shrink-0 mr-2" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${item.isFaded ? 
                             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>' :
@@ -943,31 +947,29 @@
                         </svg>
                     </button>`;
 
-                    let cells = [];
+                    let rowHtml = "";
                     if (currentMode === 'merged') {
                         let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
-                        cells.push(`<td class="px-4 py-3 whitespace-nowrap"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></td>`);
+                        rowHtml += `<td class="px-4 py-3 whitespace-nowrap"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></td>`;
                     }
 
-                    if (cols.id) cells.push(idCellHtml);
-                    if (cols.name) cells.push(`<td class="px-4 py-3 whitespace-nowrap align-middle">${nameSpan}</td>`);
-                    if (cols.surname) cells.push(`<td class="px-4 py-3 whitespace-nowrap align-middle">${surnameSpan}</td>`);
-                    if (cols.status) cells.push(`<td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>`);
-                    if (cols.type) cells.push(pointTypeHtml);
-                    if (cols.likes) cells.push(`<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`);
-                    if (cols.original) cells.push(`<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`);
+                    if (cols.id) rowHtml += idCellHtml;
+                    if (cols.name) rowHtml += `<td class="px-4 py-3 whitespace-nowrap align-middle">${nameSpan}</td>`;
+                    if (cols.surname) rowHtml += `<td class="px-4 py-3 whitespace-nowrap align-middle">${surnameSpan}</td>`;
+                    if (cols.status) rowHtml += `<td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>`;
+                    if (cols.type) rowHtml += pointTypeHtml;
+                    if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
 
-                    // นำปุ่มซ่อนมาวางประกบคอลัมน์แรกสุดในรูปแบบ Flex Container ร่วมกัน เพื่อให้คอลัมน์ไม่เบี้ยว ไม่ทับข้อความ และจัดสเกลตรงเป๊ะตามออริจินัล
-                    if (cells.length > 0) {
-                        let firstCell = cells[0];
-                        // แปลงเนื้อหาภายใน cell แรกให้อยู่ในโครงสร้าง flex ที่มีปุ่มซ่อนอยู่ด้านหน้า
-                        firstCell = firstCell.replace(/<td([^>]*)>([\s\S]*?)<\/td>/, function(match, attr, content) {
-                            return `<td${attr}><div class="flex items-center gap-2">${fadeBtn}<div class="min-w-0 flex-1">${content}</div></div></td>`;
-                        });
-                        cells[0] = firstCell;
+                    if (cols.original) {
+                        rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
                     }
 
-                    tr.innerHTML = cells.join('');
+                    // นำปุ่มซ่อนมาวางหน้าเซลล์แรกสุดในรูปแบบเฟล็กซ์ปกติ (ไม่ใช่ Absolute) ทำให้ตารางจัดเรียงคอลัมน์อัตโนมัติตามปกติ 100% ไม่เบี้ยว ไม่ทับ
+                    rowHtml = rowHtml.replace(/<td\b([^>]*)>([\s\S]*?)<\/td>/, function(match, attr, content) {
+                        return `<td${attr}><div class="flex items-center">${fadeBtn}<div>${content}</div></div></td>`;
+                    });
+
+                    tr.innerHTML = rowHtml;
                     tbody.appendChild(tr);
                 });
             }
@@ -989,7 +991,7 @@
                 if (cols.surname) obj["นามสกุล"] = item["นามสกุล"];
                 if (cols.status) obj["สถานะ"] = item["สถานะ"] + ` (สายสนทนา ${item["สายสนทนา"]})`;
                 if (cols.type) obj["ประเภทงาน"] = item["ประเภทงาน"];
-                if (cols.likes) obj["ยอดไลก์"] = item["ยอดไลก์"];
+                if (cols.likes) obj["ยอดไลk์"] = item["ยอดไลก์"];
                 if (cols.original) obj["คอมเมนต์เต็มต้นฉบับ"] = item["คอมเมนต์เต็มต้นฉบับ"];
                 return obj;
             }
