@@ -42,7 +42,6 @@
         .editable-cell {
             outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; transition: all 0.2s; display: inline-block; min-width: 40px; min-height: 24px; cursor: default;
         }
-        /* เฉพาะตัวหนังสือข้างในเท่านั้นที่จะกดเปิดโหมดพิมพ์ได้ ป้องกันการกดโดนพื้นที่ว่างรอบข้างบนแท็บเล็ต */
         .editable-text {
             outline: none; cursor: text; display: inline; border-radius: 4px; padding: 2px 4px;
         }
@@ -139,7 +138,7 @@
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">✨</div>
                     <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะเฉพาะที่ตัวหนังสือเพื่อแก้ไข</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือดับเบิลคลิกที่ตัวหนังสือเพื่อแก้ไข</p>
                 </div>
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">📥</div>
@@ -219,8 +218,8 @@
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ปุ่มสีทึบคมชัด ไม่จางตามแถว)</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะเฉพาะตัวหนังสือเพื่อแก้ไข (ไม่มีพื้นที่ว่างรอบตัวให้เผลอกดโดน)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (แถวจางลง แต่ปุ่มทึบแสงคมชัดไม่จางตาม)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = ดับเบิลคลิก/แตะสองครั้งที่ตัวหนังสือเพื่อแก้ไข</span>
                 </div>
             </div>
 
@@ -741,22 +740,7 @@
             allFilesData[fileName] = fileRecords;
         }
 
-        /* ฟังก์ชันเปิดโหมดแก้ไขเฉพาะเมื่อคลิกที่ตัวหนังสือ */
-        function enableEdit(el) {
-            el.setAttribute('contenteditable', 'true');
-            el.focus();
-            const range = document.createRange();
-            const sel = window.getSelection();
-            range.selectNodeContents(el);
-            range.collapse(false);
-            sel.removeAllRanges();
-            sel.addRange(range);
-        }
-
-        function updateRecord(fileName, recordIndex, field, newValue, el) {
-            if (el) {
-                el.setAttribute('contenteditable', 'false');
-            }
+        function updateRecord(fileName, recordIndex, field, newValue) {
             let val = newValue.trim();
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
                 allFilesData[fileName][recordIndex][field] = val;
@@ -936,16 +920,16 @@
                     tr.setAttribute('data-filename', item["fileName"]); 
                     if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    let idSpan = `<span class="editable-cell"><span contenteditable="false" spellcheck="false" onclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText, this)" class="editable-text text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span></span>`;
+                    let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
                     let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap"><div class="row-content flex items-center">`;
                     if (item.isReply) idCellHtml += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
                     idCellHtml += idSpan;
                     if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                     idCellHtml += `</div></td>`;
 
-                    let nameSpan = `<span class="editable-cell"><span contenteditable="false" spellcheck="false" onclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText, this)" class="editable-text text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span></span>`;
-                    let surnameSpan = `<span class="editable-cell"><span contenteditable="false" spellcheck="false" onclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText, this)" class="editable-text text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span></span>`;
-                    let typeSpan = `<span class="editable-cell"><span contenteditable="false" spellcheck="false" onclick="enableEdit(this)" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText, this)" class="editable-text">${item["ประเภทงาน"]}</span></span>`;
+                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
+                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
 
                     let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
                         `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div></td>` : 
@@ -956,7 +940,7 @@
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
-                    // ปุ่มซ่อน/จางแถว: อยู่ภายนอก .row-content และอยู่นอกเลเยอร์ความจางของแถว ทำให้ปุ่มสีทึบคมชัด 100% เสมอและกดง่าย
+                    // ปุ่มซ่อน/จางแถว: อยู่ภายนอกเลเยอร์ความจางของแถว (.row-content) ทำให้ปุ่มไม่จางตาม และไม่มีผลต่อสเกลคอลัมน์
                     let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${item.isFaded ? 
@@ -982,12 +966,12 @@
                         rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="row-content"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div></td>`;
                     }
 
-                    // จัดช่องแรกสุดให้เป็น relative และใส่ปุ่ม fadeBtn ให้อยู่นอก .row-content เพื่อแยกความทึบของปุ่มออกจากความจางของแถว
+                    // ใช้absoluteลอยปุ่มอยู่นอกตาราง/นอกเนื้อหาเซลล์ โดยไม่เพิ่ม padding หลอกๆ ให้กับช่องแรก ทำให้สเกลและตำแหน่งคอลัมน์ตรงเป๊ะตามออริจินัล 100%
                     rowHtml = rowHtml.replace(/<td\b([^>]*)>/, function(match, p1) {
                         if (p1.includes('class=')) {
-                            return match.replace(/class="([^"]*)"/, 'class="$1 relative pl-10"');
+                            return match.replace(/class="([^"]*)"/, 'class="$1 relative"');
                         } else {
-                            return `<td ${p1} class="relative pl-10">`;
+                            return `<td ${p1} class="relative">`;
                         }
                     });
                     rowHtml = rowHtml.replace(/(<td\b[^>]*>)/, `$1${fadeBtn}`);
