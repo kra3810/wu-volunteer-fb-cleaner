@@ -221,6 +221,7 @@
         <span class="max-w-0 opacity-0 overflow-hidden group-hover:max-w-[150px] group-hover:opacity-100 group-hover:ml-2 transition-all duration-300 ease-in-out whitespace-nowrap text-sm hidden md:block">ติชม / แจ้งปัญหา</span>
     </button>
 
+    <!-- Modal คู่มือการใช้งาน (Guide) -->
     <div id="guideModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -230,7 +231,10 @@
                 </h3>
                 <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm">✕</button>
             </div>
-            <div class="p-6 overflow-y-auto space-y-8 text-slate-700 dark:text-slate-300" style="max-height: 65vh; -webkit-overflow-scrolling: touch;">
+
+            <!-- ผมเอาขั้นตอนที่ 2 และ 3 กลับมาใส่ให้ครบแล้วครับ -->
+            <div class="p-6 overflow-y-auto space-y-8 text-slate-700 dark:text-slate-300">
+                
                 <div class="space-y-3">
                     <h4 class="text-lg font-bold flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 1</span>
@@ -241,7 +245,39 @@
                         <img src="asset/Untitled.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/Untitled.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-lg font-bold flex items-center gap-2">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 2</span>
+                        ไปที่โพสต์กิจกรรม
+                    </h4>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-1">
+                        <li>เปิด Facebook หน้ากิจกรรมของ <b>จิตอาสา ม.วลัยลักษณ์</b> ที่ต้องการดึงข้อมูล</li>
+                        <li>กดที่ <b>ไอคอนรูปจิ๊กซอว์ (Extensions)</b> มุมขวาบนของจอ</li>
+                        <li>คลิกเลือกส่วนเสริม <b>Post Comments Exporter</b></li>
+                    </ul>
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
+                        <img src="asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/qs7cjYqM.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-lg font-bold flex items-center gap-2">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 3</span>
+                        กดเริ่มและดาวน์โหลด
+                    </h4>
+                    <ul class="list-disc list-inside text-sm space-y-1 ml-1">
+                        <li><b>ไม่ต้องตั้งค่าอะไรเพิ่มเติม</b> (ส่วนเสริมตั้งค่าทุกอย่างมาให้พร้อมใช้งานแล้ว)</li>
+                        <li>กดปุ่ม <b class="text-emerald-600 dark:text-emerald-400">Start</b> แล้วรอให้ระบบโหลดจนครบ 100%</li>
+                        <li>กดปุ่ม <b class="text-blue-600 dark:text-blue-400">Download</b> จะได้ไฟล์นามสกุล <code>.csv</code> ให้นำมาอัปโหลดเข้าระบบของเราได้เลย!</li>
+                    </ul>
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 p-2">
+                        <img src="asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/fwRX0ZzR.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
+                    </div>
+                </div>
+
             </div>
+
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-right">
                 <button onclick="closeGuideModal()" class="px-6 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition">เข้าใจแล้ว</button>
             </div>
