@@ -17,7 +17,7 @@
         .thread-highlight { background-color: #f8fafc !important; border-left: 4px solid #6366f1; }
         .dark .thread-highlight { background-color: #1e293b !important; border-left: 4px solid #818cf8; }
 
-        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลง แต่ปุ่มซ่อนไม่จาง */
+        /* แถวที่ถูกซ่อน: ให้เนื้อหาภายใน (.row-content) จางลง แต่ปุ่มซ่อนไม่จางตาม */
         .row-faded { background-color: rgba(100, 116, 139, 0.08) !important; }
         .row-faded .row-content { opacity: 0.35; transition: opacity 0.2s; }
         .row-faded:hover .row-content { opacity: 0.8; }
@@ -217,8 +217,8 @@
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (เกาะอยู่ที่ริมขอบซ้ายสุดของแถว หน้าสุด)</span>
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แก้ไขข้อมูล (ช่องขนาดเดิม 100%)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">👁️</kbd> = ปุ่มซ่อน/จางแถว (ริมซ้ายสุด หน้าสุด)</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แก้ไขข้อมูล (ช่องขนาดเดิม)</span>
                 </div>
             </div>
 
@@ -586,7 +586,7 @@
                 'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 'รายงานตัว', 'ค่ะ', 'ครับ', 'คะ', 
                 'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
                 'ชั่วโมงทุน', 'วินัย', 'รู้วินัย', 'แก้ความประพฤติ', 'แก้คะแนน', 'แก้คะแนนรู้วินัย', 'แก้รู้วินัย', 'คะแนนความประพฤติ', 'รักชาติ', 'กตัญญู', 'นาย', 
-                'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'e และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
+                'นาง', 'นางสาว', 'น.ส.', 'น.ส', '-', 'และ', 'กับ', 'ทีม1', 'ทีม2', 'ทีม3',
                 'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ'
             ]);
 
@@ -920,26 +920,15 @@
                     if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
                     let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                    let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap"><div class="row-content flex items-center">`;
-                    if (item.isReply) idCellHtml += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
-                    idCellHtml += idSpan;
-                    if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
-                    idCellHtml += `</div></td>`;
-
                     let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
                     let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
-
-                    let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
-                        `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div></td>` : 
-                        `<td class="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap"><div class="row-content">${typeSpan}</div></td>`;
 
                     let isMain = item["สถานะ"] === "เม้นหลัก";
                     let statusBadge = isMain ? 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
                         `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
 
-                    // ปุ่มซ่อน/จางแถว: วางไว้ที่ริมขอบซ้ายสุดของแถว (หน้าสุด) แยกอยู่นอก .row-content ทำให้เวลาแถวจาง ตัวปุ่มจะไม่จางตาม
                     let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${item.isFaded ? 
@@ -948,35 +937,61 @@
                         </svg>
                     </button>`;
 
-                    let cells = [];
+                    let rowCells = [];
+
                     if (currentMode === 'merged') {
                         let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
-                        cells.push(`<td class="px-4 py-3 whitespace-nowrap"><div class="row-content"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></div></td>`);
+                        rowCells.push({ content: `<div class="row-content"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></div>`, type: 'normal' });
                     }
 
-                    if (cols.id) cells.push(idCellHtml);
-                    if (cols.name) cells.push(`<td class="px-4 py-3 whitespace-nowrap align-middle"><div class="row-content">${nameSpan}</div></td>`);
-                    if (cols.surname) cells.push(`<td class="px-4 py-3 whitespace-nowrap align-middle"><div class="row-content">${surnameSpan}</div></td>`);
-                    if (cols.status) cells.push(`<td class="px-4 py-3 text-center whitespace-nowrap"><div class="row-content">${statusBadge}</div></td>`);
-                    if (cols.type) cells.push(pointTypeHtml);
-                    if (cols.likes) cells.push(`<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap"><div class="row-content">${item["ยอดไลก์"]}</div></td>`);
-                    if (cols.original) cells.push(`<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="row-content"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div></td>`);
-
-                    // ให้เซลล์แรกสุดทำหน้าที่เป็นจุดอ้างอิงตำแหน่ง (relative) และเว้น padding ซ้าย (pl-10) เพื่อให้ปุ่มซ่อนลอยอยู่ริมซ้ายสุดโดยไม่ทับข้อมูล
-                    if (cells.length > 0) {
-                        let firstCell = cells[0];
-                        firstCell = firstCell.replace(/<td\b([^>]*)>/, function(match, attr) {
-                            if (attr.includes('class=')) {
-                                return attr.replace(/class="([^"]*)"/, 'class="$1 relative pl-10"');
-                            } else {
-                                return `<td ${attr} class="relative pl-10">`;
-                            }
-                        });
-                        firstCell = firstCell.replace(/(<td\b[^>]*>)/, `$1${fadeBtn}`);
-                        cells[0] = firstCell;
+                    if (cols.id) {
+                        let idContent = `<div class="row-content inline-flex items-center">`;
+                        if (item.isReply) idContent += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
+                        idContent += idSpan;
+                        if (!item["isIdValid"]) idContent += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
+                        idContent += `</div>`;
+                        rowCells.push({ content: idContent, type: 'mono' });
                     }
 
-                    tr.innerHTML = cells.join('');
+                    if (cols.name) {
+                        rowCells.push({ content: `<div class="row-content">${nameSpan}</div>`, type: 'normal' });
+                    }
+
+                    if (cols.surname) {
+                        rowCells.push({ content: `<div class="row-content">${surnameSpan}</div>`, type: 'normal' });
+                    }
+
+                    if (cols.status) {
+                        rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center' });
+                    }
+
+                    if (cols.type) {
+                        let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
+                            `<div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div>` : 
+                            `<div class="row-content font-bold text-slate-600 dark:text-slate-400">${typeSpan}</div>`;
+                        rowCells.push({ content: pointTypeHtml, type: 'normal' });
+                    }
+
+                    if (cols.likes) {
+                        rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center' });
+                    }
+
+                    if (cols.original) {
+                        rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'normal' });
+                    }
+
+                    let trHtml = "";
+                    rowCells.forEach((cell, cIndex) => {
+                        let alignClass = cell.type === 'center' ? 'text-center' : '';
+                        let monoClass = cell.type === 'mono' ? 'font-mono' : '';
+                        if (cIndex === 0) {
+                            trHtml += `<td class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
+                        } else {
+                            trHtml += `<td class="px-4 py-3 whitespace-nowrap ${alignClass} ${monoClass}">${cell.content}</td>`;
+                        }
+                    });
+
+                    tr.innerHTML = trHtml;
                     tbody.appendChild(tr);
                 });
             }
