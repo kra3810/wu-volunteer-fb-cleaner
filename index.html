@@ -79,7 +79,7 @@
             </div>
         </div>
 
-        <!-- โซนสอนการใช้งาน (Onboarding) จะแสดงแค่ตอนยังไม่ได้อัปโหลดไฟล์ -->
+        <!-- โซนสอนการใช้งาน (Onboarding) -->
         <div id="initialOnboarding" class="space-y-6 animate-in fade-in duration-500">
             <!-- ป้าย Banner คู่มือแบบเด่นๆ -->
             <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
@@ -105,7 +105,7 @@
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">✨</div>
                     <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 หลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือแตะที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
                 </div>
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="text-4xl mb-4">📥</div>
@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        <!-- Main Workspace (จะแสดงหลังจากอัปโหลดไฟล์แล้ว) -->
+        <!-- Main Workspace (แสดงหลังจากอัปโหลดไฟล์) -->
         <div id="mainWorkspace" class="hidden space-y-4 md:space-y-6">
             
             <!-- Summary Dashboard -->
@@ -184,7 +184,7 @@
                 </div>
                 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-6 gap-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
-                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 หลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
+                    <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">💬 เม้นหลัก</kbd> = แตะปุ่มเพื่อกรองสายสนทนา</span>
                     <span class="flex items-center gap-1.5"><kbd class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm rounded px-1.5 py-0.5 text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">✏️</kbd> = แตะที่ข้อความเพื่อแก้ไขโดยตรง (Inline edit)</span>
                 </div>
             </div>
@@ -544,7 +544,18 @@
             return token.trim();
         }
 
-        function extractStudentName(fullText, studentId) {
+        function getStudentChunk(text, studentId) {
+            const parts = text.split(studentId);
+            if (parts.length < 2) return text;
+            let chunk = parts.slice(1).join(studentId); 
+            const nextIdMatch = chunk.match(/(?:^|\D)([0-9]{7,9})(?=\D|$)/);
+            if (nextIdMatch) {
+                chunk = chunk.substring(0, nextIdMatch.index);
+            }
+            return chunk;
+        }
+
+        function extractStudentName(chunkText, studentId) {
             const noiseWords = new Set([
                 'ม.', 'วลัยลักษณ์', 'มหาวิทยาลัย', 'รายงานตัว', 'ค่ะ', 'ครับ', 'คะ', 
                 'มาแทน', 'ทั้งคู่', 'คะแนนด้าน', 'คะแนนใน', 'คะแนน', 'ความดี', 'ใจอาสา', 
@@ -553,40 +564,41 @@
                 'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน'
             ]);
 
-            const parts = fullText.split(studentId);
-            for (let sideText of [parts[1] || "", parts[0] || ""]) {
-                let cleaned = sideText.replace(/\(.*?\)/g, ' ');
-                cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
-                let tokens = cleaned.split(/\s+/);
-                let nameTokens = [];
-                for (let t of tokens) {
-                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/^[0-9]{7,9}$/)) break;
-                    if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
-                    nameTokens.push(t);
-                }
-                
-                if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
-                else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
+            let cleaned = chunkText.replace(/\(.*?\)/g, ' ');
+            cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
+            let tokens = cleaned.split(/\s+/);
+            let nameTokens = [];
+            
+            for (let t of tokens) {
+                if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/^[0-9]{7,9}$/)) break;
+                if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
+                nameTokens.push(t);
             }
+            
+            if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
+            else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
+            
             return { firstName: "", lastName: "" };
         }
 
-        function detectPointType(subLine, fullText) {
+        function detectPointType(chunkText, fullText) {
             const categories = [
                 { name: "รักชาติ", keywords: ["รักชาติ"] },
                 { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน"] },
                 { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
                 { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ"] },
                 { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
-                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี"] }
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] } // เพิ่มจิตอาสา
             ];
+            // เช็คในบริบทรอบๆ รหัสนักศึกษาก่อน
             for (let cat of categories) {
-                for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; }
+                for (let kw of cat.keywords) { if (chunkText.includes(kw)) return cat.name; }
             }
+            // ถ้าไม่เจอ ค่อยหาจากข้อความเต็มๆ
             for (let cat of categories) {
                 for (let kw of cat.keywords) { if (fullText.includes(kw)) return cat.name; }
             }
-            const teamMatch = (subLine + " " + fullText).match(/ทีม\s*\d/);
+            const teamMatch = (chunkText + " " + fullText).match(/ทีม\s*\d/);
             if (teamMatch) return teamMatch[0].replace(/\s+/g, '');
             return "ไม่ได้ระบุ";
         }
@@ -635,13 +647,19 @@
             }
 
             let fileRecords = [];
-            const seenIdsInThisFile = new Set();
 
             for (let i = 1; i < rows.length; i++) {
                 let cols = rows[i];
                 if (!cols || cols.length <= commentIdx) continue;
 
-                const fullText = cols[commentIdx] || "";
+                let fullText = cols[commentIdx] || "";
+                
+                // แก้บั๊กพิมพ์สระ แ ผิดเป็น เเ 
+                let cleanFullText = fullText.replace(/เเ/g, 'แ'); 
+                
+                // แก้บั๊กคนพิมพ์ Enter คั่นกลางชื่อ-นามสกุล โดยการแปลง newline ทั้งหมดเป็นช่องว่าง เพื่อให้อ่านชื่อได้ติดกัน
+                let singleLineText = cleanFullText.replace(/\r?\n|<br\s*\/?>/gi, ' ');
+
                 const parentId = replyToIdx !== -1 && cols[replyToIdx] ? cols[replyToIdx].trim() : "";
                 const isReply = parentId !== "" && parentId !== "undefined";
                 const likeCount = likeIdx !== -1 ? parseInt(cols[likeIdx]) || 0 : 0;
@@ -649,26 +667,23 @@
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
 
-                const subLines = fullText.split('\n');
-                subLines.forEach(subLine => {
-                    subLine = subLine.trim();
-                    const idMatch = subLine.match(/\b([0-9]{7,9})\b/);
-                    if (idMatch) {
-                        const studentId = idMatch[1];
-                        if (currentMode === 'separate' && seenIdsInThisFile.has(studentId)) return;
-                        seenIdsInThisFile.add(studentId);
-
+                // หากวาดรหัสนักศึกษาทั้งหมดในข้อความที่ถูกจับมัดรวมกันแล้ว 
+                const matches = [...singleLineText.matchAll(/(?:^|\D)([0-9]{7,9})(?=\D|$)/g)];
+                
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        const studentId = match[1];
                         const isIdValid = (studentId.length === 8);
-                        const nameObj = extractStudentName(subLine, studentId);
+                        
+                        // ดึงข้อความเฉพาะส่วนที่ต่อท้ายรหัสนักศึกษาคนนี้ (กันกรณี 1 คอมเมนต์มี นศ. หลายคน)
+                        const chunk = getStudentChunk(singleLineText, studentId);
+                        
+                        const nameObj = extractStudentName(chunk, studentId);
                         let firstName = nameObj.firstName;
                         let lastName = nameObj.lastName;
 
-                        if (!firstName) {
-                            const fullObj = extractStudentName(fullText, studentId);
-                            firstName = fullObj.firstName;
-                            lastName = fullObj.lastName;
-                        }
-                        let pointType = detectPointType(subLine, fullText);
+                        // ตรวจสอบประเภทงานโดยดูจากข้อความรอบๆ รหัสนั้นก่อน ถ้าไม่มีค่อยดูทั้งประโยค
+                        let pointType = detectPointType(chunk, cleanFullText);
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, 
@@ -677,15 +692,15 @@
                             "isIdValid": isIdValid,
                             "ชื่อ": firstName,
                             "นามสกุล": lastName,
-                            "สถานะ": isReply ? "คอมเมนต์ย่อย" : "คอมเมนต์หลัก",
+                            "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก",
                             "สายสนทนา": threadNo,
                             "isReply": isReply,
                             "ประเภทงาน": pointType,
                             "ยอดไลก์": likeCount,
                             "คอมเมนต์เต็มต้นฉบับ": fullText
                         });
-                    }
-                });
+                    });
+                }
             }
             allFilesData[fileName] = fileRecords;
         }
@@ -853,56 +868,61 @@
 
             if (displayData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
-                return;
+            } else {
+                displayData.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
+                    
+                    tr.className = `data-row ${rowBgColor} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
+                    
+                    tr.setAttribute('data-thread', item["สายสนทนา"]);
+                    tr.setAttribute('data-filename', item["fileName"]); 
+                    if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
+
+                    let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
+                    let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap">`;
+                    if (item.isReply) idCellHtml += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
+                    idCellHtml += idSpan;
+                    if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
+                    idCellHtml += `</td>`;
+
+                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
+                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
+
+                    let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
+                        `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
+                        `<td class="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">${typeSpan}</td>`;
+
+                    let isMain = item["สถานะ"] === "เม้นหลัก";
+                    let statusBadge = isMain ? 
+                        `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
+                        `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
+
+                    let rowHtml = "";
+                    if (currentMode === 'merged') {
+                        let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
+                        rowHtml += `<td class="px-4 py-3 whitespace-nowrap"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></td>`;
+                    }
+                    
+                    if (cols.id) rowHtml += idCellHtml;
+                    if (cols.name) rowHtml += `<td class="px-4 py-3 whitespace-nowrap">${nameSpan}</td>`;
+                    if (cols.surname) rowHtml += `<td class="px-4 py-3 whitespace-nowrap">${surnameSpan}</td>`;
+                    if (cols.status) rowHtml += `<td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>`;
+                    if (cols.type) rowHtml += pointTypeHtml;
+                    if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
+                    if (cols.original) rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
+                    
+                    tr.innerHTML = rowHtml;
+                    tbody.appendChild(tr);
+                });
             }
 
-            displayData.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
-                
-                tr.className = `data-row ${rowBgColor} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
-                
-                tr.setAttribute('data-thread', item["สายสนทนา"]);
-                tr.setAttribute('data-filename', item["fileName"]); 
-                if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
-
-                let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                let idCellHtml = `<td class="px-4 py-3 font-mono whitespace-nowrap">`;
-                if (item.isReply) idCellHtml += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
-                idCellHtml += idSpan;
-                if (!item["isIdValid"]) idCellHtml += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
-                idCellHtml += `</td>`;
-
-                let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
-                let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
-
-                let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
-                    `<td class="px-4 py-3 font-bold whitespace-nowrap"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></td>` : 
-                    `<td class="px-4 py-3 font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">${typeSpan}</td>`;
-
-                let isMain = item["สถานะ"] === "คอมเมนต์หลัก";
-                let statusBadge = isMain ? 
-                    `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 หลัก (สาย ${item["สายสนทนา"]})</button>` : 
-                    `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ ย่อย (สาย ${item["สายสนทนา"]})</button>`;
-
-                let rowHtml = "";
-                if (currentMode === 'merged') {
-                    let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
-                    rowHtml += `<td class="px-4 py-3 whitespace-nowrap"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></td>`;
-                }
-                
-                if (cols.id) rowHtml += idCellHtml;
-                if (cols.name) rowHtml += `<td class="px-4 py-3 whitespace-nowrap">${nameSpan}</td>`;
-                if (cols.surname) rowHtml += `<td class="px-4 py-3 whitespace-nowrap">${surnameSpan}</td>`;
-                if (cols.status) rowHtml += `<td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>`;
-                if (cols.type) rowHtml += pointTypeHtml;
-                if (cols.likes) rowHtml += `<td class="px-4 py-3 text-center font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${item["ยอดไลก์"]}</td>`;
-                if (cols.original) rowHtml += `<td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-20 overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></td>`;
-                
-                tr.innerHTML = rowHtml;
-                tbody.appendChild(tr);
-            });
+            // เลื่อน Scrollbar กลับไปด้านบนสุดเมื่อมีการสลับโหมด หรือเปลี่ยนไฟล์
+            const tableContainer = document.querySelector('.table-container');
+            if (tableContainer) {
+                tableContainer.scrollTop = 0;
+            }
         }
 
         function downloadExcel() {
