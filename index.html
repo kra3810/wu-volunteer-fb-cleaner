@@ -567,17 +567,87 @@
             return { firstName: "", lastName: "" };
         }
 
-        function detectPointType(subLine, fullText) {
+        function detectPointType(lines, currentIndex) {
             const categories = [
-                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] }, { name: "รักชาติ", keywords: ["รักชาติ"] },
-                { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] }, { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
-                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] }, 
-                { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] }, { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "กตัญญู", "ความดี", "จิตอาสา"] }
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] },
+                { name: "รักชาติ", keywords: ["รักชาติ"] },
+                { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
+                { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
+                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] },
+                { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
+                { name: "กตัญญู", keywords: ["กตัญญู"] },
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "ความดี", "จิตอาสา"] }
             ];
-            for (let cat of categories) { for (let kw of cat.keywords) { if (subLine.includes(kw)) return cat.name; } }
-            for (let cat of categories) { for (let kw of cat.keywords) { if (fullText.includes(kw)) return cat.name; } }
-            const teamMatch = (subLine + " " + fullText).match(/ทีม\s*\d/);
+
+            const hasKeyword = (text, kw) => text.includes(kw);
+
+            // Pre-process: ลบคำขยายที่ทำให้สับสน (เช่น คะแนนความดี ด้านรักชาติ -> จะเหลือแค่ รักชาติ)
+            const localLines = lines.map(line => 
+                line.replace(/(คะแนน)?(ความดี|จิตอาสา|ใจอาสา)\s*(ด้าน|เรื่อง)?\s*(?=รักชาติ|กตัญญู|ภาวะผู้นำ|วินัย|แก้|ชั่วโมง)/g, '')
+            );
+
+            // 1. ตรวจสอบบรรทัดปัจจุบันก่อน (แม่นยำที่สุด)
+            let currentLine = localLines[currentIndex];
+            for (let cat of categories) {
+                for (let kw of cat.keywords) {
+                    if (hasKeyword(currentLine, kw)) return cat.name;
+                }
+            }
+
+            // 2. กำหนดขอบเขตของกลุ่มข้อความ (Block) โดยยึด "บรรทัดว่าง" เป็นตัวแบ่ง
+            let start = currentIndex;
+            while (start > 0 && localLines[start - 1].trim() !== "") {
+                start--;
+            }
+            let end = currentIndex;
+            while (end < localLines.length - 1 && localLines[end + 1].trim() !== "") {
+                end++;
+            }
+
+            // 3. หาหมวดหมู่ที่ "ใกล้ที่สุด" ในกลุ่มข้อความนั้น
+            let foundCat = null;
+            let minDistance = Infinity;
+
+            for (let i = start; i <= end; i++) {
+                let line = localLines[i];
+                for (let cat of categories) {
+                    let match = false;
+                    for (let kw of cat.keywords) {
+                        if (hasKeyword(line, kw)) { match = true; break; }
+                    }
+                    if (match) {
+                        let dist = Math.abs(i - currentIndex);
+                        // หากมีระยะห่างเท่ากัน (เช่น งานอยู่ข้างบน 1 บรรทัด และข้างล่าง 1 บรรทัด)
+                        // ให้สิทธิ์งานที่อยู่ "ด้านล่าง" ก่อน เพราะคนมักจะพิมพ์ชื่อเสร็จแล้วค่อยสรุปงานตอนท้าย
+                        if (dist < minDistance || (dist === minDistance && i > currentIndex)) {
+                            minDistance = dist;
+                            foundCat = cat.name;
+                        }
+                    }
+                }
+            }
+
+            if (foundCat) return foundCat;
+
+            // 4. Fallback สุดท้าย: เช็คจากทั้งคอมเมนต์ (ถ้าในคอมเมนต์นั้นพูดถึงงานแค่อย่างเดียว)
+            let fullText = localLines.join(" ");
+            let foundCategories = new Set();
+            for (let cat of categories) {
+                for (let kw of cat.keywords) {
+                    if (hasKeyword(fullText, kw)) {
+                        foundCategories.add(cat.name);
+                        break;
+                    }
+                }
+            }
+            if (foundCategories.size === 1) {
+                return Array.from(foundCategories)[0];
+            }
+            
+            // เคสทีม
+            const teamMatch = fullText.match(/ทีม\s*\d/);
             if (teamMatch) return teamMatch[0].replace(/\s+/g, '');
+
             return "ไม่ได้ระบุ";
         }
 
@@ -634,11 +704,11 @@
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
 
-                const subLines = fullText.split('\n');
-                subLines.forEach(subLine => {
-                    subLine = subLine.trim();
-                    let cleanSubLine = subLine.replace(/เเ/g, 'แ');
+                // เปลี่ยนมาเตรียม lines ให้ส่งเข้าลอจิกใหม่
+                const rawLines = fullText.split('\n');
+                const cleanLines = rawLines.map(line => line.trim().replace(/เเ/g, 'แ'));
 
+                cleanLines.forEach((cleanSubLine, lineIndex) => {
                     const idMatch = cleanSubLine.match(/\b([0-9]{7,9})\b/);
                     if (idMatch) {
                         const studentId = idMatch[1];
@@ -656,8 +726,8 @@
                             if (fullObj.lastName) lastName = fullObj.lastName;
                         }
 
-                        let cleanFullTextForCat = cleanFullText.replace(/[\r\n]+/g, ' '); 
-                        let pointType = detectPointType(cleanSubLine, cleanFullTextForCat);
+                        // === เรียกใช้แบบใหม่ ===
+                        let pointType = detectPointType(cleanLines, lineIndex);
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, "fileName": fileName, "รหัสนักศึกษา": studentId,
@@ -747,9 +817,13 @@
 
             let catHtml = '';
             const colorMap = { 
-                "ภาวะผู้นำ": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400", "ใจอาสา": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400", 
-                "วินัย": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400", 
-                "แก้ความประพฤติ": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400", "รักชาติ": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400", 
+                "ภาวะผู้นำ": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400", 
+                "ใจอาสา": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400", 
+                "กตัญญู": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400", // เพิ่มบรรทัดนี้
+                "วินัย": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", 
+                "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400", 
+                "แก้ความประพฤติ": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400", 
+                "รักชาติ": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400", 
                 "ไม่ได้ระบุ": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" 
             };
 
