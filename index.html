@@ -88,7 +88,6 @@
                 </div>
             </div>
 
-            <!-- ปรับปรุงกล่อง Upload Area ให้รองรับ Drag & Drop -->
             <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
                 <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
                 <div class="flex flex-col items-center justify-center pointer-events-none">
@@ -663,18 +662,46 @@
             function indexOfIgnoreCase(arr, val) { return arr.findIndex(item => item.toLowerCase() === val.toLowerCase()); }
             const likeIdx = indexOfIgnoreCase(headers, 'Like Count');
             const replyToIdx = indexOfIgnoreCase(headers, 'Reply To Comment');
+            const urlIdx = indexOfIgnoreCase(headers, 'Comment URL'); // ดึง URL
 
             if (commentIdx === -1) return;
 
             let parentMap = {}; let allIds = [];
+            let urlMap = {}; // เก็บ URL ของแต่ละคอมเมนต์ไว้ใช้สืบทอด
+            let defaultPostUrl = ""; // ลิงก์โพสต์หลักไว้สำรอง
+
             if (commentIdIdx !== -1) {
                 for (let i = 1; i < rows.length; i++) {
                     let cols = rows[i];
                     if (!cols || cols.length <= commentIdx) continue;
                     let id = cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                     let parentId = replyToIdx !== -1 && cols[replyToIdx] ? cols[replyToIdx].trim() : "";
-                    if (id) { allIds.push(id); if (parentId && parentId !== "undefined") parentMap[id] = parentId; }
+                    let url = urlIdx !== -1 && cols[urlIdx] ? cols[urlIdx].trim() : "";
+                    
+                    if (id) { 
+                        allIds.push(id); 
+                        if (parentId && parentId !== "undefined") parentMap[id] = parentId; 
+                        
+                        // บันทึกลิงก์ของคอมเมนต์นี้เก็บไว้ในคลัง
+                        if (url && url !== "undefined") {
+                            urlMap[id] = url;
+                            if (!defaultPostUrl) {
+                                defaultPostUrl = url.split('?')[0]; // ตัด parameter ทิ้งให้เหลือแค่โพสต์ต้นทาง
+                            }
+                        }
+                    }
                 }
+            }
+
+            // ระบบสืบทอดลิงก์: ถ้าเม้นตัวเองไม่มีลิงก์ ให้วิ่งขึ้นไปหาเม้นแม่
+            function resolveUrl(id) {
+                let curr = id; let depth = 0;
+                while (curr && depth < 10) {
+                    if (urlMap[curr]) return urlMap[curr];
+                    curr = parentMap[curr];
+                    depth++;
+                }
+                return defaultPostUrl; // สำรองสุดท้าย ถ้าหาไม่เจอจริงๆ ให้ไปที่หน้าโพสต์รวม
             }
 
             let threadCounter = 1; let threadMap = {};
@@ -701,11 +728,13 @@
                 const parentId = replyToIdx !== -1 && cols[replyToIdx] ? cols[replyToIdx].trim() : "";
                 const isReply = parentId !== "" && parentId !== "undefined";
                 const likeCount = likeIdx !== -1 ? parseInt(cols[likeIdx]) || 0 : 0;
-
+                
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
+                
+                // ดึง URL ด้วยระบบสืบทอดที่เขียนขึ้นใหม่
+                const resolvedUrl = resolveUrl(commentId);
 
-                // เปลี่ยนมาเตรียม lines ให้ส่งเข้าลอจิกใหม่
                 const rawLines = fullText.split('\n');
                 const cleanLines = rawLines.map(line => line.trim().replace(/เเ/g, 'แ'));
 
@@ -713,7 +742,7 @@
                     const idMatch = cleanSubLine.match(/\b([0-9]{7,9})\b/);
                     if (idMatch) {
                         const studentId = idMatch[1];
-                        seenIdsInThisFile.add(studentId); // ปล่อยให้ข้อมูลซ้ำผ่านเข้ามา เพื่อให้ระบบนำไปติดป้ายเตือน [ซ้ำ] ได้
+                        seenIdsInThisFile.add(studentId); // ปล่อยให้เข้าเพื่อเช็กส่งซ้ำ
 
                         const isIdValid = (studentId.length === 8);
                         const nameObj = extractStudentName(cleanSubLine, studentId);
@@ -726,7 +755,6 @@
                             if (fullObj.lastName) lastName = fullObj.lastName;
                         }
 
-                        // === เรียกใช้แบบใหม่ ===
                         let pointType = detectPointType(cleanLines, lineIndex);
 
                         fileRecords.push({
@@ -734,7 +762,8 @@
                             "isIdValid": isIdValid, "ชื่อ": firstName, "นามสกุล": lastName,
                             "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", "สายสนทนา": threadNo,
                             "isReply": isReply, "ประเภทงาน": pointType, "ยอดไลก์": likeCount,
-                            "คอมเมนต์เต็มต้นฉบับ": fullText, "isFaded": false
+                            "คอมเมนต์เต็มต้นฉบับ": fullText, "isFaded": false,
+                            "commentUrl": resolvedUrl // ใช้ URL ที่สืบทอดมาใส่ตาราง
                         });
                     }
                 });
@@ -747,7 +776,7 @@
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
                 allFilesData[fileName][recordIndex][field] = val;
                 if (field === 'รหัสนักศึกษา') { allFilesData[fileName][recordIndex].isIdValid = (val.length === 8); }
-                updateSummary(); saveState(); 
+                updateSummary(currentlyDisplayedData); saveState(); 
             }
         }
 
@@ -1000,7 +1029,22 @@
                     }
 
                     if (cols.likes) rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center' });
-                    if (cols.original) rowCells.push({ content: `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed"><div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2">${item["คอมเมนต์เต็มต้นฉบับ"]}</div></div>`, type: 'comment' });
+                    
+                    if (cols.original) {
+                        let originalContentHtml = `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed flex flex-col h-full">
+                            <div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2 mb-1.5">${item["คอมเมนต์เต็มต้นฉบับ"]}</div>`;
+                        
+                        if (item.commentUrl && item.commentUrl !== "undefined" && item.commentUrl !== "") {
+                            // ใช้ onclick และตั้งชื่อ target window เป็น 'fb_single_checker_tab' 
+                            // วิธีนี้จะบังคับให้เปิดแท็บใหม่แค่ครั้งเดียว พอกดคนต่อไป มันจะวิ่งไปรีเฟรชที่แท็บเดิมทันที ไม่สร้างแท็บใหม่เพิ่ม!
+                            originalContentHtml += `<button type="button" onclick="window.open('${item.commentUrl}', 'fb_single_checker_tab')" class="inline-flex items-center gap-1 mt-auto w-max text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline font-semibold transition cursor-pointer" title="คลิกเพื่อตรวจสอบคอมเมนต์ (จะใช้แท็บเดิมในการเปิด ไม่รกจอ)">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                ดูคอมเมนต์ต้นฉบับ
+                            </button>`;
+                        }
+                        originalContentHtml += `</div>`;
+                        rowCells.push({ content: originalContentHtml, type: 'comment' });
+                    }
 
                     let trHtml = "";
                     rowCells.forEach((cell, cIndex) => {
