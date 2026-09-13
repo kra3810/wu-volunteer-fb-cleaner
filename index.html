@@ -10,6 +10,50 @@
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] { 
+            -moz-appearance: textfield; 
+        }
+                /* --- สไตล์สำหรับแถวที่ซ้ำโดยเฉพาะ --- */
+        .duplicate-faded { background-color: rgba(254, 226, 226, 0.4) !important; border-left: 3px solid #f43f5e; }
+        .dark .duplicate-faded { background-color: rgba(136, 19, 55, 0.3) !important; border-left: 3px solid #e11d48; }
+        
+        /* ให้ข้อมูลจางลงและออกเทาๆ แต่สีแถวยังแดงอยู่ */
+        .duplicate-faded .row-content { opacity: 0.55; filter: grayscale(20%); pointer-events: none; transition: all 0.2s; }
+        .duplicate-faded:hover .row-content { opacity: 1; pointer-events: auto; filter: grayscale(0%); }
+
+        /* ทำให้ปุ่มซ้ำทะลุการ Fade ออกมาและกดได้เสมอ */
+        .duplicate-badge {
+            pointer-events: auto !important; 
+            opacity: 1 !important;
+            filter: none !important;
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.5); }
+            70% { box-shadow: 0 0 0 5px rgba(225, 29, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+        /* Style สำหรับป๊อปอัพพรีวิวคอมเมนต์ Facebook */
+        .fb-popup-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px); z-index: 9999; display: flex;
+            align-items: center; justify-content: center; padding: 16px;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .fb-popup-container {
+            background: #ffffff; border-radius: 16px; width: 100%; max-width: 850px;
+            height: 80vh; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid #e2e8f0;
+        }
+        .dark .fb-popup-container {
+            background: #1e293b; border-color: #334155;
+        }
         table { table-layout: auto; width: 100%; }
 
         .thread-hidden { display: none !important; }
@@ -66,6 +110,61 @@
         .dark ::-webkit-scrollbar-track { background: #1e293b; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
         .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* --- สไตล์จำลอง Facebook Comment --- */
+        .fb-avatar { width: 36px; height: 36px; border-radius: 50%; background-color: #cbd5e1; flex-shrink: 0; }
+        .dark .fb-avatar { background-color: #3A3B3C; }
+        
+        .fb-bubble { background-color: #F0F2F5; border-radius: 18px; padding: 8px 12px; display: inline-block; max-width: 100%; }
+        .dark .fb-bubble { background-color: #3A3B3C; }
+        
+        .fb-img-placeholder {
+            width: 100%; max-width: 250px; height: 250px; border-radius: 12px; 
+            background-color: #e2e8f0; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; margin-top: 4px;
+            border: 1px solid #cbd5e1;
+        }
+        .dark .fb-img-placeholder { background-color: #3A3B3C; border-color: #4E4F50; }
+        
+        .fb-thread-line {
+            position: absolute; left: 18px; top: 40px; bottom: 0; width: 2px;
+            background-color: #cbd5e1;
+        }
+        .dark .fb-thread-line { background-color: #3E4042; }
+
+        /* --- ระบบไฮไลต์คอมเมนต์ให้เด่นค้างไว้ตลอด --- */
+        .highlight-comment { 
+            background-color: rgba(24, 119, 242, 0.08) !important; 
+            border-radius: 12px; 
+            box-shadow: inset 4px 0 0 0 #1877F2;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+        .dark .highlight-comment { 
+            background-color: rgba(69, 153, 255, 0.12) !important; 
+            box-shadow: inset 4px 0 0 0 #4599FF;
+        }
+        /* ไฮไลต์สำหรับคอมเมนต์ที่ส่งซ้ำ */
+        .highlight-duplicate { 
+            background-color: rgba(225, 29, 72, 0.08) !important; 
+            border-radius: 12px; 
+            box-shadow: inset 4px 0 0 0 #E11D48;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+        .dark .highlight-duplicate { 
+            background-color: rgba(225, 29, 72, 0.15) !important; 
+            box-shadow: inset 4px 0 0 0 #F43F5E;
+        }
+        /* --- บังคับให้แถวซ้ำเป็นสีแดงเสมอ (ชนะการไฮไลต์สายสนทนา) --- */
+        .data-row.duplicate-faded.thread-highlight {
+            background-color: rgba(254, 226, 226, 0.4) !important;
+            border-left: 3px solid #f43f5e !important;
+        }
+        .dark .data-row.duplicate-faded.thread-highlight {
+            background-color: rgba(136, 19, 55, 0.3) !important;
+            border-left: 3px solid #e11d48 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 min-h-screen py-4 md:py-8 px-2 md:px-4 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200">
@@ -133,21 +232,89 @@
         </div>
 
         <div id="mainWorkspace" class="hidden space-y-4 md:space-y-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center transition-colors">
-                    <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">นักศึกษาทั้งหมด</span>
-                    <span id="sumTotal" class="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white">0</span>
+            
+            <!-- แผงข้อมูลรวม (Stat, Category, Settings, Score) -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
+                
+                <!-- ส่วนบน: สถิติ และ หมวดหมู่ -->
+                <div class="p-4 md:p-5 flex flex-col xl:flex-row gap-4 xl:gap-8">
+                    <!-- กล่องนักศึกษาทั้งหมด และ รหัส 8 หลัก -->
+                    <div class="flex gap-4 shrink-0">
+                        <div class="bg-slate-50 dark:bg-slate-900/50 p-3 md:p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 w-full xl:w-32 flex flex-col justify-center">
+                            <span class="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs font-bold mb-1 uppercase tracking-wider">ทั้งหมด</span>
+                            <span id="sumTotal" class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none">0</span>
+                        </div>
+                        <div class="bg-emerald-50 dark:bg-emerald-900/10 p-3 md:p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30 w-full xl:w-32 flex flex-col justify-center">
+                            <span class="text-emerald-600 dark:text-emerald-500 text-[10px] md:text-xs font-bold mb-1 uppercase tracking-wider">รหัสครบ</span>
+                            <span id="sumValid" class="text-xl md:text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none">0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- ส่วนปุ่มหมวดหมู่ -->
+                    <div class="flex-1 border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-slate-700/50 pt-4 xl:pt-0 xl:pl-8 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">สรุปประเภทงาน</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-400 px-1.5 py-0.5 rounded">คลิกเพื่อกรองข้อมูล</span>
+                        </div>
+                        <div id="sumCategories" class="flex flex-wrap gap-1.5 md:gap-2"></div>
+                    </div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center transition-colors">
-                    <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">รหัสครบ 8 หลัก</span>
-                    <span id="sumValid" class="text-2xl md:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
-                </div>
-                <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center col-span-2 transition-colors">
-                    <span class="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium mb-2">สรุปประเภทงาน</span>
-                    <div id="sumCategories" class="flex flex-wrap gap-1.5 md:gap-2 text-xs md:text-sm font-semibold"></div>
+
+                <!-- ส่วนล่าง: ตั้งค่าคะแนน (โชว์เฉพาะโหมดแยกไฟล์) และ สรุปคะแนน (โชว์เมื่อมีการตั้งค่า) -->
+                <div id="scoreDashboardContainer" class="hidden border-t border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/30 p-4 md:p-5">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        
+                        <!-- ฝั่งซ้าย: ตั้งค่าคะแนน (เห็นเฉพาะแยกใบงาน) -->
+                        <div id="scoreSettingsSection" class="w-full lg:w-1/2 flex flex-col justify-center">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="text-2xl">🎯</span>
+                                <div>
+                                    <h4 class="text-base font-bold text-slate-800 dark:text-white leading-tight">กำหนดคะแนนใบงานนี้</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">ใช้เป็นค่าเริ่มต้นให้ทุกคนในไฟล์ <span id="scoreFileNameDisplay" class="font-semibold text-indigo-500 inline-block truncate max-w-[200px] align-bottom"></span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3">
+                                <div class="relative w-full max-w-[140px]">
+                                    <input type="number" id="baseScoreInput" oninput="saveBaseScore()" placeholder="0" min="0" step="0.5" class="block w-full px-3.5 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-bold">
+                                </div>
+                                <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">แต้ม</span>
+                                <div class="text-xs text-slate-400 ml-2 italic">ระบบบันทึกให้อัตโนมัติทันทีที่พิมพ์</div>
+                            </div>
+                            
+                            <button onclick="toggleCustomScorePanel()" class="mt-4 w-max text-left text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                ตั้งค่าแยกระดับหมวดหมู่
+                            </button>
+                            
+                            <div id="customScorePanel" class="hidden mt-2 pt-2 border-t border-slate-200 dark:border-slate-700/50 grid grid-cols-3 gap-2">
+                                <!-- โค้ดส่วนนี้จะถูกสร้างอัตโนมัติด้วย JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- ฝั่งขวา: สรุปคะแนน (โชว์เสมอถ้ามีคะแนน) -->
+                        <div id="scoreSummarySection" class="w-full lg:w-1/2 flex flex-col justify-center border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 pt-4 lg:pt-0 lg:pl-6">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800 dark:text-white leading-tight">สรุปยอดแจกคะแนน</h4>
+                                    <p id="scoreSummaryModeText" class="text-[10px] text-slate-500 dark:text-slate-400"></p>
+                                </div>
+                                <div class="bg-indigo-100 dark:bg-indigo-900/40 px-3 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 text-center">
+                                    <span class="text-[9px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider block leading-tight">แต้มรวม</span>
+                                    <span id="totalScoreSum" class="text-lg font-black text-indigo-700 dark:text-indigo-300 leading-tight">0</span>
+                                </div>
+                            </div>
+                            
+                            <div id="scoreCategoryBreakdown" class="flex flex-wrap gap-1.5 mt-1">
+                                <!-- โค้ดสรุปคะแนนแต่ละหมวดจะถูกสร้างที่นี่ -->
+                            </div>
+                        </div>
+                        
+                    </div>
                 </div>
             </div>
 
+            <!-- กล่องค้นหา และ เครื่องมือ -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex flex-col lg:flex-row justify-between items-center gap-4 transition-colors">
                 <div class="relative w-full lg:w-1/3">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -167,6 +334,7 @@
                 </div>
             </div>
 
+            <!-- กล่องโหมดการทำงานและแสดงผล -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
                 <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center justify-between">
 
@@ -184,11 +352,13 @@
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 xl:mt-0">
                         <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
                         <div class="flex flex-wrap gap-2">
+                            <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไฟล์ต้นทาง</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">นามสกุล</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">สถานะ</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ประเภทงาน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_score" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none text-indigo-600 dark:text-indigo-400">คะแนน</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไลก์</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ข้อความต้นฉบับ</div></label>
                         </div>
@@ -202,6 +372,7 @@
                 </div>
             </div>
 
+            <!-- กล่องตาราง -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 <div class="table-container overflow-x-auto max-h-[600px]">
                     <table class="min-w-full text-sm text-left">
@@ -231,9 +402,7 @@
                 <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm">✕</button>
             </div>
 
-            <!-- ผมเอาขั้นตอนที่ 2 และ 3 กลับมาใส่ให้ครบแล้วครับ -->
             <div class="p-6 overflow-y-auto space-y-8 text-slate-700 dark:text-slate-300">
-                
                 <div class="space-y-3">
                     <h4 class="text-lg font-bold flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded text-sm">ขั้นตอน 1</span>
@@ -274,7 +443,6 @@
                         <img src="asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto rounded shadow-sm border border-slate-100 dark:border-slate-800" onerror="this.onerror=null; this.src='asset/fwRX0ZzR.jpeg'; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
                     </div>
                 </div>
-
             </div>
 
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-right">
@@ -313,8 +481,6 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">รายละเอียด *</label>
                     <textarea name="message" required rows="3" placeholder="อธิบายสิ่งที่ต้องการเสนอแนะ หรือปัญหาที่พบเจอ..." class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
                 </div>
-                
-                <!-- ช่องแนบไฟล์ และ อีเมล ที่เอากลับมาคืนให้ครับ -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">แนบรูปภาพ / แคปหน้าจอ (ถ้ามี)</label>
                     <input type="file" name="attachment" accept="image/*" class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 dark:hover:file:bg-indigo-900/50 transition cursor-pointer border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"/>
@@ -323,7 +489,6 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">อีเมลติดต่อกลับ (ไม่บังคับ)</label>
                     <input type="email" name="email" placeholder="example@email.com" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 text-sm bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
-                <!-- ===================================== -->
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                     <button type="button" onclick="closeFeedbackModal()" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">ยกเลิก</button>
@@ -338,11 +503,1009 @@
         </div>
     </div>
 
+    <!-- Modal สำหรับจำลองหน้าคอมเมนต์ Facebook -->
+    <div id="fbPopupModal" class="hidden fb-popup-overlay">
+        <div class="fb-popup-container" style="max-width: 600px;">
+            <!-- Header -->
+            <div class="flex items-center justify-center relative px-4 py-3 border-b border-slate-200 dark:border-[#3E4042] bg-white dark:bg-[#242526]">
+                <h3 class="font-bold text-slate-800 dark:text-[#E4E6EB] text-[15px]">โพสต์ของ Facebook</h3>
+                <button onclick="closeFbPopup()" class="absolute right-4 text-slate-500 hover:bg-slate-200 dark:text-[#B0B3B8] p-2 bg-slate-100 dark:bg-[#3A3B3C] dark:hover:bg-[#4E4F50] rounded-full w-9 h-9 flex items-center justify-center transition-colors font-bold">✕</button>
+            </div>
+            
+            <!-- Body -->
+            <div class="flex-1 bg-white dark:bg-[#242526] p-4 overflow-y-auto" id="fbPopupContent">
+                <!-- โครงสร้างคอมเมนต์จำลองจะถูกแทรกด้วย JavaScript ที่นี่ -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Script ควบคุมการทำงาน -->
     <script>
         let allFilesData = {}; 
         let currentMode = 'separate';
         let activeThread = null; 
-        let activeCategoryFilter = null; // เก็บสถานะว่าผู้ใช้กำลังกดตัวกรองอะไรอยู่
+        let activeCategoryFilters = []; 
+        let previousCategoryFilters = [];
+        let previousScrollPos = 0;
+
+        let fileScores = {}; // เก็บข้อมูลคะแนนของแต่ละไฟล์ { "filename.csv": { base: 4, custom: { "ใจอาสา": 5, "วินัย": 3 } } }
+        let currentlyDisplayedData = [];
+        let rawThreadsData = {};
+        let lastWindowScrollPos = 0;
+
+        function calculateTimeAgo(timeString) {
+            if (!timeString) return "ไม่ระบุเวลา";
+            const commentDate = new Date(timeString);
+            if (isNaN(commentDate.getTime())) return timeString; 
+            const now = new Date(); 
+            const diffMs = Math.max(0, now - commentDate); // ป้องกันเวลาติดลบ
+            const diffSecs = Math.floor(diffMs / 1000);
+            const diffMins = Math.floor(diffSecs / 60);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            const diffWeeks = Math.floor(diffDays / 7);
+            const diffYears = Math.floor(diffDays / 365);
+
+            if (diffSecs < 60) return "เมื่อสักครู่";
+            if (diffMins < 60) return `${diffMins} นาที`;
+            if (diffHours < 24) return `${diffHours} ชม.`;
+            if (diffDays < 7) return `${diffDays} วัน`;
+            if (diffWeeks < 52) return `${diffWeeks} สัปดาห์`;
+            return `${diffYears} ปี`;
+        }
+
+        // ตัวแปรสำหรับจำตำแหน่ง Scroll โดยเฉพาะ
+        let savedWindowScroll = 0;
+        let savedContainerScroll = 0;
+
+        // ฟังก์ชันจัดการสายสนทนา (ใส่ระบบกล่องล่องหนป้องกันตารางหด)
+        function handleToggleThreadClick(event, threadNo, fileName, btn) {
+            event.stopPropagation();
+            
+            const tbody = document.getElementById('tableBody');
+            const rows = tbody.querySelectorAll('.data-row');
+            const tableContainer = document.querySelector('.table-container');
+            
+            let spacer = document.getElementById('page-magic-spacer');
+            if (!spacer) {
+                spacer = document.createElement('div');
+                spacer.id = 'page-magic-spacer';
+                document.body.appendChild(spacer);
+            }
+
+            if (activeThread === threadNo) {
+                activeThread = null;
+                
+                rows.forEach(row => {
+                    row.classList.remove('thread-hidden');
+                    row.classList.remove('thread-highlight');
+                });
+                
+                spacer.style.height = '0px';
+                
+                if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
+                window.scrollTo(0, savedWindowScroll);
+                
+            } else {
+                const docHeightBefore = document.documentElement.scrollHeight;
+                
+                if (tableContainer) {
+                    tableContainer.style.minHeight = ''; 
+                    savedContainerScroll = tableContainer.scrollTop;
+                }
+                savedWindowScroll = window.scrollY;
+                
+                activeThread = threadNo;
+                
+                if (activeCategoryFilters.length > 0) {
+                    activeCategoryFilters = [];
+                    renderTable(); 
+                    setTimeout(() => {
+                        const newBtn = document.querySelector(`tr[data-thread="${threadNo}"] button`);
+                        if(newBtn) handleToggleThreadClick(event, threadNo, fileName, newBtn);
+                    }, 50);
+                    return;
+                }
+                
+                rows.forEach(row => {
+                    const rowThread = row.getAttribute('data-thread');
+                    const rowFile = row.getAttribute('data-filename');
+                    if (rowThread === threadNo && rowFile === fileName) {
+                        row.classList.remove('thread-hidden');
+                        row.classList.add('thread-highlight');
+                    } else {
+                        row.classList.add('thread-hidden');
+                        row.classList.remove('thread-highlight');
+                    }
+                });
+
+                const docHeightAfter = document.documentElement.scrollHeight;
+                if (docHeightBefore > docHeightAfter) {
+                    spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                }
+
+                if (tableContainer) tableContainer.scrollTop = 0;
+                window.scrollTo(0, savedWindowScroll);
+            }
+        }
+
+        // ฟังก์ชันตัวกรองหมวดหมู่และปุ่มซ้ำ (ใส่ระบบกล่องล่องหนป้องกันตารางหดด้วยเช่นกัน)
+        function setFilter(cat) {
+            const docHeightBefore = document.documentElement.scrollHeight;
+            const tableContainer = document.querySelector('.table-container');
+            if (tableContainer) savedContainerScroll = tableContainer.scrollTop;
+            savedWindowScroll = window.scrollY;
+
+            let spacer = document.getElementById('page-magic-spacer');
+            if (!spacer) {
+                spacer = document.createElement('div');
+                spacer.id = 'page-magic-spacer';
+                document.body.appendChild(spacer);
+            }
+
+            if (cat === null) {
+                activeCategoryFilters = []; 
+            } else {
+                const index = activeCategoryFilters.indexOf(cat);
+                if (index > -1) {
+                    activeCategoryFilters.splice(index, 1); 
+                } else {
+                    activeCategoryFilters.push(cat); 
+                }
+            }
+            
+            renderTable(); 
+
+            // คำนวณความสูงชดเชยไม่ให้หน้าจอดีดหรือหดตัว
+            const docHeightAfter = document.documentElement.scrollHeight;
+            if (docHeightBefore > docHeightAfter) {
+                spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+            } else {
+                spacer.style.height = '0px';
+            }
+
+            window.scrollTo(0, savedWindowScroll);
+        }
+
+        function switchMode(mode) {
+            currentMode = mode; 
+            activeThread = null; 
+            updateModeUI(); 
+            
+            if (mode === 'separate') {
+                const selectedFile = document.getElementById('fileSelectDropdown').value;
+                initScoreSettings(selectedFile);
+            }
+            
+            renderTable(); 
+            resetScroll(); 
+            saveState(); 
+        }
+
+        function getSelectedColumns() {
+            return {
+                file: document.getElementById('col_file') ? document.getElementById('col_file').checked : false,
+                id: document.getElementById('col_id').checked, name: document.getElementById('col_name').checked,
+                surname: document.getElementById('col_surname').checked, status: document.getElementById('col_status').checked,
+                type: document.getElementById('col_type').checked, likes: document.getElementById('col_likes').checked,
+                score: document.getElementById('col_score') ? document.getElementById('col_score').checked : false,
+                original: document.getElementById('col_original').checked
+            };
+        }
+
+        function initScoreSettings(fileName) {
+            let shortName = fileName.length > 20 ? fileName.substring(0, 20) + '...' : fileName;
+            document.getElementById('scoreFileNameDisplay').innerText = shortName;
+            document.getElementById('scoreFileNameDisplay').title = fileName;
+            
+            if (!fileScores[fileName]) {
+                fileScores[fileName] = { base: 0, custom: {} };
+            }
+            
+            document.getElementById('baseScoreInput').value = fileScores[fileName].base || '';
+            buildCustomScoreInputs(fileName);
+        }
+
+        function saveBaseScore() {
+            if (currentMode !== 'separate') return;
+            
+            const fileName = document.getElementById('fileSelectDropdown').value;
+            const baseInput = document.getElementById('baseScoreInput').value;
+            
+            if (!fileScores[fileName]) fileScores[fileName] = { base: 0, custom: {} };
+            fileScores[fileName].base = parseFloat(baseInput) || 0;
+            
+            renderTable();
+            saveState(); 
+        }
+
+        function toggleCustomScorePanel() {
+            const panel = document.getElementById('customScorePanel');
+            panel.classList.toggle('hidden');
+        }
+
+        function buildCustomScoreInputs(fileName) {
+            const panel = document.getElementById('customScorePanel');
+            panel.innerHTML = '';
+            
+            const categoriesInFile = new Set();
+            if (allFilesData[fileName]) {
+                allFilesData[fileName].forEach(item => {
+                    if (item["ประเภทงาน"] && item["ประเภทงาน"] !== "ไม่ได้ระบุ") {
+                        categoriesInFile.add(item["ประเภทงาน"]);
+                    }
+                });
+            }
+            
+            if (categoriesInFile.size === 0) {
+                 panel.innerHTML = '<span class="text-xs text-slate-500 col-span-full">ไม่พบหมวดหมู่งานในไฟล์นี้</span>';
+                 return;
+            }
+
+            Array.from(categoriesInFile).forEach(cat => {
+                let val = fileScores[fileName]?.custom[cat] !== undefined ? fileScores[fileName].custom[cat] : '';
+                let html = `
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 truncate" title="${cat}">${cat}</label>
+                    <input type="number" oninput="saveCustomScore('${fileName}', '${cat}', this.value)" value="${val}" placeholder="ค่าหลัก" min="0" step="0.5" class="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 font-bold">
+                </div>`;
+                panel.innerHTML += html;
+            });
+        }
+
+        function saveCustomScore(fileName, category, value) {
+            if (!fileScores[fileName]) fileScores[fileName] = { base: 0, custom: {} };
+            
+            if (value.trim() === '') {
+                delete fileScores[fileName].custom[category];
+            } else {
+                fileScores[fileName].custom[category] = parseFloat(value) || 0;
+            }
+            renderTable();
+            saveState();
+        }
+        
+        function calculateItemScore(item) {
+            const fScore = fileScores[item.fileName];
+            if (!fScore) return 0;
+            
+            let cat = item["ประเภทงาน"];
+            if (fScore.custom && fScore.custom[cat] !== undefined) {
+                return fScore.custom[cat];
+            }
+            return fScore.base || 0;
+        }
+
+        function updateScoreDashboard(data) {
+            const dashboardContainer = document.getElementById('scoreDashboardContainer');
+            const scoreSettingsSection = document.getElementById('scoreSettingsSection');
+            const breakdownContainer = document.getElementById('scoreCategoryBreakdown');
+            const totalSumDisplay = document.getElementById('totalScoreSum');
+            const modeText = document.getElementById('scoreSummaryModeText');
+
+            let validData = data.filter(d => !d.isFaded && !d.isDuplicateInstance);
+            
+            let anyFileHasScore = false;
+            if (currentMode === 'separate') {
+                const selectedFile = document.getElementById('fileSelectDropdown').value;
+                const fScore = fileScores[selectedFile];
+                anyFileHasScore = fScore && (fScore.base > 0 || Object.keys(fScore.custom).length > 0);
+            } else {
+                anyFileHasScore = Object.values(fileScores).some(f => f.base > 0 || Object.keys(f.custom).length > 0);
+            }
+
+            // ถ้าเป็นโหมดแยกไฟล์ โชว์ Settings เสมอ, โหมดรวม ซ่อน Settings
+            if (currentMode === 'separate') {
+                dashboardContainer.classList.remove('hidden');
+                scoreSettingsSection.classList.remove('hidden');
+                scoreSettingsSection.classList.add('lg:border-r', 'border-slate-200', 'dark:border-slate-700', 'pr-6');
+                modeText.innerText = "เฉพาะไฟล์ที่กำลังเปิดดู";
+            } else {
+                scoreSettingsSection.classList.add('hidden');
+                scoreSettingsSection.classList.remove('lg:border-r', 'border-slate-200', 'dark:border-slate-700', 'pr-6');
+                modeText.innerText = "รวมจากทุกใบงานที่คุณอัปโหลดไว้";
+                if (!anyFileHasScore) {
+                     dashboardContainer.classList.add('hidden');
+                     return;
+                } else {
+                     dashboardContainer.classList.remove('hidden');
+                }
+            }
+
+            let categoryScores = {};
+            let totalPoints = 0;
+
+            if (currentMode === 'merged') {
+                 let studentScores = {};
+                 validData.forEach(item => {
+                      let id = item["รหัสนักศึกษา"];
+                      let cat = item["ประเภทงาน"];
+                      let score = calculateItemScore(item);
+                      
+                      if (score > 0) {
+                          if (!studentScores[id]) studentScores[id] = {};
+                          studentScores[id][cat] = (studentScores[id][cat] || 0) + score;
+                      }
+                 });
+                 
+                 Object.values(studentScores).forEach(userCatScores => {
+                      Object.entries(userCatScores).forEach(([cat, score]) => {
+                          categoryScores[cat] = (categoryScores[cat] || 0) + score;
+                          totalPoints += score;
+                      });
+                 });
+            } else {
+                 validData.forEach(item => {
+                     let score = calculateItemScore(item);
+                     if (score > 0) {
+                         let cat = item["ประเภทงาน"];
+                         categoryScores[cat] = (categoryScores[cat] || 0) + score;
+                         totalPoints += score;
+                     }
+                 });
+            }
+
+            totalSumDisplay.innerText = totalPoints;
+
+            breakdownContainer.innerHTML = '';
+            if (Object.keys(categoryScores).length === 0) {
+                breakdownContainer.innerHTML = '<span class="text-xs text-slate-400 italic mt-2">ยังไม่มีการแจกคะแนนในไฟล์นี้</span>';
+            } else {
+                Object.entries(categoryScores)
+                    .sort(([,a], [,b]) => b - a) 
+                    .forEach(([cat, score]) => {
+                        let html = `
+                            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded flex items-center gap-2 shadow-sm">
+                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold">${cat}</span>
+                                <span class="text-xs font-black text-indigo-600 dark:text-indigo-400">${score}</span>
+                            </div>
+                        `;
+                        breakdownContainer.innerHTML += html;
+                    });
+            }
+        }
+
+        
+
+        function updateSummary(dataToSummarize) {
+            let total = dataToSummarize.length;
+            let valid = dataToSummarize.filter(d => d.isIdValid).length;
+            let duplicates = dataToSummarize.filter(d => d.isDuplicateInstance).length;
+
+            document.getElementById('sumTotal').innerText = total; 
+            document.getElementById('sumValid').innerText = valid;
+
+            let counts = {};
+            dataToSummarize.forEach(d => { let t = d["ประเภทงาน"]; counts[t] = (counts[t] || 0) + 1; });
+
+            let catHtml = '';
+            
+            let allClass = activeCategoryFilters.length === 0 ? "bg-indigo-600 text-white shadow-md ring-2 ring-indigo-300 dark:ring-indigo-500" : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600";
+            catHtml += `<button onclick="setFilter(null)" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${allClass}">ทั้งหมด</button>`;
+
+            if (duplicates > 0) {
+                let dupClass = activeCategoryFilters.includes('duplicate') ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-300 dark:ring-rose-500" : "bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-400 dark:hover:bg-rose-900/60";
+                catHtml += `<button onclick="setFilter('duplicate')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${dupClass}">⚠️ ส่งซ้ำ (${duplicates})</button>`;
+            }
+
+            const colorMap = { 
+                "ภาวะผู้นำ": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50", 
+                "ใจอาสา": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 hover:bg-pink-200 dark:hover:bg-pink-900/50", 
+                "กตัญญู": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50",
+                "วินัย": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50", 
+                "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50", 
+                "แก้ความประพฤติ": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-900/50", 
+                "รักชาติ": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 hover:bg-teal-200 dark:hover:bg-teal-900/50", 
+                "ไม่ได้ระบุ": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50" 
+            };
+
+            Object.keys(counts).forEach(cat => {
+                let baseClass = colorMap[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+                let activeClass = activeCategoryFilters.includes(cat) ? "ring-2 ring-offset-1 ring-current shadow-sm opacity-100" : (activeCategoryFilters.length > 0 ? "opacity-50 hover:opacity-80" : "opacity-100");
+                catHtml += `<button onclick="setFilter('${cat}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${baseClass} ${activeClass}">${cat} (${counts[cat]})</button>`;
+            });
+
+            if(Object.keys(counts).length === 0 && duplicates === 0) {
+                catHtml = '<span class="text-slate-400 dark:text-slate-500 font-normal text-xs">ไม่มีข้อมูลหมวดหมู่</span>';
+            }
+            document.getElementById('sumCategories').innerHTML = catHtml;
+            
+            updateScoreDashboard(dataToSummarize);
+        }
+
+        function evaluateDuplicates(fileName) {
+            if (!allFilesData[fileName]) return;
+            let idGroups = {};
+            allFilesData[fileName].forEach(item => {
+                let id = item["รหัสนักศึกษา"];
+                if (id) {
+                    if (!idGroups[id]) idGroups[id] = [];
+                    idGroups[id].push(item);
+                }
+            });
+
+            Object.values(idGroups).forEach(group => {
+                if (group.length > 1) {
+                    group.sort((a, b) => {
+                        let aMain = a["สถานะ"] === "เม้นหลัก" ? 1 : 0;
+                        let bMain = b["สถานะ"] === "เม้นหลัก" ? 1 : 0;
+                        if (aMain !== bMain) return bMain - aMain; 
+                        let aLikes = a["ยอดไลก์"] || 0;
+                        let bLikes = b["ยอดไลก์"] || 0;
+                        if (aLikes !== bLikes) return bLikes - aLikes; 
+                        return a.recordIndex - b.recordIndex; 
+                    });
+
+                    group.forEach((item, idx) => {
+                        if (idx === 0) {
+                            item.isDuplicateInstance = false;
+                        } else {
+                            if (!item.isDuplicateInstance) { 
+                                item.isDuplicateInstance = true;
+                                item.isFaded = true; 
+                            }
+                        }
+                    });
+                } else {
+                    group[0].isDuplicateInstance = false;
+                }
+            });
+        }
+
+        function filterByStudentId(event, studentId) {
+            event.stopPropagation();
+            const searchInput = document.getElementById('searchInput');
+            const tableContainer = document.querySelector('.table-container');
+            
+            if (searchInput.value === studentId) {
+                searchInput.value = '';
+                activeCategoryFilters = [...previousCategoryFilters];
+                renderTable(); 
+                if (tableContainer) {
+                    setTimeout(() => {
+                        tableContainer.scrollTop = previousScrollPos;
+                    }, 10);
+                }
+            } else {
+                if (tableContainer) {
+                    previousScrollPos = tableContainer.scrollTop;
+                }
+                previousCategoryFilters = [...activeCategoryFilters];
+                searchInput.value = studentId;
+                activeCategoryFilters = [];
+                renderTable(); 
+            }
+        }
+
+        function renderTable() {
+            const tableContainer = document.querySelector('.table-container');
+            const scrollPos = tableContainer ? tableContainer.scrollTop : 0;
+            const thead = document.getElementById('tableHeader');
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = ""; activeThread = null; 
+
+            const cols = getSelectedColumns();
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+            let headerHtml = `<tr>`;
+            let isFirstCol = true;
+            function getThClass(baseClass) {
+                let cls = baseClass; if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; } return cls;
+            }
+
+            if (currentMode === 'merged' && cols.file) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
+            if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
+            if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
+            if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
+            if (cols.status) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">สถานะ</th>`;
+            if (cols.type) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ประเภทงาน</th>`;
+            if (cols.score) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">คะแนน</th>`;
+            if (cols.likes) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไลก์</th>`;
+            if (cols.original) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[250px] max-w-[400px] border-b border-slate-200 dark:border-slate-700')}">คอมเมนต์ต้นฉบับ</th>`;
+            headerHtml += `</tr>`;
+            thead.innerHTML = headerHtml;
+
+            let baseData = [];
+            if (currentMode === 'separate') {
+                const selectedFile = document.getElementById('fileSelectDropdown').value;
+                baseData = allFilesData[selectedFile] || [];
+            } else {
+                Object.values(allFilesData).forEach(fileRecords => { baseData = baseData.concat(fileRecords); });
+            }
+
+            currentlyDisplayedData = baseData; 
+            updateSummary(baseData); 
+
+            let displayData = baseData;
+            if (activeCategoryFilters.length > 0) {
+                displayData = displayData.filter(item => {
+                    let isMatch = false;
+                    if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) isMatch = true;
+                    if (activeCategoryFilters.includes(item["ประเภทงาน"])) isMatch = true;
+                    return isMatch;
+                });
+            }
+
+            if (searchQuery.trim() !== "") {
+                displayData = displayData.filter(item => 
+                    item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) || item["ชื่อ"].toLowerCase().includes(searchQuery) ||
+                    item["นามสกุล"].toLowerCase().includes(searchQuery) || item["ประเภทงาน"].toLowerCase().includes(searchQuery)
+                );
+            }
+
+            let finalRenderData = [];
+            if (currentMode === 'merged') {
+                 let isViewingSpecificDuplicate = activeCategoryFilters.length === 0 && searchQuery !== "" && displayData.every(d => d["รหัสนักศึกษา"].toLowerCase().includes(searchQuery));
+                 
+                 if (!isViewingSpecificDuplicate) {
+                      let mergedGroups = {};
+                      displayData.forEach(item => {
+                          if (item.isFaded || item.isDuplicateInstance) return; 
+                          
+                          let id = item["รหัสนักศึกษา"];
+                          if (!mergedGroups[id]) {
+                               mergedGroups[id] = { 
+                                   ...item, 
+                                   _mergedSources: [item], 
+                                   _mergedScoreMap: { [item["ประเภทงาน"]]: calculateItemScore(item) } 
+                               };
+                          } else {
+                               mergedGroups[id]._mergedSources.push(item);
+                               let cat = item["ประเภทงาน"];
+                               let currentCatScore = mergedGroups[id]._mergedScoreMap[cat] || 0;
+                               mergedGroups[id]._mergedScoreMap[cat] = currentCatScore + calculateItemScore(item);
+                               
+                               if (mergedGroups[id]["ประเภทงาน"] !== cat) {
+                                    mergedGroups[id]["ประเภทงาน"] = "หลายหมวดหมู่";
+                               }
+                               mergedGroups[id]["ยอดไลก์"] += item["ยอดไลก์"];
+                          }
+                      });
+                      finalRenderData = Object.values(mergedGroups);
+                      
+                      if (cols.score && searchQuery === "") {
+                          finalRenderData.sort((a,b) => {
+                              let aScore = Object.values(a._mergedScoreMap).reduce((sum, s) => sum + s, 0);
+                              let bScore = Object.values(b._mergedScoreMap).reduce((sum, s) => sum + s, 0);
+                              return bScore - aScore;
+                          });
+                      }
+                 } else {
+                     finalRenderData = displayData;
+                 }
+            } else {
+                finalRenderData = displayData;
+            }
+
+            if (finalRenderData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">ไม่พบข้อมูลที่ตรงกับการค้นหา หรือ ตัวกรอง</td></tr>`;
+            } else {
+                finalRenderData.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
+                    
+                    const duplicateBg = item.isDuplicateInstance ? "bg-rose-50/90 dark:bg-rose-900/30" : rowBgColor;
+                    const fadeClass = item.isFaded ? (item.isDuplicateInstance ? " duplicate-faded" : " row-faded") : "";
+
+                    tr.className = `data-row ${fadeClass} ${duplicateBg} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
+                    tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); tr.setAttribute('data-filename', item.fileName); 
+                    if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
+
+                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
+                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
+                    let typeSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
+
+                    let statusBadge;
+                    if (item._mergedSources && item._mergedSources.length > 1) {
+                         statusBadge = `<div class="inline-block bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 px-2 py-1 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800">📌 ทำมา ${item._mergedSources.length} ใบงาน</div>`;
+                    } else {
+                         let isMain = item["สถานะ"] === "เม้นหลัก";
+                         statusBadge = isMain ? 
+                            `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
+                            `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
+                    }
+
+                    let fadeBtn = item._mergedSources ? "" : `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${item.isFaded ? 
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>' :
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>'}
+                        </svg>
+                    </button>`;
+
+                    let rowCells = [];
+                    if (currentMode === 'merged' && cols.file) {
+                        let fileHtml = "";
+                        if (item._mergedSources && item._mergedSources.length > 1) {
+                            fileHtml = `<span class="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800" title="พบจากหลายไฟล์">รวม ${item._mergedSources.length} ไฟล์</span>`;
+                        } else {
+                            let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
+                            fileHtml = `<span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span>`;
+                        }
+                        rowCells.push({ content: `<div class="row-content">${fileHtml}</div>`, type: 'normal' });
+                    }
+
+                    if (cols.id) {
+                        let idContent = `<div class="row-content inline-flex items-center">`;
+                        if (item.isReply) idContent += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
+                        idContent += idSpan;
+                        if (!item["isIdValid"]) idContent += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
+                        idContent += `</div>`; 
+                        
+                        // แก้ไขปุ่ม "ซ้ำ" เป็นสีแดงที่ถูกต้อง
+                        if (item.isDuplicateInstance || (item._mergedSources && item._mergedSources.length > 1)) {
+                             let btnTitle = item.isDuplicateInstance ? "คลิกเพื่อดูข้อมูลรหัสนี้ทั้งหมด (กดอีกครั้งเพื่อกลับไปหน้าเดิม)" : "คลิกเพื่อกางดูรายละเอียดแยกตามใบงาน";
+                             let btnText = item.isDuplicateInstance ? "ซ้ำ" : "กางดูรายละเอียด";
+                             let btnClass = item.isDuplicateInstance ? "bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-400 border-rose-300 dark:border-rose-700" : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800";
+                             idContent = `<div class="flex items-center">${idContent}<button type="button" onclick="filterByStudentId(event, '${item["รหัสนักศึกษา"]}')" class="ml-1.5 cursor-pointer hover:scale-105 active:scale-95 px-1.5 py-0.5 rounded text-[10px] font-bold border shadow-sm transition-transform ${btnClass}" title="${btnTitle}">${btnText}</button></div>`;
+                        } else {
+                             idContent = `<div class="flex items-center">${idContent}</div>`;
+                        }
+                        
+                        rowCells.push({ content: idContent, type: 'mono' });
+                    }
+
+                    if (cols.name) rowCells.push({ content: `<div class="row-content">${nameSpan}</div>`, type: 'normal' });
+                    if (cols.surname) rowCells.push({ content: `<div class="row-content">${surnameSpan}</div>`, type: 'normal' });
+                    if (cols.status) rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center' });
+                    
+                    if (cols.type) {
+                        let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
+                            `<div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div>` : 
+                            `<div class="row-content font-bold text-slate-600 dark:text-slate-400">${typeSpan}</div>`;
+                        
+                        if (item._mergedScoreMap && Object.keys(item._mergedScoreMap).length > 1) {
+                             let typesList = Object.keys(item._mergedScoreMap).map(c => `<span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded mr-1 whitespace-nowrap">${c}</span>`).join('');
+                             pointTypeHtml = `<div class="row-content text-[10px] text-slate-500 flex flex-wrap gap-1">${typesList}</div>`;
+                        }
+                        rowCells.push({ content: pointTypeHtml, type: 'normal' });
+                    }
+
+                    if (cols.score) {
+                        let scoreBadge = '-';
+                        if (item._mergedScoreMap) {
+                             let totalPoints = Object.values(item._mergedScoreMap).reduce((sum, s) => sum + s, 0);
+                             if (totalPoints > 0) scoreBadge = `<div class="row-content font-bold text-indigo-600 dark:text-indigo-400 text-sm bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded inline-block border border-indigo-100 dark:border-indigo-800/50">${totalPoints}</div>`;
+                        } else {
+                             let score = calculateItemScore(item);
+                             if (score > 0) scoreBadge = `<div class="row-content font-bold text-indigo-600 dark:text-indigo-400 text-sm bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded inline-block border border-indigo-100 dark:border-indigo-800/50">${score}</div>`;
+                        }
+                        rowCells.push({ content: scoreBadge, type: 'center' });
+                    }
+
+                    if (cols.likes) rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center' });
+                    
+                    if (cols.original) {
+                        let originalContentHtml = `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed flex flex-col h-full">`;
+                        if (item._mergedSources) {
+                             originalContentHtml += `<div class="italic text-slate-400 mb-1">(ระบบรวบรวมข้อมูลให้อัตโนมัติ หากต้องการดูคอมเมนต์เต็ม กรุณากดปุ่ม "กางดูรายละเอียด" ที่หน้ารหัส)</div>`;
+                        } else {
+                            originalContentHtml += `<div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2 mb-1.5">${item["คอมเมนต์เต็มต้นฉบับ"]}</div>`;
+                            if (item.commentUrl && item.commentUrl !== "undefined" && item.commentUrl !== "") {
+                                // ส่งค่า isDuplicateInstance เพื่อทำสีแดงใน Modal อย่างถูกต้อง
+                                const isDupString = item.isDuplicateInstance ? 'true' : 'false';
+                                originalContentHtml += `
+                                <div class="flex flex-wrap items-center gap-3 mt-auto pt-1.5">
+                                    <button type="button" onclick="openFbPopup('${item.fileName}', '${item["สายสนทนา"]}', '${item.commentId}', ${isDupString})" class="inline-flex items-center gap-1 w-max text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline font-semibold transition cursor-pointer" title="เปิดหน้าต่างจำลองสายสนทนา">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+                                        ดูทั้งสายสนทนา
+                                    </button>
+                                    <a href="${item.commentUrl}" target="_blank" class="inline-flex items-center gap-1 w-max text-sky-500 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline font-semibold transition cursor-pointer" title="เปิดดูโพสต์ต้นฉบับบน Facebook">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                        ดูบนเฟสบุ๊ค
+                                    </a>
+                                </div>`;
+                            }
+                        }
+                        originalContentHtml += `</div>`;
+                        rowCells.push({ content: originalContentHtml, type: 'comment' });
+                    }
+
+                    let trHtml = "";
+                    rowCells.forEach((cell, cIndex) => {
+                        let alignClass = cell.type === 'center' ? 'text-center' : '';
+                        let monoClass = cell.type === 'mono' ? 'font-mono' : '';
+                        let noWrap = cell.type === 'comment' ? '' : 'whitespace-nowrap';
+                        
+                        if (cIndex === 0) {
+                            trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
+                        } else {
+                            trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass}">${cell.content}</td>`;
+                        }
+                    });
+
+                    tr.innerHTML = trHtml;
+                    tbody.appendChild(tr);
+                });
+            }
+            if (tableContainer) tableContainer.scrollTop = scrollPos;
+        }
+
+        function downloadExcel() {
+            function isItemMatchFilters(item) {
+                if (activeCategoryFilters.length === 0) return true;
+                if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) return true;
+                if (activeCategoryFilters.includes(item["ประเภทงาน"])) return true;
+                return false;
+            }
+            const cols = getSelectedColumns(); const workbook = XLSX.utils.book_new();
+
+            function prepareRow(item, includeFileName = false) {
+                let obj = {};
+                if (includeFileName && cols.file) obj["ชื่อไฟล์ต้นทาง"] = item.fileName;
+                let idStr = item["รหัสนักศึกษา"];
+                if (!item["isIdValid"]) idStr += " [รหัสไม่ครบ]";
+                if (item.isDuplicate) idStr += " [ส่งซ้ำ]";
+                if (cols.id) obj["รหัสนักศึกษา"] = idStr;
+                if (cols.name) obj["ชื่อ"] = item["ชื่อ"];
+                if (cols.surname) obj["นามสกุล"] = item["นามสกุล"];
+                if (cols.status) obj["สถานะ"] = item["สถานะ"] + (item["สายสนทนา"] ? ` (สายสนทนา ${item["สายสนทนา"]})` : "");
+                
+                if (cols.type) {
+                     if (item._mergedScoreMap && Object.keys(item._mergedScoreMap).length > 1) {
+                         obj["ประเภทงาน"] = Object.keys(item._mergedScoreMap).join(", ");
+                     } else {
+                         obj["ประเภทงาน"] = item["ประเภทงาน"];
+                     }
+                }
+                
+                if (cols.score) {
+                     if (item._mergedScoreMap) {
+                         obj["คะแนนรวม"] = Object.values(item._mergedScoreMap).reduce((sum, s) => sum + s, 0);
+                         Object.entries(item._mergedScoreMap).forEach(([cat, score]) => {
+                              obj[`แต้ม_${cat}`] = score;
+                         });
+                     } else {
+                         obj["คะแนน"] = calculateItemScore(item);
+                     }
+                }
+                
+                if (cols.likes) obj["ยอดไลก์"] = item["ยอดไลก์"];
+                if (cols.original) obj["คอมเมนต์เต็มต้นฉบับ"] = item["คอมเมนต์เต็มต้นฉบับ"] || "(ถูกรวบรวมจากหลายใบงาน)";
+                return obj;
+            }
+
+            if (currentMode === 'separate') {
+                Object.keys(allFilesData).forEach(fileName => {
+                    const activeRecords = allFilesData[fileName].filter(item => !item.isFaded && isItemMatchFilters(item));
+                    const cleanRecords = activeRecords.map(item => prepareRow(item, false));
+                    if(cleanRecords.length === 0) return;
+                    const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
+                    worksheet['!cols'] = Object.keys(cleanRecords[0]).map(() => ({wch: 22}));
+                    let sheetName = fileName.replace(/\.[^/.]+$/, "").substring(0, 30);
+                    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+                });
+                XLSX.writeFile(workbook, "Separate_Students_Report.xlsx");
+            } else {
+                let mergedList = [];
+                let mergedGroups = {};
+                
+                Object.values(allFilesData).forEach(fileRecords => { 
+                    fileRecords.forEach(item => {
+                        if (item.isFaded || item.isDuplicateInstance) return;
+                        if (!isItemMatchFilters(item)) return;
+                        
+                        let id = item["รหัสนักศึกษา"];
+                        if (!mergedGroups[id]) {
+                            mergedGroups[id] = { 
+                                ...item, 
+                                fileName: "(มาจากหลายไฟล์)",
+                                _mergedScoreMap: { [item["ประเภทงาน"]]: calculateItemScore(item) } 
+                            };
+                        } else {
+                            let cat = item["ประเภทงาน"];
+                            let currentCatScore = mergedGroups[id]._mergedScoreMap[cat] || 0;
+                            mergedGroups[id]._mergedScoreMap[cat] = currentCatScore + calculateItemScore(item);
+                            
+                            if (mergedGroups[id]["ประเภทงาน"] !== cat) {
+                                mergedGroups[id]["ประเภทงาน"] = "หลายหมวดหมู่";
+                            }
+                            mergedGroups[id]["ยอดไลก์"] += item["ยอดไลก์"];
+                        }
+                    });
+                });
+                
+                mergedList = Object.values(mergedGroups);
+                const cleanRecords = mergedList.map(item => prepareRow(item, true));
+                if(cleanRecords.length === 0) return alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
+                const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
+                worksheet['!cols'] = Object.keys(cleanRecords[0]).map(() => ({wch: 22}));
+                XLSX.utils.book_append_sheet(workbook, worksheet, "All_Merged_Students");
+                XLSX.writeFile(workbook, "Merged_All_Students_Report.xlsx");
+            }
+        }
+
+        // --- เริ่มต้นระบบลากไฟล์ (Drag & Drop) ---
+        const uploadArea = document.getElementById('uploadArea');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.body.addEventListener(eventName, preventDefaults, false);
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:border-indigo-400', 'dark:bg-indigo-900/20');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:border-indigo-400', 'dark:bg-indigo-900/20');
+            }, false);
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                const csvFiles = Array.from(files).filter(file => file.name.toLowerCase().endsWith('.csv'));
+                if (csvFiles.length > 0) {
+                    handleFiles({ target: { files: csvFiles } });
+                } else {
+                    alert("⚠️ กรุณาอัปโหลดเฉพาะไฟล์นามสกุล .csv เท่านั้นครับ");
+                }
+            }
+        }, false);
+
+        function openFbPopup(fileName, threadNo, highlightId = null, isDuplicate = false) {
+            // จำตำแหน่งหน้าเว็บหลักก่อนเปิด Modal
+            lastWindowScrollPos = window.scrollY;
+
+            const tableContainer = document.querySelector('.table-container');
+            if (tableContainer) previousScrollPos = tableContainer.scrollTop;
+
+            const modal = document.getElementById('fbPopupModal');
+            const contentDiv = document.getElementById('fbPopupContent');
+            contentDiv.innerHTML = ''; 
+
+            if (!rawThreadsData[fileName] || !rawThreadsData[fileName][threadNo]) {
+                contentDiv.innerHTML = '<p class="text-center text-slate-500 mt-4">ไม่พบข้อมูลสายสนทนานี้</p>';
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            const threadComments = rawThreadsData[fileName][threadNo];
+            
+            let allAuthorsInFile = ["จิตอาสา ม.วลัยลักษณ์"];
+            if (rawThreadsData[fileName]) {
+                Object.values(rawThreadsData[fileName]).forEach(thread => {
+                    thread.forEach(c => {
+                        if (c.author) allAuthorsInFile.push(c.author.trim());
+                    });
+                });
+            }
+            const threadAuthors = [...new Set(allAuthorsInFile)].filter(a => a && a.length > 2).sort((a, b) => b.length - a.length);
+            
+            let html = '<div class="py-2 flex flex-col">';
+
+            threadComments.forEach((c, index) => {
+                const isMain = !c.isReply;
+                let displayText = c.text || "";
+                
+                const imgKeywords = [
+                    "รายงานตัว", "ลงทะเบียน", 
+                    "ก่อน", "ระหว่าง", "ขณะ", "กำลัง", 
+                    "เสร็จ", "หลังทำ", "หลังปฏิบัติ", "หลังปฎิบัติ", "จบ"
+                ];
+                const isMatchKeyword = imgKeywords.some(kw => displayText.includes(kw));
+                const isEmpty = displayText.trim() === "";
+                
+                const hasImage = isEmpty || isMatchKeyword;
+                const isHighlighted = c.id === highlightId;
+                
+                let highlightClass = '';
+                if (isHighlighted) {
+                    highlightClass = isDuplicate ? 'highlight-duplicate' : 'highlight-comment';
+                }
+
+                const timeStr = calculateTimeAgo(c.time);
+                
+                if (!isEmpty) {
+                    threadAuthors.forEach(author => {
+                         const safeAuthor = author.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                         const regex = new RegExp(`(?![^<]*>)(${safeAuthor})`, 'gi');
+                         displayText = displayText.replace(regex, '<span class="text-[#1877F2] dark:text-[#4599FF] font-semibold cursor-pointer hover:underline">$1</span>');
+                    });
+                }
+
+                let textHtml = displayText.trim() !== "" ? `<div class="text-[14px] text-[#050505] dark:text-[#E4E6EB] whitespace-pre-wrap">${displayText}</div>` : '';
+                
+                let imageHtml = '';
+                if (hasImage) {
+                    imageHtml = `
+                        <div class="mt-1 border border-slate-200 dark:border-[#3E4042] rounded-xl overflow-hidden max-w-[280px] bg-slate-100 dark:bg-[#3A3B3C] relative cursor-pointer hover:opacity-90 transition" onclick="window.open('${c.url}', '_blank')">
+                            <div class="h-[180px] flex flex-col items-center justify-center text-slate-400 dark:text-[#B0B3B8]">
+                                <span class="text-3xl mb-2">🖼️</span>
+                                <span class="text-xs font-semibold">ระบบคาดว่ามีรูปภาพแนบมาด้วย</span>
+                                <span class="text-[10px] mt-2 bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-[#4599FF] px-3 py-1 rounded-full font-bold">👉 คลิกเพื่อตรวจสอบบน Facebook</span>
+                            </div>
+                        </div>`;
+                }
+
+                let contentHtml = textHtml + imageHtml;
+
+                let likesHtml = c.likes > 0 ? `
+                    <div class="absolute -bottom-3 -right-2 bg-white dark:bg-[#242526] rounded-full p-0.5 shadow-sm border border-slate-100 dark:border-[#3E4042] flex items-center gap-1 px-1.5 z-10">
+                        <span class="text-xs">👍</span>
+                        <span class="text-[11px] text-slate-500 dark:text-[#B0B3B8] font-semibold">${c.likes}</span>
+                    </div>` : '';
+
+                const isLastReply = index === threadComments.length - 1 && !isMain;
+                let threadLineHtml = '';
+                if (isMain && threadComments.length > 1) {
+                    threadLineHtml = `<div class="absolute left-[18px] top-[40px] bottom-[-15px] w-[2px] bg-[#E4E6EB] dark:bg-[#3E4042] z-0"></div>`;
+                }
+                let replyCurveHtml = '';
+                if (!isMain) {
+                    replyCurveHtml = `<div class="absolute left-[-24px] top-[16px] w-[20px] h-[20px] border-b-2 border-l-2 border-[#E4E6EB] dark:border-[#3E4042] rounded-bl-xl z-0"></div>`;
+                    if (!isLastReply) {
+                        replyCurveHtml += `<div class="absolute left-[-24px] top-[-15px] bottom-[-15px] w-[2px] bg-[#E4E6EB] dark:bg-[#3E4042] z-0"></div>`;
+                    } else {
+                        replyCurveHtml += `<div class="absolute left-[-24px] top-[-15px] h-[31px] w-[2px] bg-[#E4E6EB] dark:bg-[#3E4042] z-0"></div>`;
+                    }
+                }
+
+                html += `
+                    <div class="flex gap-2.5 mb-2 relative px-2 py-1 ${isMain ? '' : 'ml-[42px]'} ${highlightClass}" id="fb-comment-${c.id}">
+                        ${threadLineHtml}
+                        ${replyCurveHtml}
+                        
+                        <div class="fb-avatar font-bold text-slate-500 flex items-center justify-center text-xs overflow-hidden z-10 bg-slate-200 dark:bg-[#3A3B3C]">
+                            <svg class="w-5 h-5 text-slate-400 dark:text-[#B0B3B8] mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        </div>
+                        
+                        <div class="flex flex-col items-start max-w-[85%] z-10">
+                            <div class="fb-bubble relative ${(!displayText || displayText.trim() === "") ? 'bg-transparent dark:bg-transparent px-0 py-0' : ''}">
+                                <div class="font-bold text-[13px] text-[#050505] dark:text-[#E4E6EB] mb-0.5">${c.author}</div>
+                                ${contentHtml}
+                                ${likesHtml}
+                            </div>
+                            <div class="flex items-center gap-3 mt-1 ml-3 text-[12px] font-semibold text-[#65676B] dark:text-[#B0B3B8]">
+                                <span class="text-[12px] font-normal cursor-auto">${timeStr}</span>
+                                <span class="cursor-pointer hover:underline">ถูกใจ</span>
+                                <span class="cursor-pointer hover:underline">ตอบกลับ</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            contentDiv.innerHTML = html;
+            modal.classList.remove('hidden');
+            
+            // เปลี่ยนระบบการเลื่อน: คำนวณความสูงเองโดยไม่ให้กวนหน้าเว็บหลัก
+            if (highlightId) {
+                setTimeout(() => {
+                    const el = document.getElementById(`fb-comment-${highlightId}`);
+                    const container = document.getElementById('fbPopupContent');
+                    if (el && container) {
+                        const scrollAmount = el.offsetTop - (container.clientHeight / 2) + (el.clientHeight / 2);
+                        container.scrollTo({ top: scrollAmount, behavior: 'smooth' });
+                    }
+                }, 150);
+            }
+        }
+
+        function closeFbPopup() {
+            document.getElementById('fbPopupModal').classList.add('hidden');
+            
+            // คืนค่าตำแหน่งหน้าเว็บหลักให้อยู่ที่เดิมเป๊ะๆ
+            window.scrollTo(0, lastWindowScrollPos);
+
+            // คืนค่าตำแหน่ง Scroll ของตาราง
+            const tableContainer = document.querySelector('.table-container');
+            if (previousScrollPos > 0 && tableContainer) {
+                setTimeout(() => { tableContainer.scrollTop = previousScrollPos; }, 10);
+            }
+        }
 
         function openGuideModal() { document.getElementById('guideModal').classList.remove('hidden'); }
         function closeGuideModal() { document.getElementById('guideModal').classList.add('hidden'); }
@@ -351,6 +1514,7 @@
             try {
                 sessionStorage.setItem('allFilesData', JSON.stringify(allFilesData));
                 sessionStorage.setItem('currentMode', currentMode);
+                sessionStorage.setItem('fileScores', JSON.stringify(fileScores));
                 const fileNamesStr = document.getElementById('fileNames').innerText;
                 if (fileNamesStr) sessionStorage.setItem('fileNamesStr', fileNamesStr);
             } catch (e) {
@@ -361,6 +1525,9 @@
         function loadState() {
             try {
                 const savedData = sessionStorage.getItem('allFilesData');
+                const savedScores = sessionStorage.getItem('fileScores');
+                if (savedScores) { fileScores = JSON.parse(savedScores); }
+
                 if (savedData) {
                     const parsed = JSON.parse(savedData);
                     if (Object.keys(parsed).length > 0) {
@@ -456,21 +1623,62 @@
         }
 
         function clearData() {
-            if (!confirm("⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)")) {
-                return;
+            if (!confirm("⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)")) { return; }
+            allFilesData = {}; activeThread = null; activeCategoryFilters = [];
+            document.getElementById('csvFiles').value = ""; document.getElementById('fileNames').innerText = ""; document.getElementById('searchInput').value = "";
+            document.getElementById('mainWorkspace').classList.add('hidden'); document.getElementById('initialOnboarding').classList.remove('hidden');
+            sessionStorage.clear();
+        }
+
+        function updateRecord(fileName, recordIndex, field, newValue) {
+            let val = newValue.trim();
+            if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
+                allFilesData[fileName][recordIndex][field] = val;
+                if (field === 'รหัสนักศึกษา') { 
+                    allFilesData[fileName][recordIndex].isIdValid = (val.length === 8); 
+                    evaluateDuplicates(fileName); 
+                }
+                updateSummary(currentlyDisplayedData); saveState(); 
             }
-            allFilesData = {};
-            activeThread = null;
-            document.getElementById('csvFiles').value = "";
-            document.getElementById('fileNames').innerText = "";
-            document.getElementById('searchInput').value = "";
+        }
 
-            document.getElementById('mainWorkspace').classList.add('hidden');
-            document.getElementById('initialOnboarding').classList.remove('hidden');
+        function toggleRowFade(fileName, recordIndex, event) {
+            event.stopPropagation();
+            if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
+                allFilesData[fileName][recordIndex].isFaded = !allFilesData[fileName][recordIndex].isFaded;
+                renderTable(); saveState();
+            }
+        }
 
-            sessionStorage.removeItem('allFilesData');
-            sessionStorage.removeItem('currentMode');
-            sessionStorage.removeItem('fileNamesStr');
+        function initUIAfterLoad() {
+            const dropdown = document.getElementById('fileSelectDropdown'); dropdown.innerHTML = "";
+            Object.keys(allFilesData).forEach(fileName => {
+                let opt = document.createElement('option'); opt.value = fileName; opt.innerText = fileName;
+                dropdown.appendChild(opt);
+            });
+            document.getElementById('initialOnboarding').classList.add('hidden');
+            document.getElementById('mainWorkspace').classList.remove('hidden');
+            updateModeUI(); 
+            if (currentMode === 'separate') initScoreSettings(dropdown.value);
+            renderTable();
+        }
+
+        function updateModeUI() {
+            const btnSep = document.getElementById('btnSeparate'); const btnMer = document.getElementById('btnMerged');
+            const fileSelector = document.getElementById('fileSelectorContainer');
+            const colFileContainer = document.getElementById('col_file_container'); 
+            
+            if (currentMode === 'separate') {
+                btnSep.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
+                btnMer.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
+                fileSelector.classList.remove('hidden');
+                if(colFileContainer) colFileContainer.classList.add('hidden'); 
+            } else {
+                btnMer.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
+                btnSep.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
+                fileSelector.classList.add('hidden');
+                if(colFileContainer) colFileContainer.classList.remove('hidden'); 
+            }
         }
 
         function resetScroll() {
@@ -478,18 +1686,11 @@
             if (tableContainer) { tableContainer.scrollTop = 0; }
         }
 
-        function switchFile() { renderTable(); resetScroll(); }
-        function switchMode(mode) {
-            currentMode = mode; activeThread = null; updateModeUI(); renderTable(); resetScroll(); saveState(); 
-        }
-
-        function getSelectedColumns() {
-            return {
-                id: document.getElementById('col_id').checked, name: document.getElementById('col_name').checked,
-                surname: document.getElementById('col_surname').checked, status: document.getElementById('col_status').checked,
-                type: document.getElementById('col_type').checked, likes: document.getElementById('col_likes').checked,
-                original: document.getElementById('col_original').checked
-            };
+        function switchFile() { 
+            const selectedFile = document.getElementById('fileSelectDropdown').value;
+            initScoreSettings(selectedFile);
+            renderTable(); 
+            resetScroll(); 
         }
 
         function handleFiles(event) {
@@ -497,7 +1698,7 @@
             if (!files.length) return;
             let fileNamesStr = `เลือกแล้ว ${files.length} ไฟล์: `;
             let loadedCount = 0;
-            allFilesData = {}; activeThread = null; 
+            allFilesData = {}; activeThread = null; activeCategoryFilters = [];
 
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
@@ -547,7 +1748,6 @@
 
             const parts = fullText.split(studentId);
             for (let sideText of [parts[1] || "", parts[0] || ""]) {
-
                 let cleaned = sideText.replace(/\(.*?\)/g, ' '); 
                 cleaned = cleaned.replace(/(คะแนน|ใจอาสา|จิตอาสา|ความดี|ชั่วโมงทุน|แก้ความประพฤติ|แก้คะแนน|รู้วินัย|วินัย|ภาวะผู้นำ)/g, ' $1 ');
                 cleaned = cleaned.replace(/[-–,._/!@#$%^&*()\[\]{}|+]/g, ' ');
@@ -580,13 +1780,10 @@
             ];
 
             const hasKeyword = (text, kw) => text.includes(kw);
-
-            // Pre-process: ลบคำขยายที่ทำให้สับสน (เช่น คะแนนความดี ด้านรักชาติ -> จะเหลือแค่ รักชาติ)
             const localLines = lines.map(line => 
                 line.replace(/(คะแนน)?(ความดี|จิตอาสา|ใจอาสา)\s*(ด้าน|เรื่อง)?\s*(?=รักชาติ|กตัญญู|ภาวะผู้นำ|วินัย|แก้|ชั่วโมง)/g, '')
             );
 
-            // 1. ตรวจสอบบรรทัดปัจจุบันก่อน (แม่นยำที่สุด)
             let currentLine = localLines[currentIndex];
             for (let cat of categories) {
                 for (let kw of cat.keywords) {
@@ -594,17 +1791,11 @@
                 }
             }
 
-            // 2. กำหนดขอบเขตของกลุ่มข้อความ (Block) โดยยึด "บรรทัดว่าง" เป็นตัวแบ่ง
             let start = currentIndex;
-            while (start > 0 && localLines[start - 1].trim() !== "") {
-                start--;
-            }
+            while (start > 0 && localLines[start - 1].trim() !== "") { start--; }
             let end = currentIndex;
-            while (end < localLines.length - 1 && localLines[end + 1].trim() !== "") {
-                end++;
-            }
+            while (end < localLines.length - 1 && localLines[end + 1].trim() !== "") { end++; }
 
-            // 3. หาหมวดหมู่ที่ "ใกล้ที่สุด" ในกลุ่มข้อความนั้น
             let foundCat = null;
             let minDistance = Infinity;
 
@@ -617,8 +1808,6 @@
                     }
                     if (match) {
                         let dist = Math.abs(i - currentIndex);
-                        // หากมีระยะห่างเท่ากัน (เช่น งานอยู่ข้างบน 1 บรรทัด และข้างล่าง 1 บรรทัด)
-                        // ให้สิทธิ์งานที่อยู่ "ด้านล่าง" ก่อน เพราะคนมักจะพิมพ์ชื่อเสร็จแล้วค่อยสรุปงานตอนท้าย
                         if (dist < minDistance || (dist === minDistance && i > currentIndex)) {
                             minDistance = dist;
                             foundCat = cat.name;
@@ -629,7 +1818,6 @@
 
             if (foundCat) return foundCat;
 
-            // 4. Fallback สุดท้าย: เช็คจากทั้งคอมเมนต์ (ถ้าในคอมเมนต์นั้นพูดถึงงานแค่อย่างเดียว)
             let fullText = localLines.join(" ");
             let foundCategories = new Set();
             for (let cat of categories) {
@@ -644,10 +1832,8 @@
                 return Array.from(foundCategories)[0];
             }
             
-            // เคสทีม
             const teamMatch = fullText.match(/ทีม\s*\d/);
             if (teamMatch) return teamMatch[0].replace(/\s+/g, '');
-
             return "ไม่ได้ระบุ";
         }
 
@@ -662,13 +1848,13 @@
             function indexOfIgnoreCase(arr, val) { return arr.findIndex(item => item.toLowerCase() === val.toLowerCase()); }
             const likeIdx = indexOfIgnoreCase(headers, 'Like Count');
             const replyToIdx = indexOfIgnoreCase(headers, 'Reply To Comment');
-            const urlIdx = indexOfIgnoreCase(headers, 'Comment URL'); // ดึง URL
+            const urlIdx = indexOfIgnoreCase(headers, 'Comment URL');
 
             if (commentIdx === -1) return;
 
             let parentMap = {}; let allIds = [];
-            let urlMap = {}; // เก็บ URL ของแต่ละคอมเมนต์ไว้ใช้สืบทอด
-            let defaultPostUrl = ""; // ลิงก์โพสต์หลักไว้สำรอง
+            let urlMap = {}; 
+            let defaultPostUrl = ""; 
 
             if (commentIdIdx !== -1) {
                 for (let i = 1; i < rows.length; i++) {
@@ -682,18 +1868,14 @@
                         allIds.push(id); 
                         if (parentId && parentId !== "undefined") parentMap[id] = parentId; 
                         
-                        // บันทึกลิงก์ของคอมเมนต์นี้เก็บไว้ในคลัง
                         if (url && url !== "undefined") {
                             urlMap[id] = url;
-                            if (!defaultPostUrl) {
-                                defaultPostUrl = url.split('?')[0]; // ตัด parameter ทิ้งให้เหลือแค่โพสต์ต้นทาง
-                            }
+                            if (!defaultPostUrl) { defaultPostUrl = url.split('?')[0]; }
                         }
                     }
                 }
             }
 
-            // ระบบสืบทอดลิงก์: ถ้าเม้นตัวเองไม่มีลิงก์ ให้วิ่งขึ้นไปหาเม้นแม่
             function resolveUrl(id) {
                 let curr = id; let depth = 0;
                 while (curr && depth < 10) {
@@ -701,7 +1883,7 @@
                     curr = parentMap[curr];
                     depth++;
                 }
-                return defaultPostUrl; // สำรองสุดท้าย ถ้าหาไม่เจอจริงๆ ให้ไปที่หน้าโพสต์รวม
+                return defaultPostUrl; 
             }
 
             let threadCounter = 1; let threadMap = {};
@@ -729,11 +1911,31 @@
                 const isReply = parentId !== "" && parentId !== "undefined";
                 const likeCount = likeIdx !== -1 ? parseInt(cols[likeIdx]) || 0 : 0;
                 
+                // --- ดึงข้อมูลจำลอง Facebook ---
+                const authorIdx = indexOfIgnoreCase(headers, 'User Name'); 
+                const authorName = authorIdx !== -1 && cols[authorIdx] ? cols[authorIdx].trim() : "ผู้ใช้งาน";
+                const timeIdx = indexOfIgnoreCase(headers, 'Comment Time'); 
+                const commentTime = timeIdx !== -1 && cols[timeIdx] ? cols[timeIdx].trim() : "";
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
-                
-                // ดึง URL ด้วยระบบสืบทอดที่เขียนขึ้นใหม่
                 const resolvedUrl = resolveUrl(commentId);
+
+                // เก็บลงฐานข้อมูลจำลอง (ดักไว้ไม่ให้มันทำงานซ้ำซ้อน)
+                if (!rawThreadsData[fileName]) rawThreadsData[fileName] = {};
+                if (!rawThreadsData[fileName][threadNo]) rawThreadsData[fileName][threadNo] = [];
+                const isAlreadyAdded = rawThreadsData[fileName][threadNo].some(item => item.id === commentId);
+                if (!isAlreadyAdded) {
+                    rawThreadsData[fileName][threadNo].push({
+                        id: commentId,
+                        text: fullText,
+                        isReply: isReply,
+                        url: resolvedUrl,
+                        author: authorName,
+                        likes: likeCount,
+                        time: commentTime
+                    });
+                }
+                // -----------------------------
 
                 const rawLines = fullText.split('\n');
                 const cleanLines = rawLines.map(line => line.trim().replace(/เเ/g, 'แ'));
@@ -742,7 +1944,7 @@
                     const idMatch = cleanSubLine.match(/\b([0-9]{7,9})\b/);
                     if (idMatch) {
                         const studentId = idMatch[1];
-                        seenIdsInThisFile.add(studentId); // ปล่อยให้เข้าเพื่อเช็กส่งซ้ำ
+                        seenIdsInThisFile.add(studentId); 
 
                         const isIdValid = (studentId.length === 8);
                         const nameObj = extractStudentName(cleanSubLine, studentId);
@@ -763,397 +1965,16 @@
                             "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", "สายสนทนา": threadNo,
                             "isReply": isReply, "ประเภทงาน": pointType, "ยอดไลก์": likeCount,
                             "คอมเมนต์เต็มต้นฉบับ": fullText, "isFaded": false,
-                            "commentUrl": resolvedUrl // ใช้ URL ที่สืบทอดมาใส่ตาราง
+                            "commentUrl": resolvedUrl,
+                            "commentId": commentId
                         });
                     }
                 });
             }
             allFilesData[fileName] = fileRecords;
+            evaluateDuplicates(fileName);
         }
 
-        function updateRecord(fileName, recordIndex, field, newValue) {
-            let val = newValue.trim();
-            if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
-                allFilesData[fileName][recordIndex][field] = val;
-                if (field === 'รหัสนักศึกษา') { allFilesData[fileName][recordIndex].isIdValid = (val.length === 8); }
-                updateSummary(currentlyDisplayedData); saveState(); 
-            }
-        }
-
-        function toggleRowFade(fileName, recordIndex, event) {
-            event.stopPropagation();
-            if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
-                allFilesData[fileName][recordIndex].isFaded = !allFilesData[fileName][recordIndex].isFaded;
-                renderTable(); saveState();
-            }
-        }
-
-        function initUIAfterLoad() {
-            const dropdown = document.getElementById('fileSelectDropdown'); dropdown.innerHTML = "";
-            Object.keys(allFilesData).forEach(fileName => {
-                let opt = document.createElement('option'); opt.value = fileName; opt.innerText = fileName;
-                dropdown.appendChild(opt);
-            });
-            document.getElementById('initialOnboarding').classList.add('hidden');
-            document.getElementById('mainWorkspace').classList.remove('hidden');
-            updateModeUI(); renderTable();
-        }
-
-        function updateModeUI() {
-            const btnSep = document.getElementById('btnSeparate'); const btnMer = document.getElementById('btnMerged');
-            const fileSelector = document.getElementById('fileSelectorContainer');
-            if (currentMode === 'separate') {
-                btnSep.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
-                btnMer.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
-                fileSelector.classList.remove('hidden');
-            } else {
-                btnMer.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
-                btnSep.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
-                fileSelector.classList.add('hidden');
-            }
-        }
-
-        function handleToggleThreadClick(event, threadId, fileName, btnElement) {
-            let uniqueThreadId = fileName + "_" + threadId; event.stopPropagation(); 
-            let rowElement = btnElement.closest('tr');
-            if (activeThread === uniqueThreadId) { activeThread = null; } else { activeThread = uniqueThreadId; }
-            applyThreadFilter();
-            setTimeout(() => { if(rowElement) rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 10);
-        }
-
-        function applyThreadFilter() {
-            const rows = document.querySelectorAll('.data-row');
-            rows.forEach(row => {
-                let rowThread = row.getAttribute('data-thread'); let rowFileName = row.getAttribute('data-filename');
-                let uniqueRowThread = rowFileName + "_" + rowThread;
-                if (activeThread === null) { row.classList.remove('thread-hidden', 'thread-highlight'); } 
-                else {
-                    if (uniqueRowThread === activeThread) { row.classList.remove('thread-hidden'); row.classList.add('thread-highlight'); } 
-                    else { row.classList.add('thread-hidden'); row.classList.remove('thread-highlight'); }
-                }
-            });
-        }
-
-        let currentlyDisplayedData = [];
-
-        // ฟังก์ชันใหม่สำหรับจัดการการกดปุ่มตัวกรอง
-        function setFilter(cat) {
-            if (activeCategoryFilter === cat) {
-                activeCategoryFilter = null; // กดซ้ำเพื่อยกเลิกตัวกรอง
-            } else {
-                activeCategoryFilter = cat;
-            }
-            renderTable(); // รีเฟรชตาราง
-        }
-
-        function updateSummary(dataToSummarize) {
-            let total = dataToSummarize.length;
-            let valid = dataToSummarize.filter(d => d.isIdValid).length;
-            let duplicates = dataToSummarize.filter(d => d.isDuplicate).length;
-
-            document.getElementById('sumTotal').innerText = total; 
-            document.getElementById('sumValid').innerText = valid;
-
-            let counts = {};
-            dataToSummarize.forEach(d => { let t = d["ประเภทงาน"]; counts[t] = (counts[t] || 0) + 1; });
-
-            let catHtml = '';
-            
-            // 1. ปุ่ม "ทั้งหมด"
-            let allClass = activeCategoryFilter === null ? "bg-indigo-600 text-white shadow-md ring-2 ring-indigo-300 dark:ring-indigo-500" : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600";
-            catHtml += `<button onclick="setFilter(null)" class="px-2.5 py-1 rounded-lg text-xs md:text-sm font-semibold transition-all ${allClass}">ทั้งหมด</button>`;
-
-            // 2. ปุ่ม "ส่งซ้ำ" (จะโผล่มาก็ต่อเมื่อมีคนส่งซ้ำเท่านั้น เพื่อไม่ให้รก)
-            if (duplicates > 0) {
-                let dupClass = activeCategoryFilter === 'duplicate' ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-300 dark:ring-rose-500" : "bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-400 dark:hover:bg-rose-900/60";
-                catHtml += `<button onclick="setFilter('duplicate')" class="px-2.5 py-1 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-1 ${dupClass}">⚠️ ส่งซ้ำ (${duplicates})</button>`;
-            }
-
-            // 3. ปุ่มหมวดหมู่งานต่างๆ
-            const colorMap = { 
-                "ภาวะผู้นำ": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50", 
-                "ใจอาสา": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 hover:bg-pink-200 dark:hover:bg-pink-900/50", 
-                "กตัญญู": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50",
-                "วินัย": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50", 
-                "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50", 
-                "แก้ความประพฤติ": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-900/50", 
-                "รักชาติ": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 hover:bg-teal-200 dark:hover:bg-teal-900/50", 
-                "ไม่ได้ระบุ": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50" 
-            };
-
-            Object.keys(counts).forEach(cat => {
-                let baseClass = colorMap[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
-                let activeClass = activeCategoryFilter === cat ? "ring-2 ring-offset-1 ring-current shadow-sm opacity-100" : (activeCategoryFilter ? "opacity-50" : "opacity-100");
-                catHtml += `<button onclick="setFilter('${cat}')" class="px-2.5 py-1 rounded-lg text-xs md:text-sm font-semibold transition-all ${baseClass} ${activeClass}">${cat} (${counts[cat]})</button>`;
-            });
-
-            if(Object.keys(counts).length === 0 && duplicates === 0) {
-                catHtml = '<span class="text-slate-400 dark:text-slate-500 font-normal">ไม่มีข้อมูล</span>';
-            }
-            document.getElementById('sumCategories').innerHTML = catHtml;
-        }
-
-        function renderTable() {
-            const tableContainer = document.querySelector('.table-container');
-            const scrollPos = tableContainer ? tableContainer.scrollTop : 0;
-
-            const thead = document.getElementById('tableHeader');
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = ""; activeThread = null; 
-
-            const cols = getSelectedColumns();
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-
-            let headerHtml = `<tr>`;
-            let isFirstCol = true;
-            function getThClass(baseClass) {
-                let cls = baseClass; if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; } return cls;
-            }
-
-            if (currentMode === 'merged') headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
-            if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
-            if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
-            if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
-            if (cols.status) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">สถานะ</th>`;
-            if (cols.type) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ประเภทงาน</th>`;
-            if (cols.likes) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไลก์</th>`;
-            if (cols.original) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[250px] max-w-[400px] border-b border-slate-200 dark:border-slate-700')}">คอมเมนต์ต้นฉบับ</th>`;
-            headerHtml += `</tr>`;
-            thead.innerHTML = headerHtml;
-
-            // รวบรวมข้อมูลดิบ (Base Data)
-            let baseData = [];
-            if (currentMode === 'separate') {
-                const selectedFile = document.getElementById('fileSelectDropdown').value;
-                baseData = allFilesData[selectedFile] || [];
-            } else {
-                Object.values(allFilesData).forEach(fileRecords => { baseData = baseData.concat(fileRecords); });
-            }
-
-            // ระบบตรวจจับส่งซ้ำ: นับจำนวนรหัสใน "ไฟล์เดียวกัน"
-            let countMap = {};
-            baseData.forEach(item => {
-                let key = item.fileName + "_" + item["รหัสนักศึกษา"];
-                countMap[key] = (countMap[key] || 0) + 1;
-            });
-            baseData.forEach(item => {
-                let key = item.fileName + "_" + item["รหัสนักศึกษา"];
-                item.isDuplicate = countMap[key] > 1; // ถ้ามีในไฟล์นี้มากกว่า 1 ครั้งถือว่าซ้ำ
-            });
-
-            // อัปเดตแผงสรุป/ปุ่มตัวกรอง (ใช้ข้อมูลก่อนถูกกรอง)
-            currentlyDisplayedData = baseData; 
-            updateSummary(baseData); 
-
-            // ใช้งานตัวกรองปุ่มกด (Filter)
-            let displayData = baseData;
-            if (activeCategoryFilter) {
-                if (activeCategoryFilter === 'duplicate') {
-                    displayData = displayData.filter(item => item.isDuplicate);
-                } else {
-                    displayData = displayData.filter(item => item["ประเภทงาน"] === activeCategoryFilter);
-                }
-            }
-
-            // ใช้งานช่องค้นหา (Search)
-            if (searchQuery.trim() !== "") {
-                displayData = displayData.filter(item => 
-                    item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) || item["ชื่อ"].toLowerCase().includes(searchQuery) ||
-                    item["นามสกุล"].toLowerCase().includes(searchQuery) || item["ประเภทงาน"].toLowerCase().includes(searchQuery)
-                );
-            }
-
-            if (displayData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">ไม่พบข้อมูลที่ตรงกับการค้นหา หรือ ตัวกรอง</td></tr>`;
-            } else {
-                displayData.forEach((item, index) => {
-                    const tr = document.createElement('tr');
-                    const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
-                    
-                    // ปรับสีแถวที่ส่งซ้ำให้เป็นสีแดงอ่อนเพื่อความชัดเจน
-                    const duplicateBg = item.isDuplicate ? "bg-rose-50/70 dark:bg-rose-900/20" : rowBgColor;
-                    const fadeClass = item.isFaded ? " row-faded" : "";
-
-                    tr.className = `data-row ${fadeClass} ${duplicateBg} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
-                    tr.setAttribute('data-thread', item["สายสนทนา"]); tr.setAttribute('data-filename', item["fileName"]); 
-                    if (!cols.original) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
-
-                    let idSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                    let nameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
-                    let typeSpan = `<span contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
-
-                    let isMain = item["สถานะ"] === "เม้นหลัก";
-                    let statusBadge = isMain ? 
-                        `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
-                        `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
-
-                    let fadeBtn = `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            ${item.isFaded ? 
-                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>' :
-                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>'}
-                        </svg>
-                    </button>`;
-
-                    let rowCells = [];
-                    if (currentMode === 'merged') {
-                        let shortFileName = item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName;
-                        rowCells.push({ content: `<div class="row-content"><span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${shortFileName}</span></div>`, type: 'normal' });
-                    }
-
-                    if (cols.id) {
-                        let idContent = `<div class="row-content inline-flex items-center">`;
-                        if (item.isReply) idContent += `<span class="text-slate-300 dark:text-slate-600 mr-2 font-bold text-lg leading-none">↳</span>`;
-                        idContent += idSpan;
-                        if (!item["isIdValid"]) idContent += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
-                        
-                        // ป้ายเตือนส่งซ้ำในตาราง
-                        if (item.isDuplicate) {
-                             idContent += ` <span class="ml-1.5 bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-rose-200 dark:border-rose-800" title="นักศึกษาคนนี้ส่งงานซ้ำในโพสต์ (ไฟล์) เดียวกัน">ซ้ำ</span>`;
-                        }
-
-                        idContent += `</div>`;
-                        rowCells.push({ content: idContent, type: 'mono' });
-                    }
-
-                    if (cols.name) rowCells.push({ content: `<div class="row-content">${nameSpan}</div>`, type: 'normal' });
-                    if (cols.surname) rowCells.push({ content: `<div class="row-content">${surnameSpan}</div>`, type: 'normal' });
-                    if (cols.status) rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center' });
-                    
-                    if (cols.type) {
-                        let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
-                            `<div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div>` : 
-                            `<div class="row-content font-bold text-slate-600 dark:text-slate-400">${typeSpan}</div>`;
-                        rowCells.push({ content: pointTypeHtml, type: 'normal' });
-                    }
-
-                    if (cols.likes) rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center' });
-                    
-                    if (cols.original) {
-                        let originalContentHtml = `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed flex flex-col h-full">
-                            <div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2 mb-1.5">${item["คอมเมนต์เต็มต้นฉบับ"]}</div>`;
-                        
-                        if (item.commentUrl && item.commentUrl !== "undefined" && item.commentUrl !== "") {
-                            // ใช้ onclick และตั้งชื่อ target window เป็น 'fb_single_checker_tab' 
-                            // วิธีนี้จะบังคับให้เปิดแท็บใหม่แค่ครั้งเดียว พอกดคนต่อไป มันจะวิ่งไปรีเฟรชที่แท็บเดิมทันที ไม่สร้างแท็บใหม่เพิ่ม!
-                            originalContentHtml += `<button type="button" onclick="window.open('${item.commentUrl}', 'fb_single_checker_tab')" class="inline-flex items-center gap-1 mt-auto w-max text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline font-semibold transition cursor-pointer" title="คลิกเพื่อตรวจสอบคอมเมนต์ (จะใช้แท็บเดิมในการเปิด ไม่รกจอ)">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                ดูคอมเมนต์ต้นฉบับ
-                            </button>`;
-                        }
-                        originalContentHtml += `</div>`;
-                        rowCells.push({ content: originalContentHtml, type: 'comment' });
-                    }
-
-                    let trHtml = "";
-                    rowCells.forEach((cell, cIndex) => {
-                        let alignClass = cell.type === 'center' ? 'text-center' : '';
-                        let monoClass = cell.type === 'mono' ? 'font-mono' : '';
-                        let noWrap = cell.type === 'comment' ? '' : 'whitespace-nowrap';
-                        
-                        if (cIndex === 0) {
-                            trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
-                        } else {
-                            trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass}">${cell.content}</td>`;
-                        }
-                    });
-
-                    tr.innerHTML = trHtml;
-                    tbody.appendChild(tr);
-                });
-            }
-            if (tableContainer) tableContainer.scrollTop = scrollPos;
-        }
-
-        function downloadExcel() {
-            const cols = getSelectedColumns(); const workbook = XLSX.utils.book_new();
-
-            function prepareRow(item, includeFileName = false) {
-                let obj = {};
-                if (includeFileName) obj["ชื่อไฟล์ต้นทาง"] = item.fileName;
-                let idStr = item["รหัสนักศึกษา"];
-                if (!item["isIdValid"]) idStr += " [รหัสไม่ครบ]";
-                if (item.isDuplicate) idStr += " [ส่งซ้ำ]"; // เพิ่ม Tag ตอนโหลดลง Excel
-                if (cols.id) obj["รหัสนักศึกษา"] = idStr;
-                if (cols.name) obj["ชื่อ"] = item["ชื่อ"];
-                if (cols.surname) obj["นามสกุล"] = item["นามสกุล"];
-                if (cols.status) obj["สถานะ"] = item["สถานะ"] + ` (สายสนทนา ${item["สายสนทนา"]})`;
-                if (cols.type) obj["ประเภทงาน"] = item["ประเภทงาน"];
-                if (cols.likes) obj["ยอดไลก์"] = item["ยอดไลก์"];
-                if (cols.original) obj["คอมเมนต์เต็มต้นฉบับ"] = item["คอมเมนต์เต็มต้นฉบับ"];
-                return obj;
-            }
-
-            if (currentMode === 'separate') {
-                Object.keys(allFilesData).forEach(fileName => {
-                    const activeRecords = allFilesData[fileName].filter(item => !item.isFaded);
-                    const cleanRecords = activeRecords.map(item => prepareRow(item, false));
-                    if(cleanRecords.length === 0) return;
-                    const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
-                    worksheet['!cols'] = Object.keys(cleanRecords[0]).map(() => ({wch: 22}));
-                    let sheetName = fileName.replace(/\.[^/.]+$/, "").substring(0, 30);
-                    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-                });
-                XLSX.writeFile(workbook, "Separate_Students_Report.xlsx");
-            } else {
-                let mergedList = [];
-                Object.values(allFilesData).forEach(fileRecords => { mergedList = mergedList.concat(fileRecords.filter(item => !item.isFaded)); });
-                const cleanRecords = mergedList.map(item => prepareRow(item, true));
-                if(cleanRecords.length === 0) return;
-                const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
-                worksheet['!cols'] = Object.keys(cleanRecords[0]).map(() => ({wch: 22}));
-                XLSX.utils.book_append_sheet(workbook, worksheet, "All_Merged_Students");
-                XLSX.writeFile(workbook, "Merged_All_Students_Report.xlsx");
-            }
-        }
-
-        // --- เริ่มต้นระบบลากไฟล์ (Drag & Drop) ---
-        const uploadArea = document.getElementById('uploadArea');
-        
-        // ป้องกันไม่ให้เบราว์เซอร์เปิดไฟล์เองถ้าลากพลาดหลุดกรอบ
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            document.body.addEventListener(eventName, preventDefaults, false);
-            uploadArea.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // เพิ่มเอฟเฟกต์สีตอนลากไฟล์มาอยู่บนกล่อง
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:border-indigo-400', 'dark:bg-indigo-900/20');
-            }, false);
-        });
-
-        // เอาเอฟเฟกต์สีออกตอนลากออกหรือปล่อยไฟล์แล้ว
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:border-indigo-400', 'dark:bg-indigo-900/20');
-            }, false);
-        });
-
-        // จัดการไฟล์เมื่อถูกปล่อยลงกล่อง
-        uploadArea.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files && files.length > 0) {
-                // กรองเอาเฉพาะไฟล์ .csv
-                const csvFiles = Array.from(files).filter(file => file.name.toLowerCase().endsWith('.csv'));
-                
-                if (csvFiles.length > 0) {
-                    // ส่งไฟล์ไปให้ฟังก์ชันเดิมจัดการต่อแบบเนียนๆ
-                    handleFiles({ target: { files: csvFiles } });
-                } else {
-                    alert("⚠️ กรุณาอัปโหลดเฉพาะไฟล์นามสกุล .csv เท่านั้นครับ");
-                }
-            }
-        }, false);
-        // --- สิ้นสุดระบบลากไฟล์ ---
     </script>
 </body>
 </html>
