@@ -525,13 +525,37 @@
         let currentMode = 'separate';
         let activeThread = null; 
         let activeCategoryFilters = []; 
-        let previousCategoryFilters = [];
-        let previousScrollPos = 0;
 
         let fileScores = {}; // เก็บข้อมูลคะแนนของแต่ละไฟล์ { "filename.csv": { base: 4, custom: { "ใจอาสา": 5, "วินัย": 3 } } }
         let currentlyDisplayedData = [];
         let rawThreadsData = {};
         let lastWindowScrollPos = 0;
+
+        // --- ฐานข้อมูลสีสำหรับหมวดหมู่งาน (สีปุ่ม และ สี Dropdown) ---
+        const CATEGORY_COLORS = { 
+            "ภาวะผู้นำ": "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800", 
+            "ใจอาสา": "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-900/40 dark:text-fuchsia-300 dark:border-fuchsia-800", 
+            "ชั่วโมงทุน": "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-800", 
+            "กตัญญู": "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-800",
+            "วินัย": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800", 
+            "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800", 
+            "แก้ความประพฤติ": "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:border-orange-800", 
+            "รักชาติ": "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-300 dark:border-cyan-800", 
+            "ไม่ได้ระบุ": "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/40 dark:text-rose-400 dark:border-rose-800" 
+        };
+
+        // --- ฐานข้อมูลสีตัวอักษร สำหรับตัวเลือกใน Dropdown ---
+        const CATEGORY_TEXT_COLORS = {
+            "ภาวะผู้นำ": "text-purple-600 dark:text-purple-400", 
+            "ใจอาสา": "text-fuchsia-600 dark:text-fuchsia-400", 
+            "ชั่วโมงทุน": "text-indigo-600 dark:text-indigo-400", 
+            "กตัญญู": "text-emerald-600 dark:text-emerald-400",
+            "วินัย": "text-blue-600 dark:text-blue-400", 
+            "แก้คะแนนรู้วินัย": "text-amber-600 dark:text-amber-400", 
+            "แก้ความประพฤติ": "text-orange-600 dark:text-orange-400", 
+            "รักชาติ": "text-cyan-600 dark:text-cyan-400",
+            "ไม่ได้ระบุ": "text-rose-600 dark:text-rose-400"
+        };
 
         function calculateTimeAgo(timeString) {
             if (!timeString) return "ไม่ระบุเวลา";
@@ -554,17 +578,23 @@
             return `${diffYears} ปี`;
         }
 
-        // ตัวแปรสำหรับจำตำแหน่ง Scroll โดยเฉพาะ
+        // --- ตัวแปรความจำสำหรับปุ่ม "ดูหน้าซ้ำ" ---
+        let previousCategoryFilters = [];
+        let previousScrollPos = 0;
+
+        // --- ตัวแปรความจำสำหรับปุ่ม "กางสายสนทนา" โดยเฉพาะ (แยกกันจะได้ไม่ตีกัน) ---
         let savedWindowScroll = 0;
         let savedContainerScroll = 0;
+        let threadPrevCategories = []; 
+        let threadPrevSearch = "";
 
-        // ฟังก์ชันจัดการสายสนทนา (ใส่ระบบกล่องล่องหนป้องกันตารางหด)
         function handleToggleThreadClick(event, threadNo, fileName, btn) {
             event.stopPropagation();
             
             const tbody = document.getElementById('tableBody');
             const rows = tbody.querySelectorAll('.data-row');
             const tableContainer = document.querySelector('.table-container');
+            const searchInput = document.getElementById('searchInput');
             
             let spacer = document.getElementById('page-magic-spacer');
             if (!spacer) {
@@ -576,13 +606,28 @@
             if (activeThread === threadNo) {
                 activeThread = null;
                 
-                rows.forEach(row => {
-                    row.classList.remove('thread-hidden');
-                    row.classList.remove('thread-highlight');
-                });
+                let needsRender = false;
+                if (threadPrevCategories.length > 0) {
+                    activeCategoryFilters = [...threadPrevCategories];
+                    threadPrevCategories = [];
+                    needsRender = true;
+                }
+                if (threadPrevSearch !== "") {
+                    if(searchInput) searchInput.value = threadPrevSearch;
+                    threadPrevSearch = "";
+                    needsRender = true;
+                }
+                
+                if (needsRender) {
+                    renderTable();
+                } else {
+                    rows.forEach(row => {
+                        row.classList.remove('thread-hidden');
+                        row.classList.remove('thread-highlight');
+                    });
+                }
                 
                 spacer.style.height = '0px';
-                
                 if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
                 window.scrollTo(0, savedWindowScroll);
                 
@@ -594,11 +639,16 @@
                     savedContainerScroll = tableContainer.scrollTop;
                 }
                 savedWindowScroll = window.scrollY;
-                
                 activeThread = threadNo;
                 
-                if (activeCategoryFilters.length > 0) {
+                let currentSearch = searchInput ? searchInput.value : "";
+                if (activeCategoryFilters.length > 0 || currentSearch !== "") {
+                    threadPrevCategories = [...activeCategoryFilters];
+                    threadPrevSearch = currentSearch;
+                    
                     activeCategoryFilters = [];
+                    if(searchInput) searchInput.value = "";
+                    
                     renderTable(); 
                     setTimeout(() => {
                         const newBtn = document.querySelector(`tr[data-thread="${threadNo}"] button`);
@@ -765,15 +815,64 @@
             saveState();
         }
         
-        function calculateItemScore(item) {
-            const fScore = fileScores[item.fileName];
-            if (!fScore) return 0;
+        // ฟังก์ชันช่วยดึงคะแนนโบนัส โดยกวาดอ่านข้อความทั้งสายสนทนา
+        function getBonusScore(item) {
+            let bonus = 0;
+            let threadNo = item["สายสนทนา"];
             
-            let cat = item["ประเภทงาน"];
-            if (fScore.custom && fScore.custom[cat] !== undefined) {
-                return fScore.custom[cat];
+            // ถ้านักศึกษาคนนี้อยู่ในสายสนทนา (มีเม้นหลัก-เม้นย่อย) ให้อ่านเหมาทุกข้อความในสายนั้น
+            if (threadNo && threadNo !== "-" && rawThreadsData[item.fileName] && rawThreadsData[item.fileName][threadNo]) {
+                const fullThreadText = rawThreadsData[item.fileName][threadNo].map(c => c.text).join(" ");
+                const bonusMatch = fullThreadText.match(/(?:ได้เพิ่ม|เพิ่ม|\+)\s*([0-9]+(?:\.[0-9]+)?)\s*(?:คะแนน|แต้ม)?/);
+                if (bonusMatch && bonusMatch[1]) {
+                    bonus = parseFloat(bonusMatch[1]);
+                }
+            } else if (item["คอมเมนต์เต็มต้นฉบับ"]) {
+                // ถ้าไม่มีสายสนทนา ให้อ่านจากข้อความตัวเองปกติ
+                const text = item["คอมเมนต์เต็มต้นฉบับ"];
+                const bonusMatch = text.match(/(?:ได้เพิ่ม|เพิ่ม|\+)\s*([0-9]+(?:\.[0-9]+)?)\s*(?:คะแนน|แต้ม)?/);
+                if (bonusMatch && bonusMatch[1]) {
+                    bonus = parseFloat(bonusMatch[1]);
+                }
             }
-            return fScore.base || 0;
+            return bonus;
+        }
+
+        function calculateItemScore(item) {
+            // 1. ถ้าแอดมินพิมพ์แก้คะแนนด้วยมือ ให้ยึดค่าที่แอดมินแก้เป็นหลักสูงสุด
+            if (item.manualScore !== undefined) {
+                return item.manualScore;
+            }
+
+            // 2. คำนวณคะแนนพื้นฐานตามหมวดหมู่
+            const fScore = fileScores[item.fileName];
+            let base = 0;
+            if (fScore) {
+                let cat = item["ประเภทงาน"];
+                if (fScore.custom && fScore.custom[cat] !== undefined) {
+                    base = fScore.custom[cat];
+                } else {
+                    base = fScore.base || 0;
+                }
+            }
+
+            // 3. บวกโบนัสพิเศษ
+            let bonus = getBonusScore(item);
+            return base + bonus;
+        }
+
+        // รับค่าคะแนนที่ถูกแก้ด้วยมือ
+        function updateManualScore(fileName, recordIndex, value) {
+            let val = value.trim();
+            if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
+                if (val === '' || isNaN(parseFloat(val))) {
+                    delete allFilesData[fileName][recordIndex].manualScore;
+                } else {
+                    allFilesData[fileName][recordIndex].manualScore = parseFloat(val);
+                }
+                saveState();
+                renderTable(); 
+            }
         }
 
         function updateScoreDashboard(data) {
@@ -876,40 +975,50 @@
             document.getElementById('sumValid').innerText = valid;
 
             let counts = {};
-            dataToSummarize.forEach(d => { let t = d["ประเภทงาน"]; counts[t] = (counts[t] || 0) + 1; });
+            let bonusCount = 0;
+
+            dataToSummarize.forEach(d => { 
+                let t = d["ประเภทงาน"]; 
+                counts[t] = (counts[t] || 0) + 1; 
+                
+                if (!d.isFaded && !d.isDuplicateInstance && getBonusScore(d) > 0) {
+                    bonusCount++;
+                }
+            });
 
             let catHtml = '';
             
-            let allClass = activeCategoryFilters.length === 0 ? "bg-indigo-600 text-white shadow-md ring-2 ring-indigo-300 dark:ring-indigo-500" : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600";
-            catHtml += `<button onclick="setFilter(null)" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${allClass}">ทั้งหมด</button>`;
+            // ปุ่ม "ทั้งหมด"
+            let allClass = activeCategoryFilters.length === 0 
+                ? "bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-300 dark:ring-indigo-500" 
+                : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-600";
+            catHtml += `<button onclick="setFilter(null)" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all ${allClass}">ทั้งหมด</button>`;
 
-            if (duplicates > 0) {
-                let dupClass = activeCategoryFilters.includes('duplicate') ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-300 dark:ring-rose-500" : "bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-400 dark:hover:bg-rose-900/60";
-                catHtml += `<button onclick="setFilter('duplicate')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${dupClass}">⚠️ ส่งซ้ำ (${duplicates})</button>`;
+            // ปุ่ม "โบนัส"
+            if (bonusCount > 0) {
+                let baseBonusClass = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800";
+                let activeBonusClass = activeCategoryFilters.includes('bonus') ? "ring-2 ring-offset-1 ring-emerald-500 shadow-sm opacity-100 border-emerald-400 dark:border-emerald-500" : "opacity-100 hover:bg-emerald-100 dark:hover:bg-emerald-900/50";
+                catHtml += `<button onclick="setFilter('bonus')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${baseBonusClass} ${activeBonusClass}">✨ ได้โบนัส (${bonusCount})</button>`;
             }
 
-            const colorMap = { 
-                "ภาวะผู้นำ": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50", 
-                "ใจอาสา": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 hover:bg-pink-200 dark:hover:bg-pink-900/50", 
-                "กตัญญู": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50",
-                "วินัย": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50", 
-                "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50", 
-                "แก้ความประพฤติ": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-900/50", 
-                "รักชาติ": "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 hover:bg-teal-200 dark:hover:bg-teal-900/50", 
-                "ไม่ได้ระบุ": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50" 
-            };
+            // ปุ่ม "ซ้ำ"
+            if (duplicates > 0) {
+                let dupClass = activeCategoryFilters.includes('duplicate') 
+                    ? "bg-rose-600 text-white border-rose-600 shadow-md ring-2 ring-rose-300 dark:ring-rose-500" 
+                    : "bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-400 dark:border-rose-800 dark:hover:bg-rose-900/60";
+                catHtml += `<button onclick="setFilter('duplicate')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${dupClass}">⚠️ ส่งซ้ำ (${duplicates})</button>`;
+            }
 
             Object.keys(counts).forEach(cat => {
-                let baseClass = colorMap[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+                let baseClass = CATEGORY_COLORS[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
                 let activeClass = activeCategoryFilters.includes(cat) ? "ring-2 ring-offset-1 ring-current shadow-sm opacity-100" : (activeCategoryFilters.length > 0 ? "opacity-50 hover:opacity-80" : "opacity-100");
-                catHtml += `<button onclick="setFilter('${cat}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${baseClass} ${activeClass}">${cat} (${counts[cat]})</button>`;
+                catHtml += `<button onclick="setFilter('${cat}')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all ${baseClass} ${activeClass}">${cat} (${counts[cat]})</button>`;
             });
 
-            if(Object.keys(counts).length === 0 && duplicates === 0) {
+            if(Object.keys(counts).length === 0 && duplicates === 0 && bonusCount === 0) {
                 catHtml = '<span class="text-slate-400 dark:text-slate-500 font-normal text-xs">ไม่มีข้อมูลหมวดหมู่</span>';
             }
             document.getElementById('sumCategories').innerHTML = catHtml;
-            
             updateScoreDashboard(dataToSummarize);
         }
 
@@ -982,7 +1091,9 @@
             const scrollPos = tableContainer ? tableContainer.scrollTop : 0;
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = ""; activeThread = null; 
+            
+            // ลบคำสั่ง activeThread = null; ออก เพื่อไม่ให้สายสนทนาพับปิดเองตอนแก้คะแนน
+            tbody.innerHTML = ""; 
 
             const cols = getSelectedColumns();
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -1021,6 +1132,7 @@
                 displayData = displayData.filter(item => {
                     let isMatch = false;
                     if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) isMatch = true;
+                    if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) isMatch = true;
                     if (activeCategoryFilters.includes(item["ประเภทงาน"])) isMatch = true;
                     return isMatch;
                 });
@@ -1091,11 +1203,65 @@
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); tr.setAttribute('data-filename', item.fileName); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
-                    let typeSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.innerText)" class="editable-cell">${item["ประเภทงาน"]}</span>`;
+                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText)" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
+                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText)" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
+                    
+                    let typeHtml = "";
+                    if (item._mergedSources) {
+                        let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600";
+                        typeHtml = `<span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold border shadow-sm ${catColor}">${item["ประเภทงาน"]}</span>`;
+                    } else {
+                        const jobCategories = ["ไม่ได้ระบุ", "ใจอาสา", "ชั่วโมงทุน", "วินัย", "ภาวะผู้นำ", "กตัญญู", "รักชาติ", "แก้ความประพฤติ", "แก้คะแนนรู้วินัย"];
+                        let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600";
+                        
+                        typeHtml = `<select onclick="event.stopPropagation()" onchange="updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.value)" class="text-xs font-bold border rounded-lg px-2.5 py-1 w-full max-w-[130px] outline-none cursor-pointer hover:opacity-80 transition-opacity appearance-none text-center shadow-sm ${catColor}">`;
+                        jobCategories.forEach(cat => {
+                            let selected = (item["ประเภทงาน"] === cat) ? "selected" : "";
+                            let optionColor = CATEGORY_TEXT_COLORS[cat] || "text-slate-800 dark:text-white";
+                            typeHtml += `<option value="${cat}" class="bg-white dark:bg-slate-800 font-extrabold ${optionColor}" ${selected}>${cat}</option>`;
+                        });
+                        typeHtml += `</select>`;
+                    }
 
+                    let scoreBadge = '-';
+                    if (item._mergedScoreMap) {
+                         let totalPoints = Object.values(item._mergedScoreMap).reduce((sum, s) => sum + s, 0);
+                         let hasBonus = item._mergedSources.some(src => getBonusScore(src) > 0 && src.manualScore === undefined);
+                         let badgeClass = hasBonus 
+                            ? "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-500 border-2" 
+                            : "bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/50";
+                         
+                         if (totalPoints > 0) scoreBadge = `<div class="row-content font-black text-sm px-2 py-0.5 rounded inline-block border ${badgeClass}">${totalPoints}${hasBonus ? ' ✨' : ''}</div>`;
+                    } else {
+                         let score = calculateItemScore(item);
+                         let hasManual = item.manualScore !== undefined;
+                         let bonusAmt = getBonusScore(item);
+                         let isBonus = bonusAmt > 0 && !hasManual;
+                         
+                         let inputClass = 'editable-cell font-bold text-center min-w-[40px] ';
+                         let tooltipText = 'คลิกเพื่อพิมพ์แก้คะแนน';
+                         
+                         if (hasManual) {
+                             inputClass += 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700 border';
+                             tooltipText = 'แก้ไขด้วยมือ (ลบค่าทิ้งเพื่อใช้ระบบอัตโนมัติ)';
+                         } else if (isBonus) {
+                             inputClass += 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-500 border-2 shadow-sm';
+                             tooltipText = `ได้โบนัส +${bonusAmt}`;
+                         } else {
+                             inputClass += 'text-indigo-700 dark:text-indigo-400';
+                         }
+                         
+                         scoreBadge = `<div class="row-content flex items-center justify-center relative w-max mx-auto mt-1 mb-1">
+                            <span contenteditable="${!item._mergedSources}" spellcheck="false" 
+                                onclick="event.stopPropagation()" 
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                                onblur="updateManualScore('${item.fileName}', ${item.recordIndex}, this.innerText)" 
+                                class="${inputClass}" title="${tooltipText}">${score}</span>
+                            ${isBonus ? `<span class="absolute -top-2.5 -right-3 text-[10px] bg-emerald-500 text-white font-black px-1.5 py-0.5 rounded-md shadow-sm border border-emerald-600 z-10 pointer-events-none">+${bonusAmt}</span>` : ''}
+                         </div>`;
+                    }
+                    
                     let statusBadge;
                     if (item._mergedSources && item._mergedSources.length > 1) {
                          statusBadge = `<div class="inline-block bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 px-2 py-1 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800">📌 ทำมา ${item._mergedSources.length} ใบงาน</div>`;
@@ -1133,7 +1299,6 @@
                         if (!item["isIdValid"]) idContent += ` <span class="text-red-500 text-xs ml-1" title="รหัสไม่ครบ/เกิน">⚠️</span>`;
                         idContent += `</div>`; 
                         
-                        // แก้ไขปุ่ม "ซ้ำ" เป็นสีแดงที่ถูกต้อง
                         if (item.isDuplicateInstance || (item._mergedSources && item._mergedSources.length > 1)) {
                              let btnTitle = item.isDuplicateInstance ? "คลิกเพื่อดูข้อมูลรหัสนี้ทั้งหมด (กดอีกครั้งเพื่อกลับไปหน้าเดิม)" : "คลิกเพื่อกางดูรายละเอียดแยกตามใบงาน";
                              let btnText = item.isDuplicateInstance ? "ซ้ำ" : "กางดูรายละเอียด";
@@ -1151,26 +1316,17 @@
                     if (cols.status) rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center' });
                     
                     if (cols.type) {
-                        let pointTypeHtml = item["ประเภทงาน"] === "ไม่ได้ระบุ" ? 
-                            `<div class="row-content"><div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 inline-block px-2 py-0.5 rounded border border-red-200 dark:border-red-800">${typeSpan}</div></div>` : 
-                            `<div class="row-content font-bold text-slate-600 dark:text-slate-400">${typeSpan}</div>`;
-                        
+                        let pointTypeFinalHtml = "";
                         if (item._mergedScoreMap && Object.keys(item._mergedScoreMap).length > 1) {
                              let typesList = Object.keys(item._mergedScoreMap).map(c => `<span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded mr-1 whitespace-nowrap">${c}</span>`).join('');
-                             pointTypeHtml = `<div class="row-content text-[10px] text-slate-500 flex flex-wrap gap-1">${typesList}</div>`;
+                             pointTypeFinalHtml = `<div class="row-content text-[10px] text-slate-500 flex flex-wrap gap-1">${typesList}</div>`;
+                        } else {
+                             pointTypeFinalHtml = `<div class="row-content">${typeHtml}</div>`;
                         }
-                        rowCells.push({ content: pointTypeHtml, type: 'normal' });
+                        rowCells.push({ content: pointTypeFinalHtml, type: 'normal' });
                     }
 
                     if (cols.score) {
-                        let scoreBadge = '-';
-                        if (item._mergedScoreMap) {
-                             let totalPoints = Object.values(item._mergedScoreMap).reduce((sum, s) => sum + s, 0);
-                             if (totalPoints > 0) scoreBadge = `<div class="row-content font-bold text-indigo-600 dark:text-indigo-400 text-sm bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded inline-block border border-indigo-100 dark:border-indigo-800/50">${totalPoints}</div>`;
-                        } else {
-                             let score = calculateItemScore(item);
-                             if (score > 0) scoreBadge = `<div class="row-content font-bold text-indigo-600 dark:text-indigo-400 text-sm bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded inline-block border border-indigo-100 dark:border-indigo-800/50">${score}</div>`;
-                        }
                         rowCells.push({ content: scoreBadge, type: 'center' });
                     }
 
@@ -1183,7 +1339,6 @@
                         } else {
                             originalContentHtml += `<div class="max-h-24 min-w-[250px] max-w-[400px] overflow-y-auto whitespace-pre-wrap pr-2 mb-1.5">${item["คอมเมนต์เต็มต้นฉบับ"]}</div>`;
                             if (item.commentUrl && item.commentUrl !== "undefined" && item.commentUrl !== "") {
-                                // ส่งค่า isDuplicateInstance เพื่อทำสีแดงใน Modal อย่างถูกต้อง
                                 const isDupString = item.isDuplicateInstance ? 'true' : 'false';
                                 originalContentHtml += `
                                 <div class="flex flex-wrap items-center gap-3 mt-auto pt-1.5">
@@ -1219,6 +1374,21 @@
                     tbody.appendChild(tr);
                 });
             }
+
+            // ฟื้นฟูสภาพสายสนทนาหากคุณกำลังเปิดดูอยู่ แล้วมีการพิมพ์แก้คะแนนหรือข้อความ
+            if (activeThread) {
+                const rows = tbody.querySelectorAll('.data-row');
+                rows.forEach(row => {
+                    if (row.getAttribute('data-thread') === activeThread) {
+                        row.classList.remove('thread-hidden');
+                        row.classList.add('thread-highlight');
+                    } else {
+                        row.classList.add('thread-hidden');
+                        row.classList.remove('thread-highlight');
+                    }
+                });
+            }
+
             if (tableContainer) tableContainer.scrollTop = scrollPos;
         }
 
@@ -1226,6 +1396,7 @@
             function isItemMatchFilters(item) {
                 if (activeCategoryFilters.length === 0) return true;
                 if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) return true;
+                if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) return true;
                 if (activeCategoryFilters.includes(item["ประเภทงาน"])) return true;
                 return false;
             }
@@ -1355,7 +1526,7 @@
         }, false);
 
         function openFbPopup(fileName, threadNo, highlightId = null, isDuplicate = false) {
-            // จำตำแหน่งหน้าเว็บหลักก่อนเปิด Modal
+            // จำตำแหน่งหน้าเว็บหลัก
             lastWindowScrollPos = window.scrollY;
 
             const tableContainer = document.querySelector('.table-container');
@@ -1389,15 +1560,35 @@
                 const isMain = !c.isReply;
                 let displayText = c.text || "";
                 
+                // --- อัปเกรดคลังคำศัพท์ และระบบดักจับแท็กเปล่า ---
                 const imgKeywords = [
-                    "รายงานตัว", "ลงทะเบียน", 
-                    "ก่อน", "ระหว่าง", "ขณะ", "กำลัง", 
-                    "เสร็จ", "หลังทำ", "หลังปฏิบัติ", "หลังปฎิบัติ", "จบ"
+                    "รายงานตัว", "ลงทะเบียน", "ส่งงาน", "ส่งรูป",
+                    "ก่อน", "ระหว่าง", "รหว่าง", "ขณะ", "กำลัง", "กะลัง", 
+                    "เสร็จ", "เสร็ด", "เส็ด", "เสด", "เรียบร้อย", "จบ", "แร้ว",
+                    "หลังทำ", "หลังปฏิบัติ", "หลังปฎิบัติ", "ปฎิบัติ",
+                    "ค่าบ", "ค้าบ", "ค๊าบ", "คัฟ", "งับ", "ครัช", 
+                    "ค้ะ", "คร่ะ", "คร่า", "จ้า", "จร้า",
+                    "เก็บ", "อุปกรณ์", "เล่ม" // ดักจับคำเพิ่มเติมจากใบงานล่าสุด
                 ];
-                const isMatchKeyword = imgKeywords.some(kw => displayText.includes(kw));
+                
+                const cleanText = displayText.replace(/\s+/g, '');
+                const isMatchKeyword = imgKeywords.some(kw => cleanText.includes(kw));
                 const isEmpty = displayText.trim() === "";
                 
-                const hasImage = isEmpty || isMatchKeyword;
+                // ดักจับกรณีนักศึกษาพิมพ์แค่ "แท็กชื่อเพจ/ชื่อเพื่อน" แล้วแนบรูป
+                let textWithoutTags = displayText;
+                threadAuthors.forEach(author => {
+                     const safeAuthor = author.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                     const regex = new RegExp(`(?![^<]*>)(${safeAuthor})`, 'gi');
+                     textWithoutTags = textWithoutTags.replace(regex, '');
+                });
+                textWithoutTags = textWithoutTags.replace(/[@\s]/g, '').trim();
+                const isOnlyTag = (textWithoutTags === "" && !isEmpty);
+
+                // ถ้าระบุว่ามีภาพจากเงื่อนไขใดเงื่อนไขหนึ่ง
+                const hasImage = isEmpty || isMatchKeyword || isOnlyTag;
+                // ------------------------------------------------
+
                 const isHighlighted = c.id === highlightId;
                 
                 let highlightClass = '';
@@ -1481,7 +1672,6 @@
             contentDiv.innerHTML = html;
             modal.classList.remove('hidden');
             
-            // เปลี่ยนระบบการเลื่อน: คำนวณความสูงเองโดยไม่ให้กวนหน้าเว็บหลัก
             if (highlightId) {
                 setTimeout(() => {
                     const el = document.getElementById(`fb-comment-${highlightId}`);
@@ -1515,6 +1705,9 @@
                 sessionStorage.setItem('allFilesData', JSON.stringify(allFilesData));
                 sessionStorage.setItem('currentMode', currentMode);
                 sessionStorage.setItem('fileScores', JSON.stringify(fileScores));
+                // เพิ่มคำสั่งให้จำข้อมูลดิบสำหรับหน้าต่างจำลอง Facebook
+                sessionStorage.setItem('rawThreadsData', JSON.stringify(rawThreadsData)); 
+                
                 const fileNamesStr = document.getElementById('fileNames').innerText;
                 if (fileNamesStr) sessionStorage.setItem('fileNamesStr', fileNamesStr);
             } catch (e) {
@@ -1526,7 +1719,11 @@
             try {
                 const savedData = sessionStorage.getItem('allFilesData');
                 const savedScores = sessionStorage.getItem('fileScores');
+                // โหลดข้อมูลดิบสำหรับหน้าต่างจำลอง Facebook กลับมา
+                const savedRawThreads = sessionStorage.getItem('rawThreadsData'); 
+
                 if (savedScores) { fileScores = JSON.parse(savedScores); }
+                if (savedRawThreads) { rawThreadsData = JSON.parse(savedRawThreads); }
 
                 if (savedData) {
                     const parsed = JSON.parse(savedData);
@@ -1639,6 +1836,11 @@
                     evaluateDuplicates(fileName); 
                 }
                 updateSummary(currentlyDisplayedData); saveState(); 
+                
+                // ถ้าแก้ไขประเภทงาน ให้รีเฟรชตารางเพื่อโหลดคะแนนใหม่ทันที
+                if (field === 'ประเภทงาน') {
+                    renderTable();
+                }
             }
         }
 
