@@ -573,28 +573,28 @@
         });
         const db = firebase.database();
 
-        // 🎯 1. ระบบดักจับเมาส์แบบใหม่ (เกาะติดรายบุคคล ทะลุฟิลเตอร์)
+        // 🎯 1. ระบบดักจับเมาส์แบบใหม่ (เกาะติดรายช่องคอลัมน์ ทะลุการซ่อนตารางและ Scroll)
         let lastClientX = -1000;
         let lastClientY = -1000;
         let isMouseInside = false;
 
-        function sendCursorData(e) {
+        function sendCursorData() {
             if (!currentRoomId || !isMouseInside) return;
             
-            // หาว่าเมาส์/นิ้ว กำลังชี้อยู่ที่นักศึกษาคนไหน
-            let target = e ? e.target : null;
-            if (e && e.type === 'touchmove' && e.touches && e.touches.length > 0) {
-                target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-            }
-            
+            // หาว่าพิกัดปัจจุบัน ชี้อยู่ตรงกล่องไหนของหน้าจอ
+            let target = document.elementFromPoint(lastClientX, lastClientY);
             let anchorData = null;
+            
             if (target) {
-                let row = target.closest('.data-row'); // หากล่องตารางของคนนั้น
-                if (row) {
-                    let rect = row.getBoundingClientRect();
+                let row = target.closest('.data-row'); 
+                let cell = target.closest('td[data-colname]'); // เจาะจงหาคอลัมน์นั้นๆ (เช่น คอลัมน์คะแนน)
+                
+                if (row && cell) {
+                    let rect = cell.getBoundingClientRect(); // ดึงพิกัดของช่องนั้นๆ ไม่ใช่ทั้งแถว
                     anchorData = {
                         f: row.getAttribute('data-filename'),
-                        i: row.getAttribute('data-recordindex'), // เกาะติดด้วย Record Index
+                        i: row.getAttribute('data-recordindex'), 
+                        c: cell.getAttribute('data-colname'), // เกาะติดชื่อคอลัมน์!
                         x: lastClientX - rect.left,
                         y: lastClientY - rect.top
                     };
@@ -641,9 +641,9 @@
 
                 if (!currentRoomId) return;
                 const now = Date.now();
-                if (now - lastMouseUpdate > 50) { 
+                if (now - lastMouseUpdate > 40) { 
                     lastMouseUpdate = now;
-                    sendCursorData(e);
+                    sendCursorData();
                 }
             }
 
@@ -654,10 +654,20 @@
                 if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove(); 
             });
 
+            // ดักจับตอนเลื่อนจอ (Scroll) เพื่อแอบส่งพิกัดเมาส์ที่อยู่กับที่ไปให้เพื่อนอัปเดต
+            document.addEventListener('scroll', () => {
+                if (!currentRoomId || !isMouseInside) return;
+                const now = Date.now();
+                if (now - lastMouseUpdate > 40) { 
+                    lastMouseUpdate = now;
+                    sendCursorData();
+                }
+            }, true);
+
             requestAnimationFrame(renderCursors);
         }
 
-        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (ล็อคเป้าหมาย เกาะติดหน้าจอ 60fps)
+        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (ล็อคเป้าหมายช่องคอลัมน์)
         function renderCursors() {
             requestAnimationFrame(renderCursors);
             let overlay = document.getElementById('cursor-overlay');
@@ -681,7 +691,6 @@
                 
                 let el = document.getElementById('cursor-' + uid);
                 
-                // ถือคติ: ไม่ใช่โหมดเดียวกัน, ไฟล์ไม่ตรง, ฟิลเตอร์ไม่ตรง = ซ่อนเมาส์ไปเลย
                 if (c.mode !== currentMode || (currentMode === 'separate' && c.file !== currentFile) || c.filter !== currentFilter || c.search !== currentSearch) {
                     if (el) el.style.opacity = '0';
                     continue;
@@ -705,14 +714,17 @@
                 let screenX = -1000, screenY = -1000;
                 let isVisible = false;
 
-                // ตรวจสอบว่าเพื่อนกำลังชี้ไปที่แถวไหน แล้วคำนวณตำแหน่งเมาส์เกาะติดแถวนั้นเป๊ะๆ
-                if (c.anchor && c.anchor.f && c.anchor.i !== null) {
+                // ตามหาเป้าหมาย: แถวไหน และ "คอลัมน์ไหน!"
+                if (c.anchor && c.anchor.f && c.anchor.i !== null && c.anchor.c) {
                     let row = document.querySelector(`tr[data-filename="${c.anchor.f}"][data-recordindex="${c.anchor.i}"]`);
                     if (row) {
-                        let rect = row.getBoundingClientRect();
-                        screenX = rect.left + c.anchor.x;
-                        screenY = rect.top + c.anchor.y;
-                        isVisible = true;
+                        let cell = row.querySelector(`td[data-colname="${c.anchor.c}"]`);
+                        if (cell) {
+                            let rect = cell.getBoundingClientRect();
+                            screenX = rect.left + c.anchor.x;
+                            screenY = rect.top + c.anchor.y;
+                            isVisible = true;
+                        }
                     }
                 }
 
@@ -729,7 +741,7 @@
                         el.style.transform = `translate(${pageX}px, ${pageY}px)`;
                     }
                 } else {
-                    el.style.opacity = '0'; // ซ่อนเมาส์ถ้าไม่ได้ชี้ในตาราง
+                    el.style.opacity = '0'; 
                 }
             }
         }
@@ -1539,7 +1551,7 @@
                     tr.className = `data-row ${fadeClass} ${duplicateBg} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); 
                     tr.setAttribute('data-filename', item.fileName); 
-                    tr.setAttribute('data-recordindex', item.recordIndex); // 👈 เพิ่มรหัสเป้าหมายให้เมาส์วิ่งมาเกาะ
+                    tr.setAttribute('data-recordindex', item.recordIndex); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
                     let focusRingId = "", focusRingName = "", focusRingSurname = "", focusRingScore = "";
@@ -1622,10 +1634,11 @@
                         </svg>
                     </button>`;
 
+                    // 🌟 เพิ่ม data-colname ให้ทุกคอลัมน์ เพื่อให้เมาส์รู้ว่าจะต้องไปเกาะตรงไหน
                     let rowCells = [];
                     if (currentMode === 'merged' && cols.file) {
                         let fileHtml = item._mergedSources && item._mergedSources.length > 1 ? `<span class="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800" title="พบจากหลายไฟล์">รวม ${item._mergedSources.length} ไฟล์</span>` : `<span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName}</span>`;
-                        rowCells.push({ content: `<div class="row-content">${fileHtml}</div>`, type: 'normal' });
+                        rowCells.push({ content: `<div class="row-content">${fileHtml}</div>`, type: 'normal', colname: 'ไฟล์ต้นทาง' });
                     }
 
                     if (cols.id) {
@@ -1641,18 +1654,18 @@
                              let btnClass = item.isDuplicateInstance ? "bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-400 border-rose-300 dark:border-rose-700" : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800";
                              idContent = `<div class="flex items-center">${idContent}<button type="button" onclick="filterByStudentId(event, '${item["รหัสนักศึกษา"]}')" class="ml-1.5 cursor-pointer hover:scale-105 active:scale-95 px-1.5 py-0.5 rounded text-[10px] font-bold border shadow-sm transition-transform ${btnClass}" title="${btnTitle}">${btnText}</button></div>`;
                         } else { idContent = `<div class="flex items-center">${idContent}</div>`; }
-                        rowCells.push({ content: idContent, type: 'mono' });
+                        rowCells.push({ content: idContent, type: 'mono', colname: 'รหัสนักศึกษา' });
                     }
 
-                    if (cols.name) rowCells.push({ content: `<div class="row-content">${nameSpan}</div>`, type: 'normal' });
-                    if (cols.surname) rowCells.push({ content: `<div class="row-content">${surnameSpan}</div>`, type: 'normal' });
-                    if (cols.status) rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center' });
+                    if (cols.name) rowCells.push({ content: `<div class="row-content">${nameSpan}</div>`, type: 'normal', colname: 'ชื่อ' });
+                    if (cols.surname) rowCells.push({ content: `<div class="row-content">${surnameSpan}</div>`, type: 'normal', colname: 'นามสกุล' });
+                    if (cols.status) rowCells.push({ content: `<div class="row-content">${statusBadge}</div>`, type: 'center', colname: 'สถานะ' });
                     if (cols.type) {
                         let pointTypeFinalHtml = item._mergedScoreMap && Object.keys(item._mergedScoreMap).length > 1 ? `<div class="row-content text-[10px] text-slate-500 flex flex-wrap gap-1">${Object.keys(item._mergedScoreMap).map(c => `<span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded mr-1 whitespace-nowrap">${c}</span>`).join('')}</div>` : `<div class="row-content">${typeHtml}</div>`;
-                        rowCells.push({ content: pointTypeFinalHtml, type: 'normal' });
+                        rowCells.push({ content: pointTypeFinalHtml, type: 'normal', colname: 'ประเภทงาน' });
                     }
-                    if (cols.score) rowCells.push({ content: scoreBadge, type: 'center' });
-                    if (cols.likes) rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center' });
+                    if (cols.score) rowCells.push({ content: scoreBadge, type: 'center', colname: 'คะแนน' });
+                    if (cols.likes) rowCells.push({ content: `<div class="row-content font-medium text-slate-500 dark:text-slate-400">${item["ยอดไลก์"]}</div>`, type: 'center', colname: 'ไลก์' });
                     if (cols.original) {
                         let originalContentHtml = `<div class="row-content text-slate-500 dark:text-slate-400 text-xs leading-relaxed flex flex-col h-full">`;
                         if (item._mergedSources) { originalContentHtml += `<div class="italic text-slate-400 mb-1">(ระบบรวบรวมข้อมูลให้อัตโนมัติ หากต้องการดูคอมเมนต์เต็ม กรุณากดปุ่ม "กางดูรายละเอียด" ที่หน้ารหัส)</div>`;
@@ -1667,7 +1680,7 @@
                             }
                         }
                         originalContentHtml += `</div>`;
-                        rowCells.push({ content: originalContentHtml, type: 'comment' });
+                        rowCells.push({ content: originalContentHtml, type: 'comment', colname: 'คอมเมนต์ต้นฉบับ' });
                     }
 
                     let trHtml = "";
@@ -1675,8 +1688,8 @@
                         let alignClass = cell.type === 'center' ? 'text-center' : '';
                         let monoClass = cell.type === 'mono' ? 'font-mono' : '';
                         let noWrap = cell.type === 'comment' ? '' : 'whitespace-nowrap';
-                        if (cIndex === 0) trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
-                        else trHtml += `<td class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass}">${cell.content}</td>`;
+                        if (cIndex === 0) trHtml += `<td data-colname="${cell.colname}" class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass} relative pl-10">${fadeBtn}${cell.content}</td>`;
+                        else trHtml += `<td data-colname="${cell.colname}" class="px-4 py-3 ${noWrap} ${alignClass} ${monoClass}">${cell.content}</td>`;
                     });
 
                     tr.innerHTML = trHtml;
