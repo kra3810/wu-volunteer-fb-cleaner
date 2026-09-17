@@ -573,7 +573,30 @@
         });
         const db = firebase.database();
 
-        // 🎯 1. ระบบติดเครื่องตามเมาส์ (แม่นยำ 100% ทุกขนาดหน้าจอ)
+        // 🎯 1. ระบบดักจับเมาส์ (อัปเกรดให้ทำงานตอนเลื่อนหน้าจอด้วย)
+        let lastClientX = -1000;
+        let lastClientY = -1000;
+        let isMouseInside = false;
+
+        function sendCursorData() {
+            if (!currentRoomId || !isMouseInside) return;
+            const table = document.querySelector('table');
+            if(!table) return;
+            const rect = table.getBoundingClientRect(); 
+            
+            // คำนวณพิกัดสัมพัทธ์กับตาราง
+            let relX = lastClientX - rect.left;
+            let relY = lastClientY - rect.top;
+
+            const currentFile = document.getElementById('fileSelectDropdown').value;
+            
+            db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
+                x: relX, y: relY, color: myCursorColor, mode: currentMode, 
+                file: currentMode === 'separate' ? currentFile : 'all'
+            });
+            db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
+        }
+
         function initLiveCursor() {
             let overlay = document.getElementById('cursor-overlay');
             if (!overlay) {
@@ -587,45 +610,46 @@
             let lastMouseUpdate = 0;
             
             function handleCursorMove(e) {
+                if (e.touches && e.touches.length > 0) {
+                    lastClientX = e.touches[0].clientX;
+                    lastClientY = e.touches[0].clientY;
+                    isMouseInside = true;
+                } else if (e.clientX !== undefined) {
+                    lastClientX = e.clientX;
+                    lastClientY = e.clientY;
+                    isMouseInside = true;
+                }
+
                 if (!currentRoomId) return;
                 const now = Date.now();
                 if (now - lastMouseUpdate > 50) { 
                     lastMouseUpdate = now;
-                    
-                    const table = document.querySelector('table');
-                    if(!table) return;
-                    const rect = table.getBoundingClientRect(); // ดึงพิกัดมุมซ้ายบนของตาราง
-                    
-                    let clientX = e.clientX;
-                    let clientY = e.clientY;
-                    if (e.touches && e.touches.length > 0) {
-                        clientX = e.touches[0].clientX;
-                        clientY = e.touches[0].clientY;
-                    }
-
-                    // คำนวณพิกัดให้ "สัมพัทธ์" กับเนื้อหาในตารางเท่านั้น
-                    let relX = clientX - rect.left;
-                    let relY = clientY - rect.top;
-
-                    const currentFile = document.getElementById('fileSelectDropdown').value;
-                    
-                    db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
-                        x: relX, y: relY, color: myCursorColor, mode: currentMode, 
-                        file: currentMode === 'separate' ? currentFile : 'all'
-                    });
-                    db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
+                    sendCursorData();
                 }
             }
 
+            // ดักจับการขยับเมาส์ และ นิ้วสัมผัส
             document.addEventListener('mousemove', handleCursorMove);
             document.addEventListener('touchmove', handleCursorMove, {passive: true});
-            document.addEventListener('mouseleave', () => { if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove(); });
-            // ลบ event touchend ทิ้ง เพื่อแก้บั๊กคีย์บอร์ดแท็บเล็ตไม่เด้ง
+            document.addEventListener('mouseleave', () => { 
+                isMouseInside = false;
+                if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove(); 
+            });
+
+            // 🌟 พระเอกของงานนี้: ดักจับตอนไถหน้าจอ (Scroll) ด้วย!
+            document.addEventListener('scroll', (e) => {
+                if (!currentRoomId || !isMouseInside) return;
+                const now = Date.now();
+                if (now - lastMouseUpdate > 30) { // ตอบสนองให้ไวขึ้นตอนเลื่อนจอ
+                    lastMouseUpdate = now;
+                    sendCursorData();
+                }
+            }, true); // ใช้ true เพื่อดักจับ scroll ทะลุทุกกล่องในหน้าเว็บ
 
             requestAnimationFrame(renderCursors);
         }
 
-        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (เกาะติดขอบตารางเป๊ะๆ)
+        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (เนียนตาขึ้น)
         function renderCursors() {
             requestAnimationFrame(renderCursors);
             let overlay = document.getElementById('cursor-overlay');
@@ -659,27 +683,27 @@
                     el.id = 'cursor-' + uid;
                     el.style.position = 'absolute'; 
                     el.style.pointerEvents = 'none'; el.style.zIndex = '999999';
-                    el.style.transition = 'transform 0.1s linear, opacity 0.2s'; 
+                    el.style.transition = 'transform 0.08s linear, opacity 0.15s ease'; // ปรับให้นุ่มตาขึ้น
                     el.innerHTML = `
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" style="transform: rotate(-15deg); filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.4));">
                             <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.8c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 00-.85.36z"></path>
                         </svg>
-                        <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -3px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">เพื่อนกำลังตรวจ</div>
+                        <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -3px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">เพื่อนกำลังช่วยตรวจ</div>
                     `;
                     overlay.appendChild(el);
                 }
 
-                // แปลงพิกัดกลับไปเป็นตำแหน่งหน้าจอ
+                // พิกัดสำหรับวาดบนหน้าจอ
                 let pageX = c.x + tableRect.left + window.scrollX;
                 let pageY = c.y + tableRect.top + window.scrollY;
 
-                // ตรวจสอบว่าเมาส์ออกนอกกล่องตาราง (Scroll Viewport) หรือไม่
+                // พิกัดสำหรับเช็คว่าหลุดกรอบตารางไหม
                 let screenX = c.x + tableRect.left;
                 let screenY = c.y + tableRect.top;
 
                 if (screenX < containerRect.left || screenX > containerRect.right || 
                     screenY < containerRect.top || screenY > containerRect.bottom) {
-                    el.style.opacity = '0'; // ซ่อนเมาส์เนียนๆ ถ้าเลื่อนเลยตาราง
+                    el.style.opacity = '0'; // ซ่อนเมาส์ถ้าเพื่อนไถจอหนี
                 } else {
                     el.style.opacity = '1';
                     el.style.transform = `translate(${pageX}px, ${pageY}px)`;
@@ -729,7 +753,7 @@
         }
 
         function checkPendingUpdate() {
-            if (!isEditing && pendingFirebaseUpdate) {
+            if (!isEditing && !isTableHovered && pendingFirebaseUpdate) {
                 renderTable(); pendingFirebaseUpdate = false; 
             }
         }
