@@ -565,9 +565,9 @@
 
         // --- ระบบ Visual Co-op (สุ่มสีประจำตัว และ Cell Focus) ---
         let myUserId = "USER-" + Math.floor(Math.random() * 1000000);
-        let myHue = Math.floor(Math.random() * 360); // สุ่มแม่สีประจำเครื่อง
-        let myCursorColor = `hsl(${myHue}, 80%, 45%)`; // สีเข้มสำหรับเมาส์และขอบ
-        let myHighlightBg = `hsl(${myHue}, 80%, 90%)`; // สีอ่อนสำหรับพื้นหลังไฮไลต์
+        let myHue = Math.floor(Math.random() * 360); 
+        let myCursorColor = `hsl(${myHue}, 80%, 45%)`; 
+        let myHighlightBg = `hsl(${myHue}, 80%, 90%)`; 
         let roomFocusData = {}; 
         let roomCursorData = {}; 
         
@@ -582,7 +582,7 @@
         });
         const db = firebase.database();
 
-        // 🎯 1. ระบบดักจับเมาส์แบบใหม่
+        // 🎯 1. ระบบดักจับเมาส์แบบใหม่ (ใช้เปอร์เซ็นต์แก้ปัญหาจอคอม vs แท็บเล็ต)
         let lastClientX = -1000;
         let lastClientY = -1000;
         let isMouseInside = false;
@@ -599,12 +599,17 @@
                 
                 if (row && cell) {
                     let rect = cell.getBoundingClientRect(); 
+                    
+                    // 🌟 แปลงพิกัดเป็น "เปอร์เซ็นต์ (0.0 - 1.0)" เพื่อให้แสดงผลตรงกันทุกขนาดหน้าจอ
+                    let pX = (lastClientX - rect.left) / rect.width;
+                    let pY = (lastClientY - rect.top) / rect.height;
+                    
                     anchorData = {
                         f: row.getAttribute('data-filename'),
                         i: row.getAttribute('data-recordindex'), 
                         c: cell.getAttribute('data-colname'), 
-                        x: lastClientX - rect.left,
-                        y: lastClientY - rect.top
+                        px: pX, // แกน X แบบ %
+                        py: pY  // แกน Y แบบ %
                     };
                 }
             }
@@ -673,7 +678,7 @@
             requestAnimationFrame(renderCursors);
         }
 
-        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (อัปเกรดปรับศูนย์เล็งปลายลูกศรให้แม่นยำระดับพิกเซล)
+        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (แปลงเปอร์เซ็นต์กลับเป็นพิกเซลของจอนั้นๆ)
         function renderCursors() {
             requestAnimationFrame(renderCursors);
             let overlay = document.getElementById('cursor-overlay');
@@ -709,13 +714,13 @@
                     el.style.pointerEvents = 'none'; el.style.zIndex = '999999';
                     el.style.transition = 'transform 0.08s linear, opacity 0.15s ease'; 
                     
-                    // 🌟 ชดเชยพิกัดปลายลูกศรด้วย translate(-4px, -4px) ให้ปลายแหลมแทงตรงพิกัด 0,0 พอดีเป๊ะ
+                    // ปรับจุดศูนย์กลางของลูกศรให้แทงเข้าพิกัด 0,0 แบบเป๊ะๆ
                     el.innerHTML = `
                         <div style="position: relative; transform: translate(-4px, -4px);">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" stroke-linejoin="round" style="filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.4));">
                                 <path d="M4 4l5.5 15.5 2.5-6.5 6.5-2.5L4 4z"></path>
                             </svg>
-                            <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -5px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); width: max-content;">เพื่อนกำลังช่วยตรวจ</div>
+                            <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -5px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); width: max-content;">ผู้ตรวจร่วม</div>
                         </div>
                     `;
                     overlay.appendChild(el);
@@ -730,8 +735,13 @@
                         let cell = row.querySelector(`td[data-colname="${c.anchor.c}"]`);
                         if (cell) {
                             let rect = cell.getBoundingClientRect();
-                            screenX = rect.left + c.anchor.x;
-                            screenY = rect.top + c.anchor.y;
+                            
+                            // 🌟 เอาเปอร์เซ็นต์มาคูณกับขนาดช่องจริงๆ ในเครื่องของเรา
+                            let offsetX = c.anchor.px !== undefined ? (rect.width * c.anchor.px) : (c.anchor.x || 0);
+                            let offsetY = c.anchor.py !== undefined ? (rect.height * c.anchor.py) : (c.anchor.y || 0);
+                            
+                            screenX = rect.left + offsetX;
+                            screenY = rect.top + offsetY;
                             isVisible = true;
                         }
                     }
@@ -781,7 +791,6 @@
             return scores;
         }
 
-        // 🌟 ส่งสีประจำตัวขึ้น Firebase ไปด้วย
         function setFocus(fileName, recordIndex, field) {
             isEditing = true;
             if (currentRoomId) {
@@ -802,7 +811,6 @@
             checkPendingUpdate();
         }
 
-        // 🌟🌟 พระเอกแก้บั๊กไฮไลต์ค้าง: ถ้านิ้วคลิกนอกกรอบข้อความ ให้ลบไฮไลต์ทันที
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.editable-cell') && !e.target.closest('select')) {
                 if (isEditing) clearFocus();
@@ -838,7 +846,7 @@
             }).then(() => {
                 currentRoomId = roomCode;
                 alert("✅ สร้างห้องสำเร็จ!\nรหัสห้องคือ: " + roomCode + "\n\nบอกรหัสนี้ให้เพื่อน เพื่อเข้าห้องมาช่วยตรวจได้เลยครับ");
-                document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${roomCode} (Online)</span>`;
+                document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${code} (Online)</span>`;
                 startListening(); initLiveCursor();
             }).catch(error => {
                 alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
