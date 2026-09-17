@@ -552,12 +552,13 @@
         // 🚀 FIREBASE REAL-TIME LOGIC (ระบบห้องออนไลน์)
         // ==========================================
         let isEditing = false;
+        let isTableHovered = false;
         let pendingFirebaseUpdate = false;
         let currentRoomId = null;
 
         // --- ระบบ Visual Co-op (Live Cursor & Cell Focus) ---
         let myUserId = "USER-" + Math.floor(Math.random() * 1000000);
-        let myCursorColor = "hsl(" + Math.floor(Math.random() * 360) + ", 80%, 45%)"; // สุ่มสีประจำตัว
+        let myCursorColor = "hsl(" + Math.floor(Math.random() * 360) + ", 80%, 45%)"; 
         let roomFocusData = {}; 
         let roomCursorData = {}; 
         
@@ -572,18 +573,14 @@
         });
         const db = firebase.database();
 
-        // 🎯 1. ระบบติดเครื่องตามเมาส์/นิ้วสัมผัส (ลื่นขึ้น ทะลุแท็บเล็ต)
+        // 🎯 1. ระบบติดเครื่องตามเมาส์ (แม่นยำ 100% ทุกขนาดหน้าจอ)
         function initLiveCursor() {
             let overlay = document.getElementById('cursor-overlay');
             if (!overlay) {
                 overlay = document.createElement('div');
                 overlay.id = 'cursor-overlay';
-                // ปล่อยให้ลอยอิสระบนหน้าจอทั้งหมด
-                overlay.style.position = 'absolute'; 
-                overlay.style.top = '0'; 
-                overlay.style.left = '0';
-                overlay.style.pointerEvents = 'none'; 
-                overlay.style.zIndex = '999999';
+                overlay.style.position = 'absolute'; overlay.style.top = '0'; overlay.style.left = '0';
+                overlay.style.pointerEvents = 'none'; overlay.style.zIndex = '999999';
                 document.body.appendChild(overlay);
             }
 
@@ -592,49 +589,52 @@
             function handleCursorMove(e) {
                 if (!currentRoomId) return;
                 const now = Date.now();
-                if (now - lastMouseUpdate > 50) { // ตอบสนองไวขึ้นเป็น 50ms
+                if (now - lastMouseUpdate > 50) { 
                     lastMouseUpdate = now;
                     
-                    // ใช้ pageX, pageY เพื่อให้ได้พิกัดบนหน้าเว็บจริงๆ
-                    let pageX = e.pageX;
-                    let pageY = e.pageY;
+                    const table = document.querySelector('table');
+                    if(!table) return;
+                    const rect = table.getBoundingClientRect(); // ดึงพิกัดมุมซ้ายบนของตาราง
                     
-                    // ถ้ารองรับ Touch (Tablet/Mobile)
+                    let clientX = e.clientX;
+                    let clientY = e.clientY;
                     if (e.touches && e.touches.length > 0) {
-                        pageX = e.touches[0].pageX;
-                        pageY = e.touches[0].pageY;
+                        clientX = e.touches[0].clientX;
+                        clientY = e.touches[0].clientY;
                     }
+
+                    // คำนวณพิกัดให้ "สัมพัทธ์" กับเนื้อหาในตารางเท่านั้น
+                    let relX = clientX - rect.left;
+                    let relY = clientY - rect.top;
 
                     const currentFile = document.getElementById('fileSelectDropdown').value;
                     
                     db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
-                        x: pageX, 
-                        y: pageY, 
-                        color: myCursorColor, 
-                        mode: currentMode, 
+                        x: relX, y: relY, color: myCursorColor, mode: currentMode, 
                         file: currentMode === 'separate' ? currentFile : 'all'
                     });
                     db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
                 }
             }
 
-            // ตรวจจับทั้งคอมและมือถือ
             document.addEventListener('mousemove', handleCursorMove);
             document.addEventListener('touchmove', handleCursorMove, {passive: true});
-
-            // ลบเมาส์ตอนเอาออกนอกจอ หรือเลิกแตะจอ
             document.addEventListener('mouseleave', () => { if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove(); });
-            document.addEventListener('touchend', () => { if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove(); });
+            // ลบ event touchend ทิ้ง เพื่อแก้บั๊กคีย์บอร์ดแท็บเล็ตไม่เด้ง
 
             requestAnimationFrame(renderCursors);
         }
 
-        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อนบนจอของเรา
+        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (เกาะติดขอบตารางเป๊ะๆ)
         function renderCursors() {
             requestAnimationFrame(renderCursors);
             let overlay = document.getElementById('cursor-overlay');
-            if (!overlay) return;
+            const table = document.querySelector('table');
+            const container = document.querySelector('.table-container');
+            if (!overlay || !table || !container) return;
 
+            const tableRect = table.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
             const currentFile = document.getElementById('fileSelectDropdown').value;
             const activeUsers = Object.keys(roomCursorData);
 
@@ -644,10 +644,9 @@
             });
 
             for (let uid in roomCursorData) {
-                if (uid === myUserId) continue; // ซ่อนเมาส์ตัวเอง
+                if (uid === myUserId) continue; 
                 let c = roomCursorData[uid];
                 
-                // ไม่ได้อยู่หมวดเดียวกัน หรือไม่ได้เปิดไฟล์เดียวกัน = ซ่อนเมาส์เพื่อน
                 if (c.mode !== currentMode || (currentMode === 'separate' && c.file !== currentFile)) {
                     let el = document.getElementById('cursor-' + uid);
                     if (el) el.remove();
@@ -659,21 +658,32 @@
                     el = document.createElement('div');
                     el.id = 'cursor-' + uid;
                     el.style.position = 'absolute'; 
-                    el.style.pointerEvents = 'none'; 
-                    el.style.zIndex = '999999';
-                    el.style.transition = 'left 0.08s linear, top 0.08s linear'; 
+                    el.style.pointerEvents = 'none'; el.style.zIndex = '999999';
+                    el.style.transition = 'transform 0.1s linear, opacity 0.2s'; 
                     el.innerHTML = `
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" style="transform: rotate(-15deg); filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.4));">
                             <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.8c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 00-.85.36z"></path>
                         </svg>
-                        <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -3px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">ผู้ตรวจร่วม</div>
+                        <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -3px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">เพื่อนกำลังตรวจ</div>
                     `;
                     overlay.appendChild(el);
                 }
 
-                // เอาพิกัดจริงมาใส่ได้เลยเพราะเป็น absolute กางเต็มจอแล้ว
-                el.style.left = c.x + 'px';
-                el.style.top = c.y + 'px';
+                // แปลงพิกัดกลับไปเป็นตำแหน่งหน้าจอ
+                let pageX = c.x + tableRect.left + window.scrollX;
+                let pageY = c.y + tableRect.top + window.scrollY;
+
+                // ตรวจสอบว่าเมาส์ออกนอกกล่องตาราง (Scroll Viewport) หรือไม่
+                let screenX = c.x + tableRect.left;
+                let screenY = c.y + tableRect.top;
+
+                if (screenX < containerRect.left || screenX > containerRect.right || 
+                    screenY < containerRect.top || screenY > containerRect.bottom) {
+                    el.style.opacity = '0'; // ซ่อนเมาส์เนียนๆ ถ้าเลื่อนเลยตาราง
+                } else {
+                    el.style.opacity = '1';
+                    el.style.transform = `translate(${pageX}px, ${pageY}px)`;
+                }
             }
         }
 
@@ -743,7 +753,7 @@
                 currentRoomId = roomCode;
                 alert("✅ สร้างห้องสำเร็จ!\nรหัสห้องคือ: " + roomCode + "\n\nบอกรหัสนี้ให้เพื่อน เพื่อเข้าห้องมาช่วยตรวจได้เลยครับ");
                 document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${roomCode} (Online)</span>`;
-                startListening(); initLiveCursor(); // เริ่มระบบเมาส์
+                startListening(); initLiveCursor();
             }).catch(error => {
                 alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
                 document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ระบบมีปัญหา)";
@@ -767,7 +777,7 @@
                     initUIAfterLoad(); renderTable(); saveState();
                     alert("✅ เข้าร่วมห้อง " + code + " สำเร็จ! ข้อมูลซิงค์ตรงกันแล้วครับ");
                     document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${code} (Online)</span>`;
-                    startListening(); initLiveCursor(); // เริ่มระบบเมาส์
+                    startListening(); initLiveCursor();
                 } else {
                     alert("❌ ไม่พบห้องรหัสนี้ กรุณาตรวจสอบให้ตรงกับเพื่อนอีกครั้งครับ");
                     document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ทำงานคนเดียว)";
@@ -1384,7 +1394,6 @@
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
             
-            // ลบการจับเมาส์ของตารางทิ้งไปเลย แก้ปัญหาแท็บเล็ตจอค้าง
             tbody.innerHTML = ""; 
 
             const cols = getSelectedColumns();
@@ -1493,11 +1502,11 @@
                         }
                     }
 
-                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusRingId}">${item["รหัสนักศึกษา"]}</span>`;
-                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingName}">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingSurname}">${item["นามสกุล"]}</span>`;
+                    // --- ระบบป้องกันแท็บเล็ต (ontouchstart) จะสั่งบล็อกตารางทันทีที่นิ้วแตะโดน ---
+                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusRingId}">${item["รหัสนักศึกษา"]}</span>`;
+                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingName}">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingSurname}">${item["นามสกุล"]}</span>`;
                     
-                    // ปรับ Dropdown ให้แจ้งเตือนเพื่อนตอนกดกางด้วย
                     let typeHtml = "";
                     if (item._mergedSources) {
                         let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600";
@@ -1505,7 +1514,7 @@
                     } else {
                         const jobCategories = ["ไม่ได้ระบุ", "ใจอาสา", "ชั่วโมงทุน", "วินัย", "ภาวะผู้นำ", "กตัญญู", "รักชาติ", "แก้ความประพฤติ", "แก้คะแนนรู้วินัย"];
                         let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600";
-                        typeHtml = `<select onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'หมวดหมู่')" onblur="clearFocus()" onclick="event.stopPropagation()" onchange="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.value)" class="text-xs font-bold border rounded-lg px-2.5 py-1 w-full max-w-[130px] outline-none cursor-pointer hover:opacity-80 transition-opacity appearance-none text-center shadow-sm ${catColor}">`;
+                        typeHtml = `<select ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน')" onblur="clearFocus()" onclick="event.stopPropagation()" onchange="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.value)" class="text-xs font-bold border rounded-lg px-2.5 py-1 w-full max-w-[130px] outline-none cursor-pointer hover:opacity-80 transition-opacity appearance-none text-center shadow-sm ${catColor}">`;
                         jobCategories.forEach(cat => {
                             let selected = (item["ประเภทงาน"] === cat) ? "selected" : "";
                             let optionColor = CATEGORY_TEXT_COLORS[cat] || "text-slate-800 dark:text-white";
@@ -1540,7 +1549,7 @@
                          }
                          
                          scoreBadge = `<div class="row-content flex items-center justify-center relative w-max mx-auto mt-1 mb-1">
-                            <span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'คะแนน')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateManualScore('${item.fileName}', ${item.recordIndex}, this.innerText);" class="${inputClass} ${focusRingScore}" title="${tooltipText}">${score}</span>
+                            <span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'คะแนน')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'คะแนน')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateManualScore('${item.fileName}', ${item.recordIndex}, this.innerText);" class="${inputClass} ${focusRingScore}" title="${tooltipText}">${score}</span>
                             ${isBonus ? `<span class="absolute -top-2.5 -right-3 text-[10px] bg-emerald-500 text-white font-black px-1.5 py-0.5 rounded-md shadow-sm border border-emerald-600 z-10 pointer-events-none">+${bonusAmt}</span>` : ''}
                          </div>`;
                     }
