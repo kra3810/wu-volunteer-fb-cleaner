@@ -552,9 +552,13 @@
         // 🚀 FIREBASE REAL-TIME LOGIC (ระบบห้องออนไลน์)
         // ==========================================
         let isEditing = false;
-        let isTableHovered = false;
         let pendingFirebaseUpdate = false;
         let currentRoomId = null;
+
+        // --- ระบบ Visual Co-op (บอกว่าใครกำลังคลิกช่องไหน) ---
+        let myUserId = "USER-" + Math.floor(Math.random() * 1000000);
+        let roomFocusData = {}; 
+        // ---------------------------------------------
 
         // เชื่อมต่อด้วย Config ของคุณ
         firebase.initializeApp({
@@ -584,7 +588,6 @@
             return result;
         }
 
-        // --- ฟังก์ชันซ่อมแซมข้อมูลคะแนนที่แหว่งไป ป้องกัน Error เด็ดขาด ---
         function normalizeFileScores(rawScores) {
             let scores = decodeKeys(rawScores || {});
             for (let file in scores) {
@@ -595,8 +598,24 @@
             return scores;
         }
 
+        // แจ้ง Firebase ว่าเรากำลังคลิกช่องไหนอยู่
+        function setFocus(fileName, recordIndex, field) {
+            isEditing = true;
+            if (currentRoomId) {
+                db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).set({ fileName, recordIndex, field });
+                db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).onDisconnect().remove(); 
+            }
+        }
+
+        // ยกเลิกการแจ้งเตือนเมื่อพิมพ์เสร็จ
+        function clearFocus() {
+            isEditing = false;
+            if (currentRoomId) db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).remove();
+            checkPendingUpdate();
+        }
+
         function checkPendingUpdate() {
-            if (!isEditing && !isTableHovered && pendingFirebaseUpdate) {
+            if (!isEditing && pendingFirebaseUpdate) {
                 renderTable(); pendingFirebaseUpdate = false; 
             }
         }
@@ -644,7 +663,7 @@
                     let data = snapshot.val();
                     
                     allFilesData = decodeAllFilesData(data.allFilesData || {});
-                    fileScores = normalizeFileScores(data.fileScores); // ใช้ตัวซ่อมแซมข้อมูล
+                    fileScores = normalizeFileScores(data.fileScores); 
                     rawThreadsData = decodeKeys(data.rawThreadsData || {});
                     
                     initUIAfterLoad(); renderTable(); saveState();
@@ -667,14 +686,19 @@
             db.ref('rooms/' + currentRoomId + '/allFilesData').on('value', snapshot => {
                 if (snapshot.exists()) {
                     allFilesData = decodeAllFilesData(snapshot.val()); 
-                    if (isEditing || isTableHovered) pendingFirebaseUpdate = true; else renderTable();
+                    if (isEditing) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
             db.ref('rooms/' + currentRoomId + '/fileScores').on('value', snapshot => {
                 if (snapshot.exists()) {
-                    fileScores = normalizeFileScores(snapshot.val()); // ใช้ตัวซ่อมแซมข้อมูล
-                    if (isEditing || isTableHovered) pendingFirebaseUpdate = true; else renderTable();
+                    fileScores = normalizeFileScores(snapshot.val()); 
+                    if (isEditing) pendingFirebaseUpdate = true; else renderTable();
                 }
+            });
+            // ดักจับว่าเพื่อนกำลังคลิกพิมพ์ช่องไหนอยู่
+            db.ref('rooms/' + currentRoomId + '/focus').on('value', snapshot => {
+                roomFocusData = snapshot.val() || {};
+                renderTable(); 
             });
         }
         // ==========================================
@@ -1263,12 +1287,6 @@
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
             
-            // --- เพิ่มระบบจับเมาส์ที่กล่องตาราง ---
-            if (tableContainer) {
-                tableContainer.onmouseenter = () => { isTableHovered = true; };
-                tableContainer.onmouseleave = () => { isTableHovered = false; checkPendingUpdate(); };
-            }
-
             tbody.innerHTML = ""; 
 
             const cols = getSelectedColumns();
@@ -1363,9 +1381,24 @@
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); tr.setAttribute('data-filename', item.fileName); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText); checkPendingUpdate();" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText); checkPendingUpdate();" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText); checkPendingUpdate();" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
+                    // --- เช็คว่าเพื่อนกำลังคลิกช่องไหนอยู่ ---
+                    let focusRingId = "", focusRingName = "", focusRingSurname = "", focusRingScore = "";
+                    for (let uid in roomFocusData) {
+                        if (uid === myUserId) continue; // ข้ามเมาส์ของตัวเอง
+                        let focus = roomFocusData[uid];
+                        if (focus.fileName === item.fileName && focus.recordIndex === item.recordIndex) {
+                            let ringClass = " ring-2 ring-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.8)] z-20 relative bg-pink-50 dark:bg-pink-900/30 transition-all duration-200 ";
+                            if (focus.field === 'รหัสนักศึกษา') focusRingId = ringClass;
+                            if (focus.field === 'ชื่อ') focusRingName = ringClass;
+                            if (focus.field === 'นามสกุล') focusRingSurname = ringClass;
+                            if (focus.field === 'คะแนน') focusRingScore = ringClass;
+                        }
+                    }
+
+                    // ใส่ setFocus และ clearFocus เข้าไปใน input ทุกช่อง
+                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusRingId}">${item["รหัสนักศึกษา"]}</span>`;
+                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingName}">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingSurname}">${item["นามสกุล"]}</span>`;
                     
                     let typeHtml = "";
                     if (item._mergedSources) {
@@ -1409,7 +1442,7 @@
                          }
                          
                          scoreBadge = `<div class="row-content flex items-center justify-center relative w-max mx-auto mt-1 mb-1">
-                            <span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateManualScore('${item.fileName}', ${item.recordIndex}, this.innerText); checkPendingUpdate();" class="${inputClass}" title="${tooltipText}">${score}</span>
+                            <span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'คะแนน')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateManualScore('${item.fileName}', ${item.recordIndex}, this.innerText);" class="${inputClass} ${focusRingScore}" title="${tooltipText}">${score}</span>
                             ${isBonus ? `<span class="absolute -top-2.5 -right-3 text-[10px] bg-emerald-500 text-white font-black px-1.5 py-0.5 rounded-md shadow-sm border border-emerald-600 z-10 pointer-events-none">+${bonusAmt}</span>` : ''}
                          </div>`;
                     }
@@ -1962,7 +1995,14 @@
         function toggleRowFade(fileName, recordIndex, event) {
             event.stopPropagation();
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
-                allFilesData[fileName][recordIndex].isFaded = !allFilesData[fileName][recordIndex].isFaded;
+                let newState = !allFilesData[fileName][recordIndex].isFaded;
+                allFilesData[fileName][recordIndex].isFaded = newState;
+                
+                // แจ้ง Firebase ให้เครื่องเพื่อนซ่อนแถวตามทันที
+                if (currentRoomId) {
+                    db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(fileName)}/${recordIndex}/isFaded`).set(newState);
+                }
+                
                 renderTable(); saveState();
             }
         }
