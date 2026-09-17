@@ -552,14 +552,15 @@
         // 🚀 FIREBASE REAL-TIME LOGIC (ระบบห้องออนไลน์)
         // ==========================================
         let isEditing = false;
+        let isTableHovered = false;
         let pendingFirebaseUpdate = false;
         let currentRoomId = null;
 
-        // เชื่อมต่อด้วย Config ของคุณ (เพิ่ม databaseURL เข้าไปแล้ว)
+        // เชื่อมต่อด้วย Config ของคุณ
         firebase.initializeApp({
             apiKey: "AIzaSyCf9UZgJQDBG42YfK8I6jjpS2cS0Sf0Hwo",
             authDomain: "wu-volunteer-score.firebaseapp.com",
-            databaseURL: "https://wu-volunteer-score-default-rtdb.asia-southeast1.firebasedatabase.app", // 👈 เพิ่มบรรทัดนี้สำคัญมาก!
+            databaseURL: "https://wu-volunteer-score-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "wu-volunteer-score",
             storageBucket: "wu-volunteer-score.firebasestorage.app",
             messagingSenderId: "606122852780",
@@ -567,19 +568,39 @@
         });
         const db = firebase.database();
 
-        // ฟังก์ชันแปลงชื่อไฟล์ (Firebase ห้ามมีจุด .csv ใน Key ฐานข้อมูล)
         function encodeSafe(str) { return str.replace(/\./g, '_DOT_').replace(/\$/g, '_DOL_').replace(/\[/g, '_LB_').replace(/\]/g, '_RB_').replace(/\#/g, '_HS_'); }
         function decodeSafe(str) { return str.replace(/_DOT_/g, '.').replace(/_DOL_/g, '$').replace(/_LB_/g, '[').replace(/_RB_/g, ']').replace(/_HS_/g, '#'); }
         function encodeKeys(obj) { if (typeof obj !== 'object' || obj === null) return obj; if (Array.isArray(obj)) return obj.map(encodeKeys); let newObj = {}; for (let key in obj) { newObj[encodeSafe(key)] = encodeKeys(obj[key]); } return newObj; }
         function decodeKeys(obj) { if (typeof obj !== 'object' || obj === null) return obj; if (Array.isArray(obj)) return obj.map(decodeKeys); let newObj = {}; for (let key in obj) { newObj[decodeSafe(key)] = decodeKeys(obj[key]); } return newObj; }
 
-        // ป้องกันตารางเด้งตอนพิมพ์อยู่
-        function checkPendingUpdate() {
-            isEditing = false;
-            if (pendingFirebaseUpdate) { renderTable(); pendingFirebaseUpdate = false; }
+        function decodeAllFilesData(rawData) {
+            if (!rawData) return {};
+            let result = {};
+            for (let key in rawData) {
+                let decodedKey = decodeSafe(key);
+                let arr = Array.isArray(rawData[key]) ? rawData[key] : Object.values(rawData[key]);
+                result[decodedKey] = arr.map(decodeKeys).sort((a, b) => a.recordIndex - b.recordIndex);
+            }
+            return result;
         }
 
-        // โยนข้อมูลเข้าฐานข้อมูลทั้งหมด
+        // --- ฟังก์ชันซ่อมแซมข้อมูลคะแนนที่แหว่งไป ป้องกัน Error เด็ดขาด ---
+        function normalizeFileScores(rawScores) {
+            let scores = decodeKeys(rawScores || {});
+            for (let file in scores) {
+                if (!scores[file]) scores[file] = { base: 0, custom: {} };
+                if (!scores[file].custom) scores[file].custom = {};
+                if (scores[file].base === undefined) scores[file].base = 0;
+            }
+            return scores;
+        }
+
+        function checkPendingUpdate() {
+            if (!isEditing && !isTableHovered && pendingFirebaseUpdate) {
+                renderTable(); pendingFirebaseUpdate = false; 
+            }
+        }
+
         function syncAllData() {
             if (currentRoomId) {
                 db.ref('rooms/' + currentRoomId + '/allFilesData').set(encodeKeys(allFilesData));
@@ -588,7 +609,6 @@
             }
         }
 
-        // ปุ่มสร้างห้อง (เพิ่มระบบดักจับ Error)
         function createRoom() {
             if (Object.keys(allFilesData).length === 0) return alert("⚠️ อัปโหลดไฟล์ CSV สักไฟล์ก่อนสร้างห้องนะครับ");
             
@@ -606,12 +626,11 @@
                 startListening();
             }).catch(error => {
                 console.error("Firebase Error:", error);
-                alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message + "\n\n(ลองเช็คดูว่าลิงก์ DatabaseURL ถูกต้องหรือไม่)");
+                alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
                 document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ระบบมีปัญหา)";
             });
         }
 
-        // ปุ่มเข้าห้อง (เพิ่มระบบดักจับ Error)
         function joinRoom() {
             let code = prompt("🔑 ใส่รหัสห้องที่ได้จากเพื่อน (เช่น WU-1234):");
             if (!code) return;
@@ -624,8 +643,8 @@
                     currentRoomId = code;
                     let data = snapshot.val();
                     
-                    allFilesData = decodeKeys(data.allFilesData || {});
-                    fileScores = decodeKeys(data.fileScores || {});
+                    allFilesData = decodeAllFilesData(data.allFilesData || {});
+                    fileScores = normalizeFileScores(data.fileScores); // ใช้ตัวซ่อมแซมข้อมูล
                     rawThreadsData = decodeKeys(data.rawThreadsData || {});
                     
                     initUIAfterLoad(); renderTable(); saveState();
@@ -640,22 +659,21 @@
             }).catch(error => {
                 console.error("Firebase Error:", error);
                 alert("❌ เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
-                document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ระบบมีปัญหา)";
+                document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ทำงานคนเดียว)";
             });
         }
 
-        // ดักฟังการอัปเดตแบบเรียลไทม์
         function startListening() {
             db.ref('rooms/' + currentRoomId + '/allFilesData').on('value', snapshot => {
                 if (snapshot.exists()) {
-                    allFilesData = decodeKeys(snapshot.val());
-                    if (isEditing) pendingFirebaseUpdate = true; else renderTable();
+                    allFilesData = decodeAllFilesData(snapshot.val()); 
+                    if (isEditing || isTableHovered) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
             db.ref('rooms/' + currentRoomId + '/fileScores').on('value', snapshot => {
                 if (snapshot.exists()) {
-                    fileScores = decodeKeys(snapshot.val());
-                    if (isEditing) pendingFirebaseUpdate = true; else renderTable();
+                    fileScores = normalizeFileScores(snapshot.val()); // ใช้ตัวซ่อมแซมข้อมูล
+                    if (isEditing || isTableHovered) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
         }
@@ -849,17 +867,30 @@
 
         function switchMode(mode) {
             currentMode = mode; 
+            
+            // 1. ล้างความจำตัวกรองและการค้นหาทั้งหมด ไม่ให้ข้ามไปตีกันในโหมดใหม่
             activeThread = null; 
+            activeCategoryFilters = [];
+            threadPrevCategories = [];
+            threadPrevSearch = "";
+            document.getElementById('searchInput').value = "";
+            
             updateModeUI(); 
             
-            if (mode === 'separate') {
-                const selectedFile = document.getElementById('fileSelectDropdown').value;
-                initScoreSettings(selectedFile);
-            }
-            
-            renderTable(); 
-            resetScroll(); 
-            saveState(); 
+            // 2. ขึ้นหน้าจอโหลด เพื่อไม่ให้เว็บดูค้างตอนกำลังคำนวณข้อมูลเยอะๆ
+            const tbody = document.getElementById('tableBody');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-16 text-center text-indigo-500 dark:text-indigo-400 font-bold text-lg animate-pulse">⏳ กำลังสลับโหมด โปรดรอสักครู่...</td></tr>`;
+
+            // 3. หน่วงเวลาให้หน้าจอโหลดแสดงผลก่อน แล้วค่อยประมวลผลตาราง
+            setTimeout(() => {
+                if (mode === 'separate') {
+                    const selectedFile = document.getElementById('fileSelectDropdown').value;
+                    initScoreSettings(selectedFile);
+                }
+                renderTable(); 
+                resetScroll(); 
+                saveState(); 
+            }, 10);
         }
 
         function getSelectedColumns() {
@@ -878,9 +909,9 @@
             document.getElementById('scoreFileNameDisplay').innerText = shortName;
             document.getElementById('scoreFileNameDisplay').title = fileName;
             
-            if (!fileScores[fileName]) {
-                fileScores[fileName] = { base: 0, custom: {} };
-            }
+            // บังคับสร้างโครงสร้างให้ครบก่อนอ่านค่า
+            if (!fileScores[fileName]) fileScores[fileName] = { base: 0, custom: {} };
+            if (!fileScores[fileName].custom) fileScores[fileName].custom = {};
             
             document.getElementById('baseScoreInput').value = fileScores[fileName].base || '';
             buildCustomScoreInputs(fileName);
@@ -922,8 +953,13 @@
                  return;
             }
 
+            // บังคับสร้างโครงสร้างให้ครบก่อนอ่านค่า ป้องกัน Error เด็ดขาด
+            if (!fileScores[fileName]) fileScores[fileName] = { base: 0, custom: {} };
+            if (!fileScores[fileName].custom) fileScores[fileName].custom = {};
+
             Array.from(categoriesInFile).forEach(cat => {
-                let val = fileScores[fileName]?.custom[cat] !== undefined ? fileScores[fileName].custom[cat] : '';
+                let val = fileScores[fileName].custom[cat] !== undefined ? fileScores[fileName].custom[cat] : '';
+                
                 let html = `
                 <div class="flex flex-col gap-1.5">
                     <label class="text-xs font-bold text-slate-600 dark:text-slate-400 truncate" title="${cat}">${cat}</label>
@@ -935,6 +971,7 @@
 
         function saveCustomScore(fileName, category, value) {
             if (!fileScores[fileName]) fileScores[fileName] = { base: 0, custom: {} };
+            if (!fileScores[fileName].custom) fileScores[fileName].custom = {};
             
             if (value.trim() === '') {
                 delete fileScores[fileName].custom[category];
@@ -951,7 +988,6 @@
             let bonus = 0;
             let threadNo = item["สายสนทนา"];
             
-            // ถ้านักศึกษาคนนี้อยู่ในสายสนทนา (มีเม้นหลัก-เม้นย่อย) ให้อ่านเหมาทุกข้อความในสายนั้น
             if (threadNo && threadNo !== "-" && rawThreadsData[item.fileName] && rawThreadsData[item.fileName][threadNo]) {
                 const fullThreadText = rawThreadsData[item.fileName][threadNo].map(c => c.text).join(" ");
                 const bonusMatch = fullThreadText.match(/(?:ได้เพิ่ม|เพิ่ม|\+)\s*([0-9]+(?:\.[0-9]+)?)\s*(?:คะแนน|แต้ม)?/);
@@ -959,7 +995,6 @@
                     bonus = parseFloat(bonusMatch[1]);
                 }
             } else if (item["คอมเมนต์เต็มต้นฉบับ"]) {
-                // ถ้าไม่มีสายสนทนา ให้อ่านจากข้อความตัวเองปกติ
                 const text = item["คอมเมนต์เต็มต้นฉบับ"];
                 const bonusMatch = text.match(/(?:ได้เพิ่ม|เพิ่ม|\+)\s*([0-9]+(?:\.[0-9]+)?)\s*(?:คะแนน|แต้ม)?/);
                 if (bonusMatch && bonusMatch[1]) {
@@ -975,16 +1010,19 @@
                 return item.manualScore;
             }
 
+            // บังคับตรวจสอบความปลอดภัยของข้อมูล
+            if (!fileScores[item.fileName]) fileScores[item.fileName] = { base: 0, custom: {} };
+            if (!fileScores[item.fileName].custom) fileScores[item.fileName].custom = {};
+
             // 2. คำนวณคะแนนพื้นฐานตามหมวดหมู่
             const fScore = fileScores[item.fileName];
             let base = 0;
-            if (fScore) {
-                let cat = item["ประเภทงาน"];
-                if (fScore.custom && fScore.custom[cat] !== undefined) {
-                    base = fScore.custom[cat];
-                } else {
-                    base = fScore.base || 0;
-                }
+            let cat = item["ประเภทงาน"];
+            
+            if (fScore.custom[cat] !== undefined) {
+                base = fScore.custom[cat];
+            } else {
+                base = fScore.base || 0;
             }
 
             // 3. บวกโบนัสพิเศษ
@@ -1020,9 +1058,10 @@
             if (currentMode === 'separate') {
                 const selectedFile = document.getElementById('fileSelectDropdown').value;
                 const fScore = fileScores[selectedFile];
-                anyFileHasScore = fScore && (fScore.base > 0 || Object.keys(fScore.custom).length > 0);
+                // เพิ่มการเช็ค fScore.custom เพื่อป้องกัน Error
+                anyFileHasScore = fScore && (fScore.base > 0 || (fScore.custom && Object.keys(fScore.custom).length > 0));
             } else {
-                anyFileHasScore = Object.values(fileScores).some(f => f.base > 0 || Object.keys(f.custom).length > 0);
+                anyFileHasScore = Object.values(fileScores).some(f => f.base > 0 || (f.custom && Object.keys(f.custom).length > 0));
             }
 
             // ถ้าเป็นโหมดแยกไฟล์ โชว์ Settings เสมอ, โหมดรวม ซ่อน Settings
@@ -1224,6 +1263,12 @@
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
             
+            // --- เพิ่มระบบจับเมาส์ที่กล่องตาราง ---
+            if (tableContainer) {
+                tableContainer.onmouseenter = () => { isTableHovered = true; };
+                tableContainer.onmouseleave = () => { isTableHovered = false; checkPendingUpdate(); };
+            }
+
             tbody.innerHTML = ""; 
 
             const cols = getSelectedColumns();
@@ -1318,9 +1363,9 @@
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); tr.setAttribute('data-filename', item.fileName); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText); checkPendingUpdate();" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
-                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText); checkPendingUpdate();" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText); checkPendingUpdate();" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
+                    let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText); checkPendingUpdate();" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold">${item["รหัสนักศึกษา"]}</span>`;
+                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText); checkPendingUpdate();" class="editable-cell text-slate-700 dark:text-slate-300">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText); checkPendingUpdate();" class="editable-cell text-slate-700 dark:text-slate-300">${item["นามสกุล"]}</span>`;
                     
                     let typeHtml = "";
                     if (item._mergedSources) {
@@ -1364,7 +1409,7 @@
                          }
                          
                          scoreBadge = `<div class="row-content flex items-center justify-center relative w-max mx-auto mt-1 mb-1">
-                            <span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="updateManualScore('${item.fileName}', ${item.recordIndex}, this.innerText); checkPendingUpdate();" class="${inputClass}" title="${tooltipText}">${score}</span>
+                            <span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="isEditing = true;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="isEditing = false; updateManualScore('${item.fileName}', ${item.recordIndex}, this.innerText); checkPendingUpdate();" class="${inputClass}" title="${tooltipText}">${score}</span>
                             ${isBonus ? `<span class="absolute -top-2.5 -right-3 text-[10px] bg-emerald-500 text-white font-black px-1.5 py-0.5 rounded-md shadow-sm border border-emerald-600 z-10 pointer-events-none">+${bonusAmt}</span>` : ''}
                          </div>`;
                     }
@@ -1923,11 +1968,20 @@
         }
 
         function initUIAfterLoad() {
-            const dropdown = document.getElementById('fileSelectDropdown'); dropdown.innerHTML = "";
+            const dropdown = document.getElementById('fileSelectDropdown'); 
+            const currentVal = dropdown.value; // จำค่าเดิมที่เลือกไว้ก่อนหน้า
+            dropdown.innerHTML = "";
+            
             Object.keys(allFilesData).forEach(fileName => {
                 let opt = document.createElement('option'); opt.value = fileName; opt.innerText = fileName;
                 dropdown.appendChild(opt);
             });
+            
+            // ถ้ามีค่าเดิมที่เลือกไว้ ให้ระบบเลือกไฟล์นั้นกลับมาเหมือนเดิม (กันเมนูเด้งกลับไปไฟล์แรกสุดเวลาข้อมูลอัปเดต)
+            if (currentVal && allFilesData[currentVal]) {
+                dropdown.value = currentVal;
+            }
+
             document.getElementById('initialOnboarding').classList.add('hidden');
             document.getElementById('mainWorkspace').classList.remove('hidden');
             updateModeUI(); 
@@ -1959,10 +2013,24 @@
         }
 
         function switchFile() { 
-            const selectedFile = document.getElementById('fileSelectDropdown').value;
-            initScoreSettings(selectedFile);
-            renderTable(); 
-            resetScroll(); 
+            // 1. ล้างความจำตัวกรองและการค้นหา ไม่ให้เอาตัวกรองเก่ามาใช้กับไฟล์ใหม่
+            activeThread = null; 
+            activeCategoryFilters = [];
+            threadPrevCategories = [];
+            threadPrevSearch = "";
+            document.getElementById('searchInput').value = "";
+            
+            // 2. ขึ้นหน้าจอโหลด
+            const tbody = document.getElementById('tableBody');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-16 text-center text-indigo-500 dark:text-indigo-400 font-bold text-lg animate-pulse">⏳ กำลังโหลดข้อมูลใบงาน...</td></tr>`;
+
+            // 3. หน่วงเวลาดึงข้อมูล
+            setTimeout(() => {
+                const selectedFile = document.getElementById('fileSelectDropdown').value;
+                initScoreSettings(selectedFile);
+                renderTable(); 
+                resetScroll(); 
+            }, 10);
         }
 
         function handleFiles(event) {
