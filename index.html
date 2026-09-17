@@ -573,26 +573,45 @@
         });
         const db = firebase.database();
 
-        // 🎯 1. ระบบดักจับเมาส์ (อัปเกรดให้ทำงานตอนเลื่อนหน้าจอด้วย)
+        // 🎯 1. ระบบดักจับเมาส์แบบใหม่ (เกาะติดรายบุคคล ทะลุฟิลเตอร์)
         let lastClientX = -1000;
         let lastClientY = -1000;
         let isMouseInside = false;
 
-        function sendCursorData() {
+        function sendCursorData(e) {
             if (!currentRoomId || !isMouseInside) return;
-            const table = document.querySelector('table');
-            if(!table) return;
-            const rect = table.getBoundingClientRect(); 
             
-            // คำนวณพิกัดสัมพัทธ์กับตาราง
-            let relX = lastClientX - rect.left;
-            let relY = lastClientY - rect.top;
+            // หาว่าเมาส์/นิ้ว กำลังชี้อยู่ที่นักศึกษาคนไหน
+            let target = e ? e.target : null;
+            if (e && e.type === 'touchmove' && e.touches && e.touches.length > 0) {
+                target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+            }
+            
+            let anchorData = null;
+            if (target) {
+                let row = target.closest('.data-row'); // หากล่องตารางของคนนั้น
+                if (row) {
+                    let rect = row.getBoundingClientRect();
+                    anchorData = {
+                        f: row.getAttribute('data-filename'),
+                        i: row.getAttribute('data-recordindex'), // เกาะติดด้วย Record Index
+                        x: lastClientX - rect.left,
+                        y: lastClientY - rect.top
+                    };
+                }
+            }
 
             const currentFile = document.getElementById('fileSelectDropdown').value;
+            const currentFilter = activeCategoryFilters.join(',');
+            const currentSearch = document.getElementById('searchInput').value;
             
             db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
-                x: relX, y: relY, color: myCursorColor, mode: currentMode, 
-                file: currentMode === 'separate' ? currentFile : 'all'
+                anchor: anchorData,
+                color: myCursorColor, 
+                mode: currentMode, 
+                file: currentMode === 'separate' ? currentFile : 'all',
+                filter: currentFilter,
+                search: currentSearch
             });
             db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
         }
@@ -624,11 +643,10 @@
                 const now = Date.now();
                 if (now - lastMouseUpdate > 50) { 
                     lastMouseUpdate = now;
-                    sendCursorData();
+                    sendCursorData(e);
                 }
             }
 
-            // ดักจับการขยับเมาส์ และ นิ้วสัมผัส
             document.addEventListener('mousemove', handleCursorMove);
             document.addEventListener('touchmove', handleCursorMove, {passive: true});
             document.addEventListener('mouseleave', () => { 
@@ -636,30 +654,20 @@
                 if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove(); 
             });
 
-            // 🌟 พระเอกของงานนี้: ดักจับตอนไถหน้าจอ (Scroll) ด้วย!
-            document.addEventListener('scroll', (e) => {
-                if (!currentRoomId || !isMouseInside) return;
-                const now = Date.now();
-                if (now - lastMouseUpdate > 30) { // ตอบสนองให้ไวขึ้นตอนเลื่อนจอ
-                    lastMouseUpdate = now;
-                    sendCursorData();
-                }
-            }, true); // ใช้ true เพื่อดักจับ scroll ทะลุทุกกล่องในหน้าเว็บ
-
             requestAnimationFrame(renderCursors);
         }
 
-        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (เนียนตาขึ้น)
+        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (ล็อคเป้าหมาย เกาะติดหน้าจอ 60fps)
         function renderCursors() {
             requestAnimationFrame(renderCursors);
             let overlay = document.getElementById('cursor-overlay');
-            const table = document.querySelector('table');
             const container = document.querySelector('.table-container');
-            if (!overlay || !table || !container) return;
+            if (!overlay || !container) return;
 
-            const tableRect = table.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
             const currentFile = document.getElementById('fileSelectDropdown').value;
+            const currentFilter = activeCategoryFilters.join(',');
+            const currentSearch = document.getElementById('searchInput').value;
             const activeUsers = Object.keys(roomCursorData);
 
             Array.from(overlay.children).forEach(child => {
@@ -671,19 +679,20 @@
                 if (uid === myUserId) continue; 
                 let c = roomCursorData[uid];
                 
-                if (c.mode !== currentMode || (currentMode === 'separate' && c.file !== currentFile)) {
-                    let el = document.getElementById('cursor-' + uid);
-                    if (el) el.remove();
+                let el = document.getElementById('cursor-' + uid);
+                
+                // ถือคติ: ไม่ใช่โหมดเดียวกัน, ไฟล์ไม่ตรง, ฟิลเตอร์ไม่ตรง = ซ่อนเมาส์ไปเลย
+                if (c.mode !== currentMode || (currentMode === 'separate' && c.file !== currentFile) || c.filter !== currentFilter || c.search !== currentSearch) {
+                    if (el) el.style.opacity = '0';
                     continue;
                 }
 
-                let el = document.getElementById('cursor-' + uid);
                 if (!el) {
                     el = document.createElement('div');
                     el.id = 'cursor-' + uid;
                     el.style.position = 'absolute'; 
                     el.style.pointerEvents = 'none'; el.style.zIndex = '999999';
-                    el.style.transition = 'transform 0.08s linear, opacity 0.15s ease'; // ปรับให้นุ่มตาขึ้น
+                    el.style.transition = 'transform 0.08s linear, opacity 0.15s ease'; 
                     el.innerHTML = `
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" style="transform: rotate(-15deg); filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.4));">
                             <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.8c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 00-.85.36z"></path>
@@ -693,20 +702,34 @@
                     overlay.appendChild(el);
                 }
 
-                // พิกัดสำหรับวาดบนหน้าจอ
-                let pageX = c.x + tableRect.left + window.scrollX;
-                let pageY = c.y + tableRect.top + window.scrollY;
+                let screenX = -1000, screenY = -1000;
+                let isVisible = false;
 
-                // พิกัดสำหรับเช็คว่าหลุดกรอบตารางไหม
-                let screenX = c.x + tableRect.left;
-                let screenY = c.y + tableRect.top;
+                // ตรวจสอบว่าเพื่อนกำลังชี้ไปที่แถวไหน แล้วคำนวณตำแหน่งเมาส์เกาะติดแถวนั้นเป๊ะๆ
+                if (c.anchor && c.anchor.f && c.anchor.i !== null) {
+                    let row = document.querySelector(`tr[data-filename="${c.anchor.f}"][data-recordindex="${c.anchor.i}"]`);
+                    if (row) {
+                        let rect = row.getBoundingClientRect();
+                        screenX = rect.left + c.anchor.x;
+                        screenY = rect.top + c.anchor.y;
+                        isVisible = true;
+                    }
+                }
 
-                if (screenX < containerRect.left || screenX > containerRect.right || 
-                    screenY < containerRect.top || screenY > containerRect.bottom) {
-                    el.style.opacity = '0'; // ซ่อนเมาส์ถ้าเพื่อนไถจอหนี
+                if (isVisible) {
+                    let pageX = screenX + window.scrollX;
+                    let pageY = screenY + window.scrollY;
+
+                    // ซ่อนเมาส์ถ้าเพื่อนไถตารางหนีหลุดขอบจอ
+                    if (screenX < containerRect.left || screenX > containerRect.right || 
+                        screenY < containerRect.top || screenY > containerRect.bottom) {
+                        el.style.opacity = '0'; 
+                    } else {
+                        el.style.opacity = '1';
+                        el.style.transform = `translate(${pageX}px, ${pageY}px)`;
+                    }
                 } else {
-                    el.style.opacity = '1';
-                    el.style.transform = `translate(${pageX}px, ${pageY}px)`;
+                    el.style.opacity = '0'; // ซ่อนเมาส์ถ้าไม่ได้ชี้ในตาราง
                 }
             }
         }
@@ -1418,6 +1441,11 @@
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
             
+            if (tableContainer) {
+                tableContainer.onmouseenter = () => { isTableHovered = true; };
+                tableContainer.onmouseleave = () => { isTableHovered = false; checkPendingUpdate(); };
+            }
+
             tbody.innerHTML = ""; 
 
             const cols = getSelectedColumns();
@@ -1509,10 +1537,11 @@
                     const fadeClass = item.isFaded ? (item.isDuplicateInstance ? " duplicate-faded" : " row-faded") : "";
 
                     tr.className = `data-row ${fadeClass} ${duplicateBg} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
-                    tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); tr.setAttribute('data-filename', item.fileName); 
+                    tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); 
+                    tr.setAttribute('data-filename', item.fileName); 
+                    tr.setAttribute('data-recordindex', item.recordIndex); // 👈 เพิ่มรหัสเป้าหมายให้เมาส์วิ่งมาเกาะ
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    // --- เช็คโฟกัสว่าเพื่อนคลิกช่องไหนอยู่ ---
                     let focusRingId = "", focusRingName = "", focusRingSurname = "", focusRingScore = "";
                     for (let uid in roomFocusData) {
                         if (uid === myUserId) continue;
@@ -1526,7 +1555,6 @@
                         }
                     }
 
-                    // --- ระบบป้องกันแท็บเล็ต (ontouchstart) จะสั่งบล็อกตารางทันทีที่นิ้วแตะโดน ---
                     let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusRingId}">${item["รหัสนักศึกษา"]}</span>`;
                     let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingName}">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingSurname}">${item["นามสกุล"]}</span>`;
