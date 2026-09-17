@@ -552,14 +552,15 @@
         // 🚀 FIREBASE REAL-TIME LOGIC (ระบบห้องออนไลน์)
         // ==========================================
         let isEditing = false;
+        let isTableHovered = false;
         let pendingFirebaseUpdate = false;
         let currentRoomId = null;
 
-        // --- ระบบ Visual Co-op (บอกว่าใครกำลังคลิกช่องไหน) ---
+        // --- ระบบ Visual Co-op (บอกว่าใครกำลังคลิกช่องไหน และระบบ Live Cursor) ---
         let myUserId = "USER-" + Math.floor(Math.random() * 1000000);
+        let myCursorColor = "hsl(" + Math.floor(Math.random() * 360) + ", 80%, 45%)"; // สุ่มสีประจำตัวให้แต่ละเครื่อง
         let roomFocusData = {}; 
-        // ---------------------------------------------
-
+        
         // เชื่อมต่อด้วย Config ของคุณ
         firebase.initializeApp({
             apiKey: "AIzaSyCf9UZgJQDBG42YfK8I6jjpS2cS0Sf0Hwo",
@@ -571,6 +572,64 @@
             appId: "1:606122852780:web:4708fc48cfe66d8832fa09"
         });
         const db = firebase.database();
+
+        // 🎯 ดักจับตำแหน่งเมาส์ของเราส่งไปให้เพื่อน (หน่วงเวลาเพื่อป้องกันเว็บค้างและเซฟโควต้าเน็ต)
+        let lastMouseUpdate = 0;
+        document.addEventListener('mousemove', (e) => {
+            if (!currentRoomId) return;
+            const now = Date.now();
+            if (now - lastMouseUpdate > 100) { // อัปเดตทุกๆ 100 มิลลิวินาที (10fps)
+                lastMouseUpdate = now;
+                db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
+                    x: e.pageX,
+                    y: e.pageY,
+                    color: myCursorColor
+                });
+                db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
+            }
+        });
+
+        // 🎯 ฟังก์ชันวาดรูปเมาส์ของเพื่อนลงบนจอ
+        function updateCursorsOnScreen(cursors) {
+            let overlay = document.getElementById('cursor-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'cursor-overlay';
+                overlay.style.position = 'absolute'; overlay.style.top = '0'; overlay.style.left = '0';
+                overlay.style.width = '100%'; overlay.style.height = '100%';
+                overlay.style.pointerEvents = 'none'; overlay.style.zIndex = '99999';
+                overlay.style.overflow = 'hidden';
+                document.body.appendChild(overlay);
+            }
+
+            const activeUsers = Object.keys(cursors);
+            Array.from(overlay.children).forEach(child => {
+                if (!activeUsers.includes(child.id.replace('cursor-', ''))) overlay.removeChild(child);
+            });
+
+            for (let uid in cursors) {
+                if (uid === myUserId) continue; // ไม่ต้องวาดเมาส์ตัวเองซ้ำ
+                let c = cursors[uid];
+                let el = document.getElementById('cursor-' + uid);
+                
+                if (!el) {
+                    el = document.createElement('div');
+                    el.id = 'cursor-' + uid;
+                    el.style.position = 'absolute';
+                    el.style.transition = 'transform 0.15s linear'; // ทำให้เมาส์เลื่อนสมูท ไม่กระตุก
+                    
+                    el.innerHTML = `
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" style="transform: rotate(-15deg); filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.5));">
+                            <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.8c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 00-.85.36z"></path>
+                        </svg>
+                        <div style="background-color: ${c.color}; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 6px; margin-top: -2px; margin-left: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">ผู้ตรวจร่วม</div>
+                    `;
+                    overlay.appendChild(el);
+                }
+                el.style.transform = `translate(${c.x}px, ${c.y}px)`;
+            }
+        }
+        // -------------------------------------------------------------
 
         function encodeSafe(str) { return str.replace(/\./g, '_DOT_').replace(/\$/g, '_DOL_').replace(/\[/g, '_LB_').replace(/\]/g, '_RB_').replace(/\#/g, '_HS_'); }
         function decodeSafe(str) { return str.replace(/_DOT_/g, '.').replace(/_DOL_/g, '$').replace(/_LB_/g, '[').replace(/_RB_/g, ']').replace(/_HS_/g, '#'); }
@@ -598,7 +657,6 @@
             return scores;
         }
 
-        // แจ้ง Firebase ว่าเรากำลังคลิกช่องไหนอยู่
         function setFocus(fileName, recordIndex, field) {
             isEditing = true;
             if (currentRoomId) {
@@ -607,7 +665,6 @@
             }
         }
 
-        // ยกเลิกการแจ้งเตือนเมื่อพิมพ์เสร็จ
         function clearFocus() {
             isEditing = false;
             if (currentRoomId) db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).remove();
@@ -615,7 +672,7 @@
         }
 
         function checkPendingUpdate() {
-            if (!isEditing && pendingFirebaseUpdate) {
+            if (!isEditing && !isTableHovered && pendingFirebaseUpdate) {
                 renderTable(); pendingFirebaseUpdate = false; 
             }
         }
@@ -686,19 +743,22 @@
             db.ref('rooms/' + currentRoomId + '/allFilesData').on('value', snapshot => {
                 if (snapshot.exists()) {
                     allFilesData = decodeAllFilesData(snapshot.val()); 
-                    if (isEditing) pendingFirebaseUpdate = true; else renderTable();
+                    if (isEditing || isTableHovered) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
             db.ref('rooms/' + currentRoomId + '/fileScores').on('value', snapshot => {
                 if (snapshot.exists()) {
                     fileScores = normalizeFileScores(snapshot.val()); 
-                    if (isEditing) pendingFirebaseUpdate = true; else renderTable();
+                    if (isEditing || isTableHovered) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
-            // ดักจับว่าเพื่อนกำลังคลิกพิมพ์ช่องไหนอยู่
             db.ref('rooms/' + currentRoomId + '/focus').on('value', snapshot => {
                 roomFocusData = snapshot.val() || {};
                 renderTable(); 
+            });
+            // รับค่าตำแหน่งเมาส์ของเพื่อนมาอัปเดตบนหน้าจอ
+            db.ref('rooms/' + currentRoomId + '/cursors').on('value', snapshot => {
+                updateCursorsOnScreen(snapshot.val() || {});
             });
         }
         // ==========================================
@@ -1287,6 +1347,11 @@
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
             
+            if (tableContainer) {
+                tableContainer.onmouseenter = () => { isTableHovered = true; };
+                tableContainer.onmouseleave = () => { isTableHovered = false; checkPendingUpdate(); };
+            }
+
             tbody.innerHTML = ""; 
 
             const cols = getSelectedColumns();
@@ -1381,13 +1446,13 @@
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); tr.setAttribute('data-filename', item.fileName); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    // --- เช็คว่าเพื่อนกำลังคลิกช่องไหนอยู่ ---
+                    // --- เช็คว่าเพื่อนกำลังคลิกช่องไหนอยู่ (อัปเกรดให้เด้งและสีกระแทกตา) ---
                     let focusRingId = "", focusRingName = "", focusRingSurname = "", focusRingScore = "";
                     for (let uid in roomFocusData) {
                         if (uid === myUserId) continue; // ข้ามเมาส์ของตัวเอง
                         let focus = roomFocusData[uid];
                         if (focus.fileName === item.fileName && focus.recordIndex === item.recordIndex) {
-                            let ringClass = " ring-2 ring-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.8)] z-20 relative bg-pink-50 dark:bg-pink-900/30 transition-all duration-200 ";
+                            let ringClass = " ring-4 ring-fuchsia-500 bg-fuchsia-100 text-fuchsia-900 dark:bg-fuchsia-900/80 dark:text-fuchsia-100 shadow-[0_0_15px_rgba(217,70,239,0.6)] scale-125 z-30 relative transition-all font-black ";
                             if (focus.field === 'รหัสนักศึกษา') focusRingId = ringClass;
                             if (focus.field === 'ชื่อ') focusRingName = ringClass;
                             if (focus.field === 'นามสกุล') focusRingSurname = ringClass;
@@ -1395,7 +1460,6 @@
                         }
                     }
 
-                    // ใส่ setFocus และ clearFocus เข้าไปใน input ทุกช่อง
                     let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusRingId}">${item["รหัสนักศึกษา"]}</span>`;
                     let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingName}">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingSurname}">${item["นามสกุล"]}</span>`;
