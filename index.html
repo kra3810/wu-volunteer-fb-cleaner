@@ -673,7 +673,7 @@
             requestAnimationFrame(renderCursors);
         }
 
-        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน
+        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อน (อัปเกรดปรับศูนย์เล็งปลายลูกศรให้แม่นยำระดับพิกเซล)
         function renderCursors() {
             requestAnimationFrame(renderCursors);
             let overlay = document.getElementById('cursor-overlay');
@@ -708,11 +708,15 @@
                     el.style.position = 'absolute'; 
                     el.style.pointerEvents = 'none'; el.style.zIndex = '999999';
                     el.style.transition = 'transform 0.08s linear, opacity 0.15s ease'; 
+                    
+                    // 🌟 ชดเชยพิกัดปลายลูกศรด้วย translate(-4px, -4px) ให้ปลายแหลมแทงตรงพิกัด 0,0 พอดีเป๊ะ
                     el.innerHTML = `
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" style="transform: rotate(-15deg); filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.4));">
-                            <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.8c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 00-.85.36z"></path>
-                        </svg>
-                        <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -3px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">ผู้ตรวจร่วม</div>
+                        <div style="position: relative; transform: translate(-4px, -4px);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" stroke-linejoin="round" style="filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.4));">
+                                <path d="M4 4l5.5 15.5 2.5-6.5 6.5-2.5L4 4z"></path>
+                            </svg>
+                            <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -5px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); width: max-content;">เพื่อนกำลังช่วยตรวจ</div>
+                        </div>
                     `;
                     overlay.appendChild(el);
                 }
