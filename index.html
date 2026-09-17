@@ -556,12 +556,13 @@
         let pendingFirebaseUpdate = false;
         let currentRoomId = null;
 
-        // --- ระบบ Visual Co-op (บอกว่าใครกำลังคลิกช่องไหน และระบบ Live Cursor) ---
+        // --- ระบบ Visual Co-op (Live Cursor & Cell Focus) ---
         let myUserId = "USER-" + Math.floor(Math.random() * 1000000);
-        let myCursorColor = "hsl(" + Math.floor(Math.random() * 360) + ", 80%, 45%)"; // สุ่มสีประจำตัวให้แต่ละเครื่อง
+        let myCursorColor = "hsl(" + Math.floor(Math.random() * 360) + ", 80%, 45%)"; 
         let roomFocusData = {}; 
-        
-        // เชื่อมต่อด้วย Config ของคุณ
+        let roomCursorData = {}; // เก็บข้อมูลตำแหน่งเมาส์ของทุกคน
+        // --------------------------------------------------
+
         firebase.initializeApp({
             apiKey: "AIzaSyCf9UZgJQDBG42YfK8I6jjpS2cS0Sf0Hwo",
             authDomain: "wu-volunteer-score.firebaseapp.com",
@@ -573,69 +574,110 @@
         });
         const db = firebase.database();
 
-        // 🎯 ดักจับตำแหน่งเมาส์ของเราส่งไปให้เพื่อน (หน่วงเวลาเพื่อป้องกันเว็บค้างและเซฟโควต้าเน็ต)
-        let lastMouseUpdate = 0;
-        document.addEventListener('mousemove', (e) => {
-            if (!currentRoomId) return;
-            const now = Date.now();
-            if (now - lastMouseUpdate > 100) { // อัปเดตทุกๆ 100 มิลลิวินาที (10fps)
-                lastMouseUpdate = now;
-                db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
-                    x: e.pageX,
-                    y: e.pageY,
-                    color: myCursorColor
-                });
-                db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
-            }
-        });
+        // 🎯 1. ระบบติดเครื่องตามเมาส์ (ดักจับเฉพาะในตาราง)
+        function initLiveCursor() {
+            const tableContainer = document.querySelector('.table-container');
+            if (!tableContainer) return;
 
-        // 🎯 ฟังก์ชันวาดรูปเมาส์ของเพื่อนลงบนจอ
-        function updateCursorsOnScreen(cursors) {
+            // สร้างกระดานวาดเมาส์เพื่อนครอบทับหน้าจอ
             let overlay = document.getElementById('cursor-overlay');
             if (!overlay) {
                 overlay = document.createElement('div');
                 overlay.id = 'cursor-overlay';
-                overlay.style.position = 'absolute'; overlay.style.top = '0'; overlay.style.left = '0';
-                overlay.style.width = '100%'; overlay.style.height = '100%';
-                overlay.style.pointerEvents = 'none'; overlay.style.zIndex = '99999';
-                overlay.style.overflow = 'hidden';
                 document.body.appendChild(overlay);
             }
 
-            const activeUsers = Object.keys(cursors);
-            Array.from(overlay.children).forEach(child => {
-                if (!activeUsers.includes(child.id.replace('cursor-', ''))) overlay.removeChild(child);
+            let lastMouseUpdate = 0;
+            tableContainer.addEventListener('mousemove', (e) => {
+                if (!currentRoomId) return;
+                const now = Date.now();
+                if (now - lastMouseUpdate > 80) { // ส่งข้อมูลเมาส์แบบหน่วงเวลาเพื่อไม่ให้เว็บค้าง
+                    lastMouseUpdate = now;
+                    // คำนวณพิกัดให้เกาะติดกับ "เนื้อหาในตาราง"
+                    const rect = tableContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left + tableContainer.scrollLeft;
+                    const y = e.clientY - rect.top + tableContainer.scrollTop;
+                    const currentFile = document.getElementById('fileSelectDropdown').value;
+                    
+                    db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
+                        x: x, y: y, color: myCursorColor, mode: currentMode, 
+                        file: currentMode === 'separate' ? currentFile : 'all'
+                    });
+                    db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
+                }
             });
 
-            for (let uid in cursors) {
-                if (uid === myUserId) continue; // ไม่ต้องวาดเมาส์ตัวเองซ้ำ
-                let c = cursors[uid];
-                let el = document.getElementById('cursor-' + uid);
+            tableContainer.addEventListener('mouseleave', () => {
+                if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove();
+            });
+
+            // เริ่มการวาดเมาส์ 60 เฟรมต่อวินาที
+            requestAnimationFrame(renderCursors);
+        }
+
+        // 🎯 2. ฟังก์ชันวาดเมาส์เพื่อนบนจอของเรา
+        function renderCursors() {
+            requestAnimationFrame(renderCursors);
+            const tableContainer = document.querySelector('.table-container');
+            let overlay = document.getElementById('cursor-overlay');
+            if (!tableContainer || !overlay) return;
+
+            const rect = tableContainer.getBoundingClientRect();
+            const currentFile = document.getElementById('fileSelectDropdown').value;
+            const activeUsers = Object.keys(roomCursorData);
+
+            // ลบเมาส์คนที่ออกไปแล้ว
+            Array.from(overlay.children).forEach(child => {
+                const uid = child.id.replace('cursor-', '');
+                if (!activeUsers.includes(uid)) overlay.removeChild(child);
+            });
+
+            for (let uid in roomCursorData) {
+                if (uid === myUserId) continue; // ซ่อนเมาส์ตัวเอง
+                let c = roomCursorData[uid];
                 
+                // ถือคติ: ไม่ใช่โหมดเดียวกัน หรือไม่ได้อยู่ไฟล์เดียวกัน = ไม่วาดเมาส์
+                if (c.mode !== currentMode || (currentMode === 'separate' && c.file !== currentFile)) {
+                    let el = document.getElementById('cursor-' + uid);
+                    if (el) el.remove();
+                    continue;
+                }
+
+                let el = document.getElementById('cursor-' + uid);
                 if (!el) {
                     el = document.createElement('div');
                     el.id = 'cursor-' + uid;
-                    el.style.position = 'absolute';
-                    el.style.transition = 'transform 0.15s linear'; // ทำให้เมาส์เลื่อนสมูท ไม่กระตุก
-                    
+                    el.style.position = 'fixed'; // ให้ลอยอยู่บนจอ
+                    el.style.pointerEvents = 'none'; el.style.zIndex = '99999';
+                    el.style.transition = 'transform 0.1s linear, opacity 0.2s';
                     el.innerHTML = `
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" style="transform: rotate(-15deg); filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.5));">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="${c.color}" stroke="white" stroke-width="2" style="transform: rotate(-15deg); filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.4));">
                             <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.8c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 00-.85.36z"></path>
                         </svg>
-                        <div style="background-color: ${c.color}; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 6px; margin-top: -2px; margin-left: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">ผู้ตรวจร่วม</div>
+                        <div style="background-color: ${c.color}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: -3px; margin-left: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap;">เพื่อนกำลังช่วยตรวจ</div>
                     `;
                     overlay.appendChild(el);
                 }
-                el.style.transform = `translate(${c.x}px, ${c.y}px)`;
+
+                // คำนวณพิกัดให้ตรงกับจุดที่เพื่อนจิ้มจริงๆ แม้เราจะเลื่อนจอก็ตาม
+                let screenX = c.x - tableContainer.scrollLeft + rect.left;
+                let screenY = c.y - tableContainer.scrollTop + rect.top;
+
+                // ซ่อนเมาส์เพื่อน ถ้าเพื่อนจิ้มเลยขอบตารางที่เรามองเห็น
+                if (screenY < rect.top || screenY > rect.bottom || screenX < rect.left || screenX > rect.right) {
+                    el.style.opacity = '0'; 
+                } else {
+                    el.style.opacity = '1';
+                    el.style.transform = `translate(${screenX}px, ${screenY}px)`;
+                }
             }
         }
-        // -------------------------------------------------------------
 
+        // --- Utils Firebase ---
         function encodeSafe(str) { return str.replace(/\./g, '_DOT_').replace(/\$/g, '_DOL_').replace(/\[/g, '_LB_').replace(/\]/g, '_RB_').replace(/\#/g, '_HS_'); }
         function decodeSafe(str) { return str.replace(/_DOT_/g, '.').replace(/_DOL_/g, '$').replace(/_LB_/g, '[').replace(/_RB_/g, ']').replace(/_HS_/g, '#'); }
         function encodeKeys(obj) { if (typeof obj !== 'object' || obj === null) return obj; if (Array.isArray(obj)) return obj.map(encodeKeys); let newObj = {}; for (let key in obj) { newObj[encodeSafe(key)] = encodeKeys(obj[key]); } return newObj; }
         function decodeKeys(obj) { if (typeof obj !== 'object' || obj === null) return obj; if (Array.isArray(obj)) return obj.map(decodeKeys); let newObj = {}; for (let key in obj) { newObj[decodeSafe(key)] = decodeKeys(obj[key]); } return newObj; }
-
         function decodeAllFilesData(rawData) {
             if (!rawData) return {};
             let result = {};
@@ -646,7 +688,6 @@
             }
             return result;
         }
-
         function normalizeFileScores(rawScores) {
             let scores = decodeKeys(rawScores || {});
             for (let file in scores) {
@@ -700,8 +741,8 @@
                 alert("✅ สร้างห้องสำเร็จ!\nรหัสห้องคือ: " + roomCode + "\n\nบอกรหัสนี้ให้เพื่อน เพื่อเข้าห้องมาช่วยตรวจได้เลยครับ");
                 document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${roomCode} (Online)</span>`;
                 startListening();
+                initLiveCursor(); // เริ่มระบบเมาส์
             }).catch(error => {
-                console.error("Firebase Error:", error);
                 alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
                 document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ระบบมีปัญหา)";
             });
@@ -728,12 +769,12 @@
                     alert("✅ เข้าร่วมห้อง " + code + " สำเร็จ! ข้อมูลซิงค์ตรงกันแล้วครับ");
                     document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${code} (Online)</span>`;
                     startListening();
+                    initLiveCursor(); // เริ่มระบบเมาส์
                 } else {
                     alert("❌ ไม่พบห้องรหัสนี้ กรุณาตรวจสอบให้ตรงกับเพื่อนอีกครั้งครับ");
                     document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ทำงานคนเดียว)";
                 }
             }).catch(error => {
-                console.error("Firebase Error:", error);
                 alert("❌ เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
                 document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ทำงานคนเดียว)";
             });
@@ -752,13 +793,16 @@
                     if (isEditing || isTableHovered) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
+            
+            // ดักฟังว่าเพื่อนกำลังคลิกช่องไหน (Focus)
             db.ref('rooms/' + currentRoomId + '/focus').on('value', snapshot => {
                 roomFocusData = snapshot.val() || {};
                 renderTable(); 
             });
-            // รับค่าตำแหน่งเมาส์ของเพื่อนมาอัปเดตบนหน้าจอ
+            
+            // ดักฟังตำแหน่งเมาส์ของเพื่อน (Cursor)
             db.ref('rooms/' + currentRoomId + '/cursors').on('value', snapshot => {
-                updateCursorsOnScreen(snapshot.val() || {});
+                roomCursorData = snapshot.val() || {};
             });
         }
         // ==========================================
@@ -1446,13 +1490,16 @@
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); tr.setAttribute('data-filename', item.fileName); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    // --- เช็คว่าเพื่อนกำลังคลิกช่องไหนอยู่ (อัปเกรดให้เด้งและสีกระแทกตา) ---
+                    // --- เช็คว่าเพื่อนกำลังคลิกช่องไหนอยู่ ---
                     let focusRingId = "", focusRingName = "", focusRingSurname = "", focusRingScore = "";
                     for (let uid in roomFocusData) {
-                        if (uid === myUserId) continue; // ข้ามเมาส์ของตัวเอง
+                        if (uid === myUserId) continue; // ข้ามของตัวเอง
                         let focus = roomFocusData[uid];
-                        if (focus.fileName === item.fileName && focus.recordIndex === item.recordIndex) {
-                            let ringClass = " ring-4 ring-fuchsia-500 bg-fuchsia-100 text-fuchsia-900 dark:bg-fuchsia-900/80 dark:text-fuchsia-100 shadow-[0_0_15px_rgba(217,70,239,0.6)] scale-125 z-30 relative transition-all font-black ";
+                        
+                        // ใช้ String() ครอบเพื่อป้องกันบั๊กข้อมูลคนละชนิด (ตัวเลขกับข้อความ)
+                        if (String(focus.fileName) === String(item.fileName) && String(focus.recordIndex) === String(item.recordIndex)) {
+                            // ทำกรอบขยายใหญ่สีบานเย็นสุดเด่น
+                            let ringClass = " ring-4 ring-fuchsia-500 bg-fuchsia-100 text-fuchsia-900 dark:bg-fuchsia-900/80 dark:text-fuchsia-100 shadow-[0_0_15px_rgba(217,70,239,0.8)] scale-[1.15] z-[60] relative transition-all font-black rounded px-1 ";
                             if (focus.field === 'รหัสนักศึกษา') focusRingId = ringClass;
                             if (focus.field === 'ชื่อ') focusRingName = ringClass;
                             if (focus.field === 'นามสกุล') focusRingSurname = ringClass;
@@ -1460,6 +1507,7 @@
                         }
                     }
 
+                    // สังเกตว่าเรานำ focusRing... ไปใส่ใน class แล้ว
                     let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusRingId}">${item["รหัสนักศึกษา"]}</span>`;
                     let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingName}">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusRingSurname}">${item["นามสกุล"]}</span>`;
@@ -1496,13 +1544,13 @@
                          let tooltipText = 'คลิกเพื่อพิมพ์แก้คะแนน';
                          
                          if (hasManual) {
-                             inputClass += 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700 border';
+                             inputClass += 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700 border ';
                              tooltipText = 'แก้ไขด้วยมือ (ลบค่าทิ้งเพื่อใช้ระบบอัตโนมัติ)';
                          } else if (isBonus) {
-                             inputClass += 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-500 border-2 shadow-sm';
+                             inputClass += 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-500 border-2 shadow-sm ';
                              tooltipText = `ได้โบนัส +${bonusAmt}`;
                          } else {
-                             inputClass += 'text-indigo-700 dark:text-indigo-400';
+                             inputClass += 'text-indigo-700 dark:text-indigo-400 ';
                          }
                          
                          scoreBadge = `<div class="row-content flex items-center justify-center relative w-max mx-auto mt-1 mb-1">
