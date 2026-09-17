@@ -344,6 +344,13 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         เริ่มใหม่
                     </button>
+                    
+                    <!-- 🌟 ปุ่มเพิ่มแถวใหม่แทรกตรงนี้ -->
+                    <button onclick="addNewRow()" class="flex-1 lg:flex-none justify-center bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 font-bold py-2.5 px-4 rounded-lg shadow-sm transition flex items-center gap-2 text-sm whitespace-nowrap">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                        เพิ่มแถว
+                    </button>
+
                     <button onclick="downloadExcel()" class="flex-1 lg:flex-none justify-center bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition flex items-center gap-2 text-sm whitespace-nowrap">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         โหลด Excel
@@ -2161,6 +2168,60 @@
             applyTheme('dark');
         } else {
             applyTheme('light');
+        }
+
+        // 🌟 ฟังก์ชันเพิ่มแถวใหม่ด้วยมือ (ส่งข้อมูลให้เพื่อนเห็นทันที)
+        function addNewRow() {
+            let files = Object.keys(allFilesData);
+            if (files.length === 0) {
+                return alert("⚠️ กรุณาอัปโหลดไฟล์ CSV อย่างน้อย 1 ไฟล์ก่อน เพื่อใช้เป็นฐานข้อมูลหลักครับ");
+            }
+
+            // ถ้ารวมหน้าเดียว ให้เอาไปแปะไว้ไฟล์แรกสุด ถ้าแยกหน้า ให้แปะไฟล์ที่กำลังเปิดอยู่
+            let targetFile = (currentMode === 'separate') ? document.getElementById('fileSelectDropdown').value : files[0];
+            
+            if (!allFilesData[targetFile]) allFilesData[targetFile] = [];
+            let newIndex = allFilesData[targetFile].length;
+
+            let newRow = {
+                "recordIndex": newIndex,
+                "fileName": targetFile,
+                "รหัสนักศึกษา": "",
+                "isIdValid": false,
+                "ชื่อ": "",
+                "นามสกุล": "",
+                "สถานะ": "เม้นหลัก", 
+                "สายสนทนา": "MANUAL-" + Math.floor(1000 + Math.random() * 9000), 
+                "isReply": false,
+                "ประเภทงาน": "ไม่ได้ระบุ",
+                "ยอดไลก์": 0,
+                "คอมเมนต์เต็มต้นฉบับ": "(เพิ่มข้อมูลด้วยตนเอง)",
+                "isFaded": false,
+                "isDuplicateInstance": false
+            };
+
+            // เพิ่มเข้าฐานข้อมูลในเครื่องตัวเองก่อน
+            allFilesData[targetFile].push(newRow);
+
+            // 🚀 โยนขึ้น Firebase ทันที เพื่อให้แถวไปงอกที่หน้าจอเพื่อนด้วย
+            if (currentRoomId) {
+                db.ref('rooms/' + currentRoomId + '/allFilesData/' + encodeSafe(targetFile) + '/' + newIndex).set(encodeKeys(newRow));
+            }
+            
+            // ล้างฟิลเตอร์ทั้งหมด เผื่อเรากดค้นหาค้างไว้จะได้เห็นแถวใหม่ที่เด้งมาล่างสุด
+            activeCategoryFilters = [];
+            document.getElementById('searchInput').value = "";
+            
+            renderTable();
+            saveState();
+
+            // เลื่อนจอไปล่างสุดอัตโนมัติ ให้พร้อมพิมพ์ทันที
+            setTimeout(() => {
+                const tableContainer = document.querySelector('.table-container');
+                if (tableContainer) {
+                    tableContainer.scrollTo({ top: tableContainer.scrollHeight, behavior: 'smooth' });
+                }
+            }, 100);
         }
 
         function clearData() {
