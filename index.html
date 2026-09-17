@@ -555,10 +555,11 @@
         let pendingFirebaseUpdate = false;
         let currentRoomId = null;
 
-        // เชื่อมต่อด้วย Config ของคุณ
+        // เชื่อมต่อด้วย Config ของคุณ (เพิ่ม databaseURL เข้าไปแล้ว)
         firebase.initializeApp({
             apiKey: "AIzaSyCf9UZgJQDBG42YfK8I6jjpS2cS0Sf0Hwo",
             authDomain: "wu-volunteer-score.firebaseapp.com",
+            databaseURL: "https://wu-volunteer-score-default-rtdb.asia-southeast1.firebasedatabase.app", // 👈 เพิ่มบรรทัดนี้สำคัญมาก!
             projectId: "wu-volunteer-score",
             storageBucket: "wu-volunteer-score.firebasestorage.app",
             messagingSenderId: "606122852780",
@@ -587,12 +588,12 @@
             }
         }
 
-        // ปุ่มสร้างห้อง
+        // ปุ่มสร้างห้อง (เพิ่มระบบดักจับ Error)
         function createRoom() {
             if (Object.keys(allFilesData).length === 0) return alert("⚠️ อัปโหลดไฟล์ CSV สักไฟล์ก่อนสร้างห้องนะครับ");
             
             let roomCode = "WU-" + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('roomStatusText').innerText = "กำลังอัปโหลดข้อมูลสร้างห้อง...";
+            document.getElementById('roomStatusText').innerText = "กำลังเชื่อมต่อและสร้างห้อง...";
             
             db.ref('rooms/' + roomCode).set({
                 allFilesData: encodeKeys(allFilesData),
@@ -603,10 +604,14 @@
                 alert("✅ สร้างห้องสำเร็จ!\nรหัสห้องคือ: " + roomCode + "\n\nบอกรหัสนี้ให้เพื่อน เพื่อเข้าห้องมาช่วยตรวจได้เลยครับ");
                 document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${roomCode} (Online)</span>`;
                 startListening();
+            }).catch(error => {
+                console.error("Firebase Error:", error);
+                alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message + "\n\n(ลองเช็คดูว่าลิงก์ DatabaseURL ถูกต้องหรือไม่)");
+                document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ระบบมีปัญหา)";
             });
         }
 
-        // ปุ่มเข้าห้อง
+        // ปุ่มเข้าห้อง (เพิ่มระบบดักจับ Error)
         function joinRoom() {
             let code = prompt("🔑 ใส่รหัสห้องที่ได้จากเพื่อน (เช่น WU-1234):");
             if (!code) return;
@@ -614,7 +619,7 @@
             
             document.getElementById('roomStatusText').innerText = "กำลังดาวน์โหลดข้อมูล...";
             
-            db.ref('rooms/' + code).once('value', snapshot => {
+            db.ref('rooms/' + code).once('value').then(snapshot => {
                 if (snapshot.exists()) {
                     currentRoomId = code;
                     let data = snapshot.val();
@@ -632,6 +637,10 @@
                     alert("❌ ไม่พบห้องรหัสนี้ กรุณาตรวจสอบให้ตรงกับเพื่อนอีกครั้งครับ");
                     document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ทำงานคนเดียว)";
                 }
+            }).catch(error => {
+                console.error("Firebase Error:", error);
+                alert("❌ เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
+                document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ระบบมีปัญหา)";
             });
         }
 
