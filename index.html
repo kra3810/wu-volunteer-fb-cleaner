@@ -169,86 +169,225 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 min-h-screen py-4 md:py-8 px-2 md:px-4 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200">
-    <div class="max-w-7xl mx-auto space-y-4 md:space-y-6">
-        <!-- กล่องระบบทำงานร่วมกันออนไลน์ -->
-        <div class="bg-indigo-900 text-white p-4 flex flex-col md:flex-row justify-between items-center gap-4 rounded-2xl shadow-lg border border-indigo-700 relative overflow-hidden">
-            <div class="absolute -right-10 -top-10 text-indigo-800 opacity-30 text-9xl pointer-events-none">🌐</div>
-            <div class="flex items-center gap-3 z-10">
-                <span class="text-3xl animate-pulse">🤝</span>
-                <div>
-                    <h3 class="font-black text-base tracking-wide">ระบบห้องตรวจงานร่วมกัน (Co-op Mode)</h3>
-                    <p id="roomStatusText" class="text-xs text-indigo-300 font-medium mt-0.5">สถานะ: ออฟไลน์ (ทำงานคนเดียว)</p>
-                </div>
-            </div>
-            <div class="flex gap-2 z-10 w-full md:w-auto">
-                <button onclick="createRoom()" class="flex-1 md:flex-none bg-indigo-500 hover:bg-indigo-400 px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition-transform hover:scale-105 active:scale-95 border border-indigo-400">➕ สร้างห้อง</button>
-                <button onclick="joinRoom()" class="flex-1 md:flex-none bg-white text-indigo-900 hover:bg-indigo-100 px-5 py-2.5 rounded-xl text-sm font-black shadow-md transition-transform hover:scale-105 active:scale-95">🔑 เข้าห้อง</button>
-            </div>
-        </div>
+<body class="bg-slate-100 dark:bg-slate-900 h-screen overflow-hidden font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex relative">
+    
+    <!-- 🍔 ปุ่มเปิดเมนู (ลอยอยู่มุมซ้ายบน จะโชว์เฉพาะตอนพับ Sidebar) -->
+    <button onclick="toggleSidebar()" class="fixed top-4 left-4 md:top-6 md:left-6 z-[40] p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:outline-none" title="เปิดเมนู">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
 
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden p-6 md:p-8 relative transition-colors duration-200">
-            <button onclick="toggleTheme()" class="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500" title="สลับโหมดมืด/สว่าง">
-                <svg id="icon-sun" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                <svg id="icon-moon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+    <!-- 🌙 ปุ่มสลับโหมดมืด/สว่าง (ดีไซน์กลม ลอยมุมขวาบน) -->
+    <button onclick="toggleTheme()" class="fixed top-4 right-4 md:top-6 md:right-6 z-[70] p-2.5 rounded-full bg-white dark:bg-slate-800 text-slate-500 dark:text-amber-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" title="สลับโหมดมืด/สว่าง">
+        <svg id="icon-sun" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <svg id="icon-moon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+    </button>
+
+    <!-- 📱 Sidebar (แถบเมนูด้านซ้าย แบบคลีนสบายตา) -->
+    <aside id="mainSidebar" class="w-64 bg-white dark:bg-indigo-950 text-slate-800 dark:text-white flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.03)] dark:shadow-2xl z-[60] absolute md:relative h-full transition-all duration-300 translate-x-0 md:ml-0 shrink-0 border-r border-slate-200 dark:border-indigo-900">
+        <div class="p-6 border-b border-slate-100 dark:border-indigo-900/50 bg-slate-50/50 dark:bg-indigo-900/20 flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-black tracking-tight text-indigo-700 dark:text-white flex items-center gap-2">
+                    <span>📊</span> WU Score
+                </h2>
+                <p class="text-slate-500 dark:text-indigo-300 text-[11px] mt-1.5 font-bold tracking-wide uppercase">ระบบจัดการคอมเมนต์</p>
+            </div>
+            <!-- 🌟 ปุ่มปิด Sidebar -->
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 dark:text-indigo-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-indigo-800 transition" title="ซ่อนแถบเมนู">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
-
-            <div class="flex justify-between items-start mb-4 md:mb-6">
-                <div class="pr-12">
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">📊 ระบบจัดการคอมเมนต์ Facebook</h1>
-                    <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-2 flex flex-wrap items-center gap-2">
-                        อัปโหลดไฟล์ CSV จัดกลุ่มและสกัดข้อมูล 
-                        <button onclick="openGuideModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline mx-1 cursor-pointer font-semibold transition-colors">(📖 วิธีดึงไฟล์ CSV)</button>
-                        <span class="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">💾 บันทึกอัตโนมัติ</span>
-                    </p>
-                </div>
-            </div>
-
-            <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
-                <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
-                <div class="flex flex-col items-center justify-center pointer-events-none">
-                    <svg class="w-10 h-10 md:w-12 md:h-12 text-indigo-400 dark:text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    <p class="text-slate-700 dark:text-slate-200 font-semibold text-base md:text-lg">คลิกที่นี่ หรือลากไฟล์ CSV มาวาง</p>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-1">รองรับการอัปโหลดหลายไฟล์พร้อมกัน</p>
-                    <p id="fileNames" class="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 mt-3 font-medium"></p>
-                </div>
-            </div>
         </div>
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <button onclick="showHub()" id="navHub" class="w-full flex items-center gap-3 px-4 py-3 bg-indigo-50 text-indigo-700 dark:bg-indigo-600 dark:text-white rounded-xl font-bold transition-all text-sm group border border-indigo-100 dark:border-transparent">
+                <svg class="w-5 h-5 opacity-80 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                ศูนย์รวมใบงาน
+            </button>
+            <button onclick="openGuideModal()" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-indigo-300 hover:bg-slate-50 dark:hover:bg-indigo-800/50 hover:text-indigo-600 dark:hover:text-white rounded-xl font-semibold transition-all text-sm group">
+                <svg class="w-5 h-5 opacity-60 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                วิธีดึงไฟล์ CSV
+            </button>
+            <button onclick="alert('โมดูลดึงรายชื่อ กำลังอยู่ในช่วงพัฒนาครับ! จะมาในอัปเดตหน้า 🚀')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-indigo-300 hover:bg-slate-50 dark:hover:bg-indigo-800/50 hover:text-indigo-600 dark:hover:text-white rounded-xl font-semibold transition-all text-sm group">
+                <svg class="w-5 h-5 opacity-60 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                ระบบทำรายชื่อ <span class="bg-slate-100 text-slate-500 dark:bg-indigo-500/20 dark:text-indigo-200 border border-slate-200 dark:border-indigo-500/30 text-[9px] px-1.5 py-0.5 rounded ml-auto uppercase tracking-wider font-bold">Soon</span>
+            </button>
+        </nav>
+        
+        <!-- 🌟 แถบบอกพื้นที่จัดเก็บ (แทนที่ส่วนล่างสุด) -->
+        <div class="p-5 border-t border-slate-200 dark:border-indigo-900/50 bg-slate-50/50 dark:bg-indigo-900/20">
+            <div class="mb-2 flex justify-between items-center text-xs font-bold text-slate-600 dark:text-indigo-300">
+                <span>☁️ พื้นที่จัดเก็บ (1GB)</span>
+                <span id="storageText">คำนวณ...</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-indigo-950/50 rounded-full h-2.5 overflow-hidden border border-slate-300 dark:border-indigo-900">
+                <div id="storageBar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-[10px] text-slate-400 dark:text-indigo-400 mt-2 text-center font-medium">รองรับใบงานได้อีกประมาณ <span id="storageRoomsLeft">5,000</span> ห้อง</p>
+        </div>
+    </aside>
 
-        <div id="initialOnboarding" class="space-y-6 animate-in fade-in duration-500">
-            <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-                <div class="flex items-start gap-4">
-                    <div class="text-3xl">💡</div>
-                    <div>
-                        <h4 class="font-bold text-indigo-900 dark:text-indigo-200 text-base md:text-lg">เพิ่งเคยใช้งานครั้งแรกใช่ไหม?</h4>
-                        <p class="text-sm text-indigo-700 dark:text-indigo-400 mt-0.5">ไม่ต้องกังวล! เรามีวิธีดึงไฟล์คอมเมนต์จากกลุ่ม Facebook มาให้ดูแบบง่ายๆ</p>
+    <!-- 🖥️ Main Content Area (ส่วนเนื้อหาหลัก พื้นหลังสีเทาอ่อน) -->
+    <main class="flex-1 h-screen overflow-x-hidden overflow-y-auto relative bg-slate-100 dark:bg-slate-900 w-full min-w-0">
+        
+        <!-- ===================================== -->
+        <!-- 📌 หน้า HUB (ศูนย์รวมห้อง) -->
+        <!-- ===================================== -->
+        <div id="hubContainer" class="p-4 md:p-8 w-full max-w-7xl mx-auto block animate-in fade-in duration-300 pt-16 md:pt-10 space-y-8">
+            
+            <!-- 1. ส่วนหัวหน้า Hub -->
+            <div class="relative overflow-hidden bg-gradient-to-r from-indigo-50/90 via-white to-purple-50/90 dark:from-indigo-950/60 dark:via-slate-800/90 dark:to-purple-950/40 border border-indigo-100 dark:border-indigo-800/50 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+                <!-- แสงเรืองแสงตกแต่งพื้นหลัง -->
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-400/10 dark:bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-purple-400/10 dark:bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 space-y-3 w-full md:w-auto text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
+                        <span>☁️</span> Cloud Workspace Hub
                     </div>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">ศูนย์รวมใบงาน</h1>
+                    <p class="text-slate-500 dark:text-slate-400 font-medium text-sm leading-relaxed">จัดการใบงานและตรวจสอบคอมเมนต์ทั้งหมดของคุณบนคลาวด์แบบเรียลไทม์</p>
                 </div>
-                <button onclick="openGuideModal()" class="shrink-0 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2.5 px-6 rounded-lg shadow-md transition whitespace-nowrap hover:-translate-y-0.5">
-                    📖 อ่านวิธีดึงไฟล์ CSV
+                <button onclick="openCreateRoomModal()" class="relative z-10 w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-7 rounded-2xl shadow-xl shadow-indigo-600/25 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shrink-0">
+                    <span>➕</span> สร้างห้องตรวจงานใหม่
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-left">
-                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div class="text-4xl mb-4">📂</div>
-                    <h4 class="font-extrabold text-base text-slate-800 dark:text-white">1. อัปโหลดไฟล์</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">เลือกไฟล์ CSV หรือลากไฟล์ที่โหลดมาจากโพสต์มาใส่ได้เลย สามารถทำทีละหลายๆ ไฟล์พร้อมกันได้</p>
+            <!-- 2. กล่องคู่มือ 3 ขั้นตอน (สลับขึ้นมาไว้ด้านบน) -->
+            <div class="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-indigo-50/50 to-purple-50 dark:from-indigo-950/50 dark:via-slate-900 dark:to-purple-950/30 border border-indigo-200/60 dark:border-indigo-800/60 rounded-3xl p-6 md:p-8 shadow-sm">
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-indigo-400/10 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-purple-400/10 dark:bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl animate-bounce" style="animation-duration: 2s;">💡</div>
+                        <div>
+                            <h4 class="font-extrabold text-indigo-950 dark:text-indigo-100 text-lg md:text-xl tracking-tight">เพิ่งเคยใช้งานครั้งแรกใช่ไหม?</h4>
+                            <p class="text-xs md:text-sm text-indigo-700/80 dark:text-indigo-300 mt-1 font-medium">กดดูวิธีดึงไฟล์คอมเมนต์จากกลุ่ม Facebook แล้วทำตาม 3 ขั้นตอนง่ายๆ ด้านล่างได้เลยครับ</p>
+                        </div>
+                    </div>
+                    <button onclick="openGuideModal()" class="shrink-0 w-full sm:w-auto bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-xs md:text-sm font-bold py-2.5 px-5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                        <span>📖</span> เปิดดูวิธีดึงไฟล์ CSV
+                    </button>
                 </div>
-                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div class="text-4xl mb-4">✨</div>
-                    <h4 class="font-extrabold text-base text-slate-800 dark:text-white">2. ตรวจสอบ & แก้ไข</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">คลิกที่ป้าย <b>💬 เม้นหลัก</b> เพื่อกรองหาคอมเมนต์ตอบกลับ หรือคลิกที่ข้อความเพื่อพิมพ์แก้ไขได้ตรงๆ</p>
-                </div>
-                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div class="text-4xl mb-4">📥</div>
-                    <h4 class="font-extrabold text-base text-slate-800 dark:text-white">3. ส่งออก Excel</h4>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">เลือกว่าจะรวมตารางหรือแยกหน้า เปิดปิดคอลัมน์ที่ต้องการ แล้วกดโหลดไปส่งอาจารย์ได้เลย!</p>
+                
+                <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                    <div class="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-white/60 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2"><span class="text-xl drop-shadow-sm">📂</span> 1. สร้างห้อง & อัปโหลด</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">กดสร้างห้องใหม่และลากไฟล์ CSV ที่โหลดจากโพสต์มาใส่ได้เลย</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-white/60 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2"><span class="text-lg drop-shadow-sm">✨</span> 2. ตรวจสอบ & แก้ไข</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">ทำงานร่วมกับเพื่อนได้ทันที คลิกที่ข้อความในตารางเพื่อพิมพ์แก้ได้เลย</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-white/60 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2"><span class="text-lg drop-shadow-sm">📥</span> 3. ส่งออก Excel</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">กดปุ่มโหลด Excel เพื่อนำไฟล์สรุปออกไปได้ทันที</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="mainWorkspace" class="hidden space-y-4 md:space-y-6">
+            <!-- 3. ระบบค้นหาและกรองใบงาน (ย้ายลงมาไว้ด้านล่างคู่มือ) -->
+            <div class="flex flex-col sm:flex-row gap-3 items-center">
+                <div class="relative w-full flex-1">
+                    <input type="text" id="hubSearchInput" onkeyup="filterHubRooms()" placeholder="🔍 ค้นหาชื่อใบงาน หรือ รหัสห้อง (เช่น WU-1234)..." class="w-full pl-12 pr-5 py-3.5 rounded-full border border-slate-200/80 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-sm hover:shadow-md focus:shadow-lg focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all text-sm font-medium">
+                    <svg class="w-5 h-5 absolute left-4 top-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <select id="hubMonthFilter" onchange="filterHubRooms()" class="w-full sm:w-48 px-4 py-3.5 rounded-full border border-slate-200/80 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-sm hover:shadow-md focus:shadow-lg focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none font-semibold cursor-pointer transition-all text-sm">
+                    <option value="all">📅 ทุกเดือน</option>
+                </select>
+            </div>
+
+            <!-- 4. หมวดห้องปัจจุบัน -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm shadow-emerald-500/50"></span> ใบงานที่กำลังดำเนินการ
+                    </h3>
+                </div>
+                <div id="activeRoomsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full"></div>
+            </div>
+
+            <!-- 5. หมวดห้องรอเคลียร์ทิ้ง (ถังขยะพร้อมปุ่มลบทั้งหมด) -->
+            <div class="pt-8 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-base font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                            <span>🗑️</span> ห้องรอเคลียร์ทิ้ง <span class="text-xs font-normal text-slate-400 ml-1">(ลบชั่วคราว หรือ เกิน 1 ปี)</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            กด <b>"เอากลับมา"</b> เพื่อคืนค่า หรือ <b>"ลบทิ้งถาวร"</b> เพื่อล้างข้อมูลคืนพื้นที่
+                        </p>
+                    </div>
+                    
+                    <button onclick="clearAllArchivedRooms()" class="shrink-0 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                        <span>⚠️</span> ลบห้องในถังขยะทั้งหมด
+                    </button>
+                </div>
+                
+                <div id="archivedRoomsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full"></div>
+            </div>
+        </div> <!-- 👈 เพิ่มแท็กปิดตรงนี้เพื่อปิด #hubContainer ครับ -->
+        
+        <!-- ===================================== -->
+        <!-- 📌 หน้า WORKSPACE (ตารางทำงาน) -->
+        <!-- ===================================== -->
+        <div id="workspaceContainer" class="hidden p-4 md:p-8 pt-16 md:pt-10 max-w-7xl mx-auto space-y-4 md:space-y-6">
+            
+            <!-- 🌟 แถบเมนูด้านบนของ Workspace (ดีไซน์สีน้ำเงินกรมท่าสุดพรีเมียมแบบดั้งเดิม) -->
+            <div class="bg-indigo-900 text-white p-4 md:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-2xl shadow-lg border border-indigo-700 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 text-indigo-800 opacity-30 text-9xl pointer-events-none">🌐</div>
+                
+                <div class="flex items-center gap-3 z-10 w-full sm:w-auto">
+                    <!-- ปุ่มกลับหน้า Hub -->
+                    <button onclick="showHub()" class="p-2.5 bg-indigo-800 hover:bg-indigo-700 border border-indigo-600 rounded-xl text-white transition-colors shadow-sm shrink-0" title="กลับหน้า Hub">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </button>
+                    
+                    <div class="ml-1 min-w-0">
+                        <h3 class="font-black text-lg md:text-xl text-white tracking-tight flex items-center gap-2 truncate">
+                            <span id="currentRoomNameDisplay" class="truncate">ชื่อใบงาน...</span>
+                            <!-- ปุ่มแก้ไขชื่อ -->
+                            <button onclick="editRoomName()" class="text-indigo-300 hover:text-white transition-colors p-1 rounded-md hover:bg-indigo-800 shrink-0" title="คลิกเพื่อแก้ไขชื่อใบงาน">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="flex items-center gap-2 mt-0.5 md:mt-1 flex-wrap">
+                            <span class="flex h-2 w-2 relative shrink-0"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+                            <p class="text-[10px] md:text-xs text-emerald-400 font-bold tracking-wide">เชื่อมต่อคลาวด์แล้ว</p>
+                            <span class="text-indigo-400 text-xs hidden sm:inline">|</span>
+                            <p class="text-[10px] md:text-xs text-indigo-300 font-semibold cursor-pointer hover:text-white hover:underline transition-colors" onclick="copyRoomCode()">รหัสห้อง: <span id="currentRoomCodeLabel">---</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2 z-10 w-full sm:w-auto mt-2 sm:mt-0">
+                    <button onclick="deleteCurrentRoom()" class="w-full sm:w-auto text-rose-300 hover:text-white font-bold text-xs px-4 py-2.5 bg-rose-900/40 hover:bg-rose-600 border border-rose-700/50 hover:border-rose-500 rounded-lg transition shadow-sm flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        ลบห้องนี้ถาวร
+                    </button>
+                </div>
+            </div>
+
+            <!-- กล่องอัปโหลด CSV -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden p-6 md:p-8 relative transition-colors duration-200">
+                <div class="flex justify-between items-start mb-4 md:mb-6">
+                    <div class="pr-12">
+                        <h2 class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">📥 อัปโหลดไฟล์คอมเมนต์</h2>
+                        <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-2 flex flex-wrap items-center gap-2">
+                            ลากไฟล์ CSV มาวางเพื่อเริ่มงาน 
+                            <button onclick="openGuideModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline mx-1 cursor-pointer font-semibold transition-colors">(📖 วิธีดึงไฟล์ CSV)</button>
+                        </p>
+                    </div>
+                </div>
+
+                <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
+                    <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
+                    <div class="flex flex-col items-center justify-center pointer-events-none">
+                        <svg class="w-10 h-10 md:w-12 md:h-12 text-indigo-400 dark:text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="text-slate-700 dark:text-slate-200 font-semibold text-base md:text-lg">คลิกที่นี่ หรือลากไฟล์ CSV มาวาง</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-1">รองรับการอัปโหลดหลายไฟล์พร้อมกัน</p>
+                        <p id="fileNames" class="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 mt-3 font-medium"></p>
+                    </div>
+                </div>
+            </div>
             
             <!-- แผงข้อมูลรวม (Stat, Category, Settings, Score) -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
@@ -369,7 +508,14 @@
                         </div>
                         <div id="fileSelectorContainer" class="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                             <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">เลือกไฟล์:</span>
-                            <select id="fileSelectDropdown" onchange="switchFile()" class="w-full sm:flex-1 min-w-[200px] border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 md:py-1.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"></select>
+                            <div class="flex items-center gap-1 w-full sm:flex-1">
+                                <select id="fileSelectDropdown" onchange="switchFile()" class="w-full min-w-[200px] border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 md:py-1.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer"></select>
+                                
+                                <!-- 🌟 ปุ่มดินสอสำหรับแก้ไขชื่อไฟล์ -->
+                                <button onclick="editCurrentFileName()" class="p-2 md:p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm shrink-0" title="เปลี่ยนชื่อไฟล์นี้">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -406,10 +552,36 @@
                 </div>
             </div>
 
-        </div>
-    </div>
+        </div> <!-- 👈 เพิ่มแท็กปิดตรงนี้เพื่อปิด #workspaceContainer -->
+    </main>
 
     <!-- Modals -->
+    <!-- 🌟 Modal สำหรับ "คนขี้เกียจตั้งชื่อ" -->
+    <div id="createRoomModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">➕ สร้างห้องตรวจงานใหม่</h3>
+                <button onclick="closeCreateRoomModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold p-1">✕</button>
+            </div>
+            <div class="p-6">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">ตั้งชื่อใบงาน หรือ หมวดหมู่</label>
+                <input type="text" id="newRoomNameInput" onkeyup="checkRoomNameDuplicate()" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium" placeholder="เช่น ใบงานที่ 1 หรือ ใบงานเฉพาะกิจ...">
+                <div id="roomNameWarning" class="text-xs text-rose-500 mt-2 hidden flex items-start gap-1">
+                    <span>⚠️</span> <span>ชื่อนี้ถูกใช้ไปแล้วครับ แต่กดสร้างได้เลย ระบบจะเติมตัวเลข (1), (2) ให้ด้านหลังอัตโนมัติ</span>
+                </div>
+                <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800/50 rounded-lg p-3 mt-4 flex gap-2">
+                    <span class="text-indigo-500 text-lg">💡</span>
+                    <p class="text-[11px] text-indigo-700 dark:text-indigo-300 leading-relaxed">
+                        <strong class="font-bold">ระบบอัตโนมัติ:</strong> ผมดึงเดือนและปีปัจจุบันมาตั้งเป็นชื่อเริ่มต้นให้แล้วครับ ถ้าขี้เกียจพิมพ์สามารถกด <b>"ยืนยันสร้างห้อง"</b> ได้เลย!
+                    </p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2 bg-slate-50 dark:bg-slate-800/50">
+                <button onclick="closeCreateRoomModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition">ยกเลิก</button>
+                <button onclick="confirmCreateRoom()" class="px-5 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition transform hover:scale-105">✅ ยืนยันสร้างห้อง</button>
+            </div>
+        </div>
+    </div>
     <button onclick="openFeedbackModal()" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 md:p-3.5 rounded-full shadow-2xl flex items-center transition-all hover:scale-105 active:scale-95 group" title="แจ้งปัญหา / ติชม">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
         <span class="max-w-0 opacity-0 overflow-hidden group-hover:max-w-[150px] group-hover:opacity-100 group-hover:ml-2 transition-all duration-300 ease-in-out whitespace-nowrap text-sm hidden md:block">ติชม / แจ้งปัญหา</span>
@@ -586,6 +758,22 @@
         let lastClientX = -1000;
         let lastClientY = -1000;
         let isMouseInside = false;
+
+        function clearAllArchivedRooms() {
+            if (confirm("คุณต้องการลบห้องในถังขยะทั้งหมดแบบถาวรใช่หรือไม่?")) {
+                // ล้างข้อมูลห้องในถังขยะ (ปรับชื่อตัวแปรตามระบบจริงของคุณ เช่น archivedRooms)
+                if (typeof archivedRooms !== 'undefined') {
+                    archivedRooms = [];
+                }
+                // บันทึกข้อมูลและอัปเดตการแสดงผลหน้าจอ
+                if (typeof saveRoomsToStorage === 'function') {
+                    saveRoomsToStorage();
+                }
+                if (typeof renderHubRooms === 'function') {
+                    renderHubRooms();
+                }
+            }
+        }
 
         function sendCursorData() {
             if (!currentRoomId || !isMouseInside) return;
@@ -839,19 +1027,20 @@
         function createRoom() {
             if (Object.keys(allFilesData).length === 0) return alert("⚠️ อัปโหลดไฟล์ CSV สักไฟล์ก่อนสร้างห้องนะครับ");
             let roomCode = "WU-" + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('roomStatusText').innerText = "กำลังเชื่อมต่อและสร้างห้อง...";
-            
+
+            // ❌ ลบบรรทัดนี้ออก: document.getElementById('roomStatusText').innerText = ...
+
             db.ref('rooms/' + roomCode).set({
                 allFilesData: encodeKeys(allFilesData), fileScores: encodeKeys(fileScores), rawThreadsData: encodeKeys(rawThreadsData)
             }).then(() => {
                 currentRoomId = roomCode;
                 alert("✅ สร้างห้องสำเร็จ!\nรหัสห้องคือ: " + roomCode + "\n\nบอกรหัสนี้ให้เพื่อน เพื่อเข้าห้องมาช่วยตรวจได้เลยครับ");
-                // 🌟 แก้ตัวแปรตรงนี้จาก ${code} เป็น ${roomCode} เรียบร้อยครับ
-                document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${roomCode} (Online)</span>`;
+
+                // ❌ ลบบบรรทัดอัปเดต roomStatusText ออกเช่นกัน
+
                 startListening(); initLiveCursor();
             }).catch(error => {
                 alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
-                document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ระบบมีปัญหา)";
             });
         }
 
@@ -859,7 +1048,6 @@
             let code = prompt("🔑 ใส่รหัสห้องที่ได้จากเพื่อน (เช่น WU-1234):");
             if (!code) return;
             code = code.toUpperCase().trim();
-            document.getElementById('roomStatusText').innerText = "กำลังดาวน์โหลดข้อมูล...";
             
             db.ref('rooms/' + code).once('value').then(snapshot => {
                 if (snapshot.exists()) {
@@ -871,15 +1059,12 @@
                     
                     initUIAfterLoad(); renderTable(); saveState();
                     alert("✅ เข้าร่วมห้อง " + code + " สำเร็จ! ข้อมูลซิงค์ตรงกันแล้วครับ");
-                    document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${code} (Online)</span>`;
                     startListening(); initLiveCursor();
                 } else {
                     alert("❌ ไม่พบห้องรหัสนี้ กรุณาตรวจสอบให้ตรงกับเพื่อนอีกครั้งครับ");
-                    document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ทำงานคนเดียว)";
                 }
             }).catch(error => {
                 alert("❌ เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
-                document.getElementById('roomStatusText').innerText = "สถานะ: ออฟไลน์ (ทำงานคนเดียว)";
             });
         }
 
@@ -964,22 +1149,23 @@
 
         function handleToggleThreadClick(event, threadNo, fileName, btn) {
             event.stopPropagation();
-            
             const tbody = document.getElementById('tableBody');
             const rows = tbody.querySelectorAll('.data-row');
             const tableContainer = document.querySelector('.table-container');
             const searchInput = document.getElementById('searchInput');
             
+            // 🔥 อ้างอิงความสูงจาก <main> แทน window เพื่อแก้บั๊กหน้าจอหด
+            const mainScrollContainer = document.querySelector('main'); 
+
             let spacer = document.getElementById('page-magic-spacer');
             if (!spacer) {
                 spacer = document.createElement('div');
                 spacer.id = 'page-magic-spacer';
-                document.body.appendChild(spacer);
+                mainScrollContainer.appendChild(spacer);
             }
 
             if (activeThread === threadNo) {
                 activeThread = null;
-                
                 let needsRender = false;
                 if (threadPrevCategories.length > 0) {
                     activeCategoryFilters = [...threadPrevCategories];
@@ -1003,26 +1189,24 @@
                 
                 spacer.style.height = '0px';
                 if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
-                window.scrollTo(0, savedWindowScroll);
+                mainScrollContainer.scrollTo(0, savedWindowScroll);
                 
             } else {
-                const docHeightBefore = document.documentElement.scrollHeight;
+                const docHeightBefore = mainScrollContainer.scrollHeight;
                 
                 if (tableContainer) {
                     tableContainer.style.minHeight = ''; 
                     savedContainerScroll = tableContainer.scrollTop;
                 }
-                savedWindowScroll = window.scrollY;
+                savedWindowScroll = mainScrollContainer.scrollTop;
                 activeThread = threadNo;
                 
                 let currentSearch = searchInput ? searchInput.value : "";
                 if (activeCategoryFilters.length > 0 || currentSearch !== "") {
                     threadPrevCategories = [...activeCategoryFilters];
                     threadPrevSearch = currentSearch;
-                    
                     activeCategoryFilters = [];
                     if(searchInput) searchInput.value = "";
-                    
                     renderTable(); 
                     setTimeout(() => {
                         const newBtn = document.querySelector(`tr[data-thread="${threadNo}"] button`);
@@ -1043,28 +1227,28 @@
                     }
                 });
 
-                const docHeightAfter = document.documentElement.scrollHeight;
+                const docHeightAfter = mainScrollContainer.scrollHeight;
                 if (docHeightBefore > docHeightAfter) {
                     spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
                 }
 
                 if (tableContainer) tableContainer.scrollTop = 0;
-                window.scrollTo(0, savedWindowScroll);
+                mainScrollContainer.scrollTo(0, savedWindowScroll);
             }
         }
 
-        // ฟังก์ชันตัวกรองหมวดหมู่และปุ่มซ้ำ (ใส่ระบบกล่องล่องหนป้องกันตารางหดด้วยเช่นกัน)
         function setFilter(cat) {
-            const docHeightBefore = document.documentElement.scrollHeight;
+            const mainScrollContainer = document.querySelector('main');
+            const docHeightBefore = mainScrollContainer.scrollHeight;
             const tableContainer = document.querySelector('.table-container');
             if (tableContainer) savedContainerScroll = tableContainer.scrollTop;
-            savedWindowScroll = window.scrollY;
+            savedWindowScroll = mainScrollContainer.scrollTop;
 
             let spacer = document.getElementById('page-magic-spacer');
             if (!spacer) {
                 spacer = document.createElement('div');
                 spacer.id = 'page-magic-spacer';
-                document.body.appendChild(spacer);
+                mainScrollContainer.appendChild(spacer);
             }
 
             if (cat === null) {
@@ -1080,15 +1264,13 @@
             
             renderTable(); 
 
-            // คำนวณความสูงชดเชยไม่ให้หน้าจอดีดหรือหดตัว
-            const docHeightAfter = document.documentElement.scrollHeight;
+            const docHeightAfter = mainScrollContainer.scrollHeight;
             if (docHeightBefore > docHeightAfter) {
                 spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
             } else {
                 spacer.style.height = '0px';
             }
-
-            window.scrollTo(0, savedWindowScroll);
+            mainScrollContainer.scrollTo(0, savedWindowScroll);
         }
 
         function switchMode(mode) {
@@ -2161,12 +2343,14 @@
         function applyTheme(theme) {
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
-                document.getElementById('icon-sun').classList.remove('hidden');
-                document.getElementById('icon-moon').classList.add('hidden');
+                // 🌟 โหมดมืด = ซ่อนพระอาทิตย์ โชว์พระจันทร์
+                document.getElementById('icon-sun').classList.add('hidden');
+                document.getElementById('icon-moon').classList.remove('hidden'); 
             } else {
                 document.documentElement.classList.remove('dark');
-                document.getElementById('icon-sun').classList.add('hidden');
-                document.getElementById('icon-moon').classList.remove('hidden');
+                // 🌟 โหมดสว่าง = โชว์พระอาทิตย์ ซ่อนพระจันทร์
+                document.getElementById('icon-sun').classList.remove('hidden'); 
+                document.getElementById('icon-moon').classList.add('hidden');
             }
         }
 
@@ -2240,9 +2424,19 @@
         function clearData() {
             if (!confirm("⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)")) { return; }
             allFilesData = {}; activeThread = null; activeCategoryFilters = [];
-            document.getElementById('csvFiles').value = ""; document.getElementById('fileNames').innerText = ""; document.getElementById('searchInput').value = "";
-            document.getElementById('mainWorkspace').classList.add('hidden'); document.getElementById('initialOnboarding').classList.remove('hidden');
+            document.getElementById('csvFiles').value = ""; 
+            document.getElementById('fileNames').innerText = ""; 
+            document.getElementById('searchInput').value = "";
+            
             sessionStorage.clear();
+            
+            // 🔥 สั่งเคลียร์ข้อมูลบน Firebase ด้วยเมื่อกดเริ่มใหม่
+            if (currentRoomId) {
+                syncAllData();
+                triggerRoomUpdate();
+            }
+            
+            renderTable();
         }
 
         function updateRecord(fileName, recordIndex, field, newValue) {
@@ -2288,15 +2482,14 @@
                 dropdown.appendChild(opt);
             });
             
-            // ถ้ามีค่าเดิมที่เลือกไว้ ให้ระบบเลือกไฟล์นั้นกลับมาเหมือนเดิม (กันเมนูเด้งกลับไปไฟล์แรกสุดเวลาข้อมูลอัปเดต)
             if (currentVal && allFilesData[currentVal]) {
                 dropdown.value = currentVal;
             }
 
-            document.getElementById('initialOnboarding').classList.add('hidden');
-            document.getElementById('mainWorkspace').classList.remove('hidden');
+            // ❌ ลบคำสั่งปิดเปิดหน้าจอแบบเก่าที่ทำให้บั๊กออกไป (เพราะตอนนี้เราใช้ฟังก์ชัน showWorkspace ควบคุมแทนแล้ว)
+            
             updateModeUI(); 
-            if (currentMode === 'separate') initScoreSettings(dropdown.value);
+            if (currentMode === 'separate' && dropdown.value) initScoreSettings(dropdown.value);
             renderTable();
         }
 
@@ -2351,14 +2544,27 @@
             let loadedCount = 0;
             allFilesData = {}; activeThread = null; activeCategoryFilters = [];
 
+            // 🌟 เพิ่มข้อความแจ้งเตือนให้อุ่นใจว่ากำลังอัปโหลด
+            document.getElementById('fileNames').innerText = "⏳ กำลังอ่านไฟล์และบันทึกขึ้นคลาวด์ โปรดรอสักครู่...";
+
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     parseCSVData(file.name, e.target.result);
                     loadedCount++;
                     fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
-                    document.getElementById('fileNames').innerText = fileNamesStr;
-                    if (loadedCount === files.length) { initUIAfterLoad(); saveState(); }
+                    
+                    if (loadedCount === files.length) { 
+                        document.getElementById('fileNames').innerText = fileNamesStr;
+                        initUIAfterLoad(); 
+                        saveState(); 
+                        
+                        // 🔥 หัวใจสำคัญ: สั่งบันทึกตารางทั้งหมดขึ้น Firebase ทันทีที่ลากไฟล์ลงไป
+                        if (currentRoomId) {
+                            syncAllData();
+                            triggerRoomUpdate();
+                        }
+                    }
                 };
                 reader.readAsText(file, 'UTF-8');
             });
@@ -2624,6 +2830,601 @@
             }
             allFilesData[fileName] = fileRecords;
             evaluateDuplicates(fileName);
+        }
+        // ==========================================
+        // 🌟 ระบบ HUB & SIDEBAR MANAGEMENT (บอท 1 ปี)
+        // ==========================================
+        
+        // ส่งสัญญาณบอก Firebase ว่าเพิ่งมีการขยับ
+        function triggerRoomUpdate() {
+            if (currentRoomId) db.ref('rooms_meta/' + currentRoomId + '/lastUpdated').set(firebase.database.ServerValue.TIMESTAMP);
+        }
+
+        // ดักเวลาที่เราแก้คะแนน หรือซ่อนแถว ให้สั่งอัปเดตเวลาด้วย
+        const originalUpdateRecord = updateRecord;
+        updateRecord = function(fileName, recordIndex, field, newValue) {
+            originalUpdateRecord(fileName, recordIndex, field, newValue);
+            triggerRoomUpdate();
+        }
+        const originalToggleRowFade = toggleRowFade;
+        toggleRowFade = function(fileName, recordIndex, event) {
+            originalToggleRowFade(fileName, recordIndex, event);
+            triggerRoomUpdate();
+        }
+
+        function copyRoomCode() {
+            navigator.clipboard.writeText(currentRoomId);
+            alert("📋 ก๊อปปี้รหัสห้อง " + currentRoomId + " ให้เพื่อนเรียบร้อยครับ!");
+        }
+
+        // --- ระบบเปิด/ปิด หน้าจอ ---
+        function showHub() {
+            document.getElementById('hubContainer').classList.remove('hidden');
+            document.getElementById('workspaceContainer').classList.add('hidden');
+            document.getElementById('navHub').classList.replace('bg-indigo-900/40', 'bg-indigo-600');
+            
+            // ยกเลิกการเชื่อมต่อห้องชั่วคราวเพื่อประหยัดเน็ต
+            if(currentRoomId) {
+                db.ref('rooms/' + currentRoomId + '/allFilesData').off();
+                db.ref('rooms/' + currentRoomId + '/fileScores').off();
+            }
+            currentRoomId = null; 
+            loadHubRooms();
+        }
+
+        function showWorkspace(roomName, code) {
+            document.getElementById('hubContainer').classList.add('hidden');
+            document.getElementById('workspaceContainer').classList.remove('hidden');
+            document.getElementById('currentRoomNameDisplay').innerText = roomName || "พื้นที่ทำงาน";
+            document.getElementById('currentRoomCodeLabel').innerText = code || "---";
+            document.getElementById('navHub').classList.replace('bg-indigo-600', 'bg-indigo-900/40');
+        }
+
+        // ==========================================
+        // 🌟 ระบบค้นหา และ กรองเดือนในหน้า Hub
+        // ==========================================
+        let allRoomsCache = []; // เก็บข้อมูลห้องทั้งหมดไว้กรอง
+
+        function loadHubRooms() {
+            db.ref('rooms_meta').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const now = Date.now();
+                
+                // เก็บลง Cache และเรียงล่าสุดขึ้นก่อน
+                allRoomsCache = Object.keys(data).map(key => ({ id: key, ...data[key] }))
+                                        .sort((a, b) => (b.lastUpdated || b.createdAt || 0) - (a.lastUpdated || a.createdAt || 0));
+
+                // สกัดเดือน/ปี ที่มีในระบบไปสร้างตัวเลือก
+                const monthSet = new Set();
+                allRoomsCache.forEach(room => {
+                    const d = new Date(room.createdAt || now);
+                    const monthYear = d.toLocaleString('th-TH', { month: 'long', year: 'numeric' });
+                    monthSet.add(monthYear);
+                });
+                
+                const filterDropdown = document.getElementById('hubMonthFilter');
+                if(filterDropdown) {
+                    const currentVal = filterDropdown.value;
+                    filterDropdown.innerHTML = '<option value="all">📅 ทุกเดือน</option>';
+                    Array.from(monthSet).forEach(my => {
+                        filterDropdown.innerHTML += `<option value="${my}">${my}</option>`;
+                    });
+                    if(currentVal && monthSet.has(currentVal)) filterDropdown.value = currentVal;
+                }
+
+                filterHubRooms(); // เริ่มเรนเดอร์การ์ด
+            });
+        }
+
+        function filterHubRooms() {
+            const activeGrid = document.getElementById('activeRoomsGrid');
+            const archiveGrid = document.getElementById('archivedRoomsGrid');
+            if(!activeGrid) return;
+            
+            const searchQ = (document.getElementById('hubSearchInput')?.value || "").toLowerCase();
+            const filterM = document.getElementById('hubMonthFilter')?.value || "all";
+            
+            activeGrid.innerHTML = ''; archiveGrid.innerHTML = '';
+            let activeCount = 0; let archiveCount = 0;
+            const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+
+            allRoomsCache.forEach(room => {
+                const lastUpd = room.lastUpdated || room.createdAt || now;
+                const createdDate = new Date(room.createdAt || now);
+                const roomMonth = createdDate.toLocaleString('th-TH', { month: 'long', year: 'numeric' });
+                const isArchived = (now - lastUpd) > ONE_YEAR_MS; 
+                const timeAgo = calculateTimeAgo(lastUpd);
+
+                // 🔍 กรองข้อมูลตามที่ค้นหา และ เดือน
+                if (filterM !== "all" && roomMonth !== filterM) return;
+                if (searchQ && !(room.name || "").toLowerCase().includes(searchQ) && !room.id.toLowerCase().includes(searchQ)) return;
+
+                const cardHtml = `
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-all cursor-pointer flex flex-col h-full group" onclick="joinSpecificRoom('${room.id}', '${room.name}')">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md tracking-wider">รหัส: ${room.id}</span>
+                            ${!isArchived 
+                                ? `<span class="flex h-2.5 w-2.5 relative" title="ออนไลน์ปกติ"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>` 
+                                : `<span title="ห้องหมดอายุ (เกิน 1 ปี)" class="text-rose-500 text-xs">⚠️</span>`}
+                        </div>
+                        <h4 class="font-black text-lg text-slate-800 dark:text-white mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">${room.name || "ใบงานไม่ระบุชื่อ"}</h4>
+                        <div class="mt-auto pt-5 flex justify-between items-center">
+                            <span class="text-[10px] text-slate-400 font-medium flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> แก้ไข: ${timeAgo}</span>
+                            <span class="text-indigo-600 dark:text-indigo-400 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 -translate-x-2 group-hover:translate-x-0">เข้าห้อง <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg></span>
+                        </div>
+                    </div>
+                `;
+                if(isArchived) { archiveGrid.innerHTML += cardHtml; archiveCount++; }
+                else { activeGrid.innerHTML += cardHtml; activeCount++; }
+            });
+
+            if(activeCount === 0) activeGrid.innerHTML = '<div class="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 w-full"><span class="text-4xl mb-3 opacity-50">🔍</span><span class="font-bold text-sm">ไม่พบใบงานที่ตรงกับการค้นหา</span></div>';
+            if(archiveCount === 0) archiveGrid.innerHTML = '<div class="col-span-full py-8 text-center text-slate-400 font-medium text-xs border border-slate-100 dark:border-slate-700/50 rounded-2xl bg-white dark:bg-slate-800/30 w-full">ไม่มีห้องที่หมดอายุ</div>';
+        }
+
+
+        // --- สร้างห้องใหม่จากปุ่มบน Hub ---
+        // ==========================================
+        // 🌟 ระบบสไลด์เมนู (Sidebar Toggle) และ แก้ไขชื่อ
+        // ==========================================
+        let isSidebarOpen = true;
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            isSidebarOpen = !isSidebarOpen;
+            if(isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.remove('md:-ml-64');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.add('md:-ml-64'); // ดันตารางให้กว้างเต็มจอในคอม
+            }
+        }
+
+        // ระบบเปลี่ยนชื่อใบงานหลังสร้างเสร็จ
+        function editRoomName() {
+            if(!currentRoomId) return;
+            const currentName = document.getElementById('currentRoomNameDisplay').innerText;
+            let newName = prompt("แก้ไขชื่อใบงาน (ระบบจะเช็คชื่อซ้ำให้อัตโนมัติ):", currentName);
+            
+            if(newName && newName.trim() !== "" && newName.trim() !== currentName) {
+                newName = newName.trim();
+                
+                db.ref('rooms_meta').once('value').then(snap => {
+                    const data = snap.val() || {};
+                    // ดึงชื่อของห้องอื่นทั้งหมดมาเช็ค (ยกเว้นห้องตัวเอง)
+                    const existNames = Object.keys(data).filter(k => k !== currentRoomId).map(k => data[k].name);
+                    
+                    // ระบบป้องกันชื่อซ้ำ
+                    if(existNames.includes(newName)) {
+                        let base = newName;
+                        let c = 1;
+                        while(existNames.includes(newName)) {
+                            newName = base + " (" + c + ")";
+                            c++;
+                        }
+                        alert("⚠️ ตรวจพบชื่อซ้ำ! ระบบเปลี่ยนชื่อเป็น '" + newName + "' ให้อัตโนมัติครับ");
+                    }
+                    
+                    // บันทึกขึ้น Firebase
+                    db.ref('rooms_meta/' + currentRoomId + '/name').set(newName);
+                    document.getElementById('currentRoomNameDisplay').innerText = newName;
+                    triggerRoomUpdate();
+                });
+            }
+        }
+
+        // ==========================================
+        // 🌟 สมองกลสร้างห้อง สำหรับ "คนขี้เกียจตั้งชื่อ"
+        // ==========================================
+        let existingRoomNamesCache = [];
+
+        function openCreateRoomModal() {
+            // ดึงข้อมูลชื่อห้องทั้งหมดจากคลาวด์มาวิเคราะห์
+            db.ref('rooms_meta').once('value').then(snap => {
+                const data = snap.val() || {};
+                existingRoomNamesCache = Object.values(data).map(r => r.name);
+                
+                // ดึงเดือน/ปี ปัจจุบัน
+                const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                const d = new Date();
+                let baseName = "ใบงานเดือน " + months[d.getMonth()] + " " + (d.getFullYear() + 543);
+                
+                // ถ้าระบบเจอว่าชื่อซ้ำ มันจะแอบเติมเลขให้เลย
+                let finalName = baseName;
+                let counter = 1;
+                while(existingRoomNamesCache.includes(finalName)) {
+                    finalName = baseName + " (" + counter + ")";
+                    counter++;
+                }
+                
+                // ยัดใส่ช่องกรอก และแสดงหน้าต่าง
+                document.getElementById('newRoomNameInput').value = finalName;
+                document.getElementById('roomNameWarning').classList.add('hidden');
+                document.getElementById('createRoomModal').classList.remove('hidden');
+            });
+        }
+
+        function checkRoomNameDuplicate() {
+            let currentInput = document.getElementById('newRoomNameInput').value.trim();
+            if(existingRoomNamesCache.includes(currentInput)) {
+                document.getElementById('roomNameWarning').classList.remove('hidden');
+            } else {
+                document.getElementById('roomNameWarning').classList.add('hidden');
+            }
+        }
+
+        function closeCreateRoomModal() {
+            document.getElementById('createRoomModal').classList.add('hidden');
+        }
+
+        function confirmCreateRoom() {
+            let roomName = document.getElementById('newRoomNameInput').value.trim();
+            if(!roomName) roomName = "ใบงานไม่มีชื่อ";
+
+            // ถ้ายืนยันจะกดสร้างทั้งๆ ที่ชื่อซ้ำ ระบบจะแก้บั๊กให้ตอนกดเซฟ
+            if(existingRoomNamesCache.includes(roomName)) {
+                let base = roomName;
+                let counter = 1;
+                while(existingRoomNamesCache.includes(roomName)) {
+                    roomName = base + " (" + counter + ")";
+                    counter++;
+                }
+            }
+
+            let roomCode = "WU-" + Math.floor(1000 + Math.random() * 9000);
+            const now = Date.now();
+            
+            // สร้างป้ายห้องขึ้นคลาวด์
+            db.ref('rooms_meta/' + roomCode).set({
+                name: roomName, createdAt: now, lastUpdated: now
+            }).then(() => {
+                closeCreateRoomModal();
+                currentRoomId = roomCode;
+                
+                // ล้างข้อมูลตารางให้สะอาดหมดจด
+                allFilesData = {}; fileScores = {}; rawThreadsData = {};
+                document.getElementById('csvFiles').value = "";
+                document.getElementById('fileNames').innerText = "";
+                document.getElementById('searchInput').value = "";
+                renderTable();
+                
+                // เปลี่ยนหน้าไปตารางทำงาน
+                showWorkspace(roomName, roomCode);
+                startListening(); initLiveCursor();
+            });
+        }
+
+        // --- กดการ์ดเพื่อเข้าห้อง ---
+        function joinSpecificRoom(code, name) {
+            currentRoomId = code;
+            
+            db.ref('rooms/' + code).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    allFilesData = decodeAllFilesData(data.allFilesData || {});
+                    fileScores = normalizeFileScores(data.fileScores); 
+                    rawThreadsData = decodeKeys(data.rawThreadsData || {});
+                    
+                    initUIAfterLoad(); renderTable(); saveState();
+                    showWorkspace(name, code);
+                    startListening(); initLiveCursor();
+                } else {
+                    // กรณีสร้างห้องไว้แต่ยังไม่ได้ลากไฟล์ลงตาราง
+                    allFilesData = {}; fileScores = {}; rawThreadsData = {};
+                    initUIAfterLoad(); renderTable();
+                    showWorkspace(name, code);
+                    startListening(); initLiveCursor();
+                }
+            });
+        }
+
+        // --- ระบบลบทิ้งถาวร ---
+        function deleteCurrentRoom() {
+            if(!currentRoomId) return;
+            let conf = confirm("⚠️ ต้องการย้ายห้องนี้ไปที่ 'ห้องรอเคลียร์ทิ้ง' ใช่หรือไม่?\n(คุณสามารถกู้คืนหรือลบทิ้งถาวรได้จากหน้า Hub ครับ)");
+            if (conf) {
+                // ฝังสถานะ isDeleted ไว้ที่ป้ายหน้าห้อง
+                db.ref('rooms_meta/' + currentRoomId + '/isDeleted').set(true).then(() => {
+                    alert("🗑️ ย้ายห้องไปที่ถังขยะเรียบร้อยแล้วครับ");
+                    showHub();
+                });
+            }
+        }
+        
+        // สั่งให้โหลดหน้า Hub เป็นหน้าแรกสุดเมื่อเปิดเว็บ
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            showHub(); 
+        });
+
+        // ==========================================
+        // 🌟 ระบบแก้ไขชื่อไฟล์ (File Rename)
+        // ==========================================
+        function editCurrentFileName() {
+            if (currentMode !== 'separate') {
+                alert("⚠️ กรุณาสลับเป็นโหมด 'แยกใบงาน' ก่อนทำการเปลี่ยนชื่อไฟล์ครับ");
+                return;
+            }
+            
+            const dropdown = document.getElementById('fileSelectDropdown');
+            const oldName = dropdown.value;
+            if (!oldName) return;
+
+            let newName = prompt("📝 แก้ไขชื่อไฟล์ (เช่น: ใบงานเก็บขยะ):", oldName);
+            if (!newName || newName.trim() === "" || newName.trim() === oldName) return;
+            newName = newName.trim();
+
+            if (allFilesData[newName]) {
+                alert("❌ ชื่อไฟล์นี้มีอยู่แล้วในห้องนี้ กรุณาตั้งชื่ออื่นครับ");
+                return;
+            }
+
+            // 1. เปลี่ยนชื่อคีย์ในฐานข้อมูลหลัก
+            allFilesData[newName] = allFilesData[oldName];
+            delete allFilesData[oldName];
+            
+            // เปลี่ยนชื่อไฟล์ฝังในข้อมูลแต่ละแถวด้วย
+            allFilesData[newName].forEach(record => {
+                record.fileName = newName;
+            });
+
+            // 2. เปลี่ยนชื่อในส่วนตั้งค่าคะแนน
+            if (fileScores[oldName]) {
+                fileScores[newName] = fileScores[oldName];
+                delete fileScores[oldName];
+            }
+
+            // 3. เปลี่ยนชื่อในส่วนหน้าต่าง Facebook
+            if (rawThreadsData[oldName]) {
+                rawThreadsData[newName] = rawThreadsData[oldName];
+                delete rawThreadsData[oldName];
+            }
+
+            // 4. สั่งลบชื่อเก่า และอัปโหลดชื่อใหม่ขึ้น Firebase
+            if (currentRoomId) {
+                db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(oldName)}`).remove();
+                db.ref(`rooms/${currentRoomId}/fileScores/${encodeSafe(oldName)}`).remove();
+                db.ref(`rooms/${currentRoomId}/rawThreadsData/${encodeSafe(oldName)}`).remove();
+                
+                db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(newName)}`).set(encodeKeys(allFilesData[newName]));
+                if(fileScores[newName]) db.ref(`rooms/${currentRoomId}/fileScores/${encodeSafe(newName)}`).set(encodeKeys(fileScores[newName]));
+                if(rawThreadsData[newName]) db.ref(`rooms/${currentRoomId}/rawThreadsData/${encodeSafe(newName)}`).set(encodeKeys(rawThreadsData[newName]));
+                
+                triggerRoomUpdate();
+            }
+
+            // 5. รีเฟรชหน้าจอใหม่ทั้งหมด
+            saveState();
+            initUIAfterLoad(); 
+            dropdown.value = newName; 
+            switchFile(); 
+            alert("✅ เปลี่ยนชื่อไฟล์สำเร็จ!");
+        }
+
+        // ==========================================
+        // 🌟 1. ระบบลบลงถังขยะ (Soft Delete) และกู้คืน
+        // ==========================================
+        function deleteCurrentRoom() {
+            if(!currentRoomId) return;
+            let conf = confirm("⚠️ ต้องการย้ายห้องนี้ไปที่ 'ห้องรอเคลียร์ทิ้ง' ใช่หรือไม่?\n(คุณสามารถกู้คืนหรือลบทิ้งถาวรได้จากหน้า Hub ครับ)");
+            if (conf) {
+                // ฝังสถานะ isDeleted ไว้ที่ป้ายหน้าห้อง
+                db.ref('rooms_meta/' + currentRoomId + '/isDeleted').set(true).then(() => {
+                    alert("🗑️ ย้ายห้องไปที่ถังขยะเรียบร้อยแล้วครับ");
+                    showHub();
+                });
+            }
+        }
+
+        function restoreRoom(event, roomId) {
+            event.stopPropagation();
+            db.ref('rooms_meta/' + roomId + '/isDeleted').remove();
+            db.ref('rooms_meta/' + roomId + '/lastUpdated').set(firebase.database.ServerValue.TIMESTAMP);
+            loadHubRooms();
+        }
+
+        function forceDeleteRoom(event, roomId) {
+            event.stopPropagation();
+            let conf = confirm("⚠️ ยืนยันการลบห้อง " + roomId + " ถาวรใช่ไหม?\nข้อมูลทั้งหมดจะหายไปและไม่สามารถกู้คืนได้!");
+            if (conf) {
+                db.ref('rooms/' + roomId).remove();
+                db.ref('rooms_meta/' + roomId).remove();
+                loadHubRooms();
+            }
+        }
+
+        // ==========================================
+        // 🌟 2. อัปเดตแถบพื้นที่จัดเก็บ (Storage Estimator)
+        // ==========================================
+        function updateStorageEstimate(roomCount) {
+            const maxRooms = 5000; // สมมติขีดจำกัดที่ 5,000 ห้องสำหรับ 1GB
+            const estMB = (roomCount * 0.2).toFixed(1); // ตีซะว่าห้องละ 0.2 MB แบบเผื่อๆ
+            const percentage = Math.min((roomCount / maxRooms) * 100, 100);
+            
+            document.getElementById('storageText').innerText = `${estMB} MB / 1 GB`;
+            document.getElementById('storageBar').style.width = `${percentage}%`;
+            document.getElementById('storageRoomsLeft').innerText = (maxRooms - roomCount).toLocaleString();
+            
+            // เปลี่ยนสีหลอดถ้าใกล้เต็ม
+            if(percentage > 80) document.getElementById('storageBar').classList.replace('bg-emerald-500', 'bg-rose-500');
+            else document.getElementById('storageBar').classList.replace('bg-rose-500', 'bg-emerald-500');
+        }
+
+        // ==========================================
+        // 🌟 ระบบสลับโหมดมืด/สว่าง (แก้บั๊กค้างธีมสว่าง)
+        // ==========================================
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('icon-sun').classList.add('hidden');
+                document.getElementById('icon-moon').classList.remove('hidden'); 
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('icon-sun').classList.remove('hidden'); 
+                document.getElementById('icon-moon').classList.add('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        }
+
+        // โหลดธีมตั้งต้นตอนเปิดเว็บ
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+            loadState();
+            showHub(); 
+        });
+
+        // ==========================================
+        // 🌟 ระบบคำนวณพื้นที่จัดเก็บที่ใช้งานจริง
+        // ==========================================
+        function updateStorageEstimate(dataObj) {
+            const totalRooms = Object.keys(dataObj).length;
+            // ประเมินขนาดข้อมูล (สมมติ 1 ห้องกินพื้นที่ประมาณ 50 KB เฉลี่ย)
+            const estBytes = totalRooms * 50 * 1024; 
+            const totalLimitBytes = 1 * 1024 * 1024 * 1024; // 1 GB
+            
+            let mbUsed = (estBytes / (1024 * 1024)).toFixed(2);
+            if (mbUsed < 0.01 && totalRooms > 0) mbUsed = "0.10";
+            
+            const percentage = Math.min((estBytes / totalLimitBytes) * 100, 100).toFixed(1);
+            
+            document.getElementById('storageText').innerText = `${mbUsed} MB / 1 GB`;
+            document.getElementById('storageBar').style.width = `${Math.max(percentage, 2)}%`;
+            document.getElementById('storageRoomsLeft').innerText = (5000 - totalRooms).toLocaleString();
+        }
+
+        // ==========================================
+        // 🌟 ระบบดึงห้องจาก Firebase และกู้คืนห้องที่ซ่อนไว้
+        // ==========================================
+
+        function loadHubRooms() {
+            db.ref('rooms_meta').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const now = Date.now();
+                
+                allRoomsCache = Object.keys(data).map(key => ({ id: key, ...data[key] }))
+                                        .sort((a, b) => (b.lastUpdated || b.createdAt || 0) - (a.lastUpdated || a.createdAt || 0));
+
+                // ส่งข้อมูลไปคำนวณแถบพื้นที่ด้านล่าง Sidebar
+                updateStorageEstimate(data);
+
+                const monthSet = new Set();
+                allRoomsCache.forEach(room => {
+                    const d = new Date(room.createdAt || now);
+                    const monthYear = d.toLocaleString('th-TH', { month: 'long', year: 'numeric' });
+                    monthSet.add(monthYear);
+                });
+                
+                const filterDropdown = document.getElementById('hubMonthFilter');
+                if(filterDropdown) {
+                    const currentVal = filterDropdown.value;
+                    filterDropdown.innerHTML = '<option value="all">📅 ทุกเดือน</option>';
+                    Array.from(monthSet).forEach(my => {
+                        filterDropdown.innerHTML += `<option value="${my}">${my}</option>`;
+                    });
+                    if(currentVal && monthSet.has(currentVal)) filterDropdown.value = currentVal;
+                }
+
+                filterHubRooms(); 
+            });
+        }
+
+        function filterHubRooms() {
+            const activeGrid = document.getElementById('activeRoomsGrid');
+            const archiveGrid = document.getElementById('archivedRoomsGrid');
+            if(!activeGrid) return;
+            
+            const searchQ = (document.getElementById('hubSearchInput')?.value || "").toLowerCase();
+            const searchTerms = searchQ.split(/\s+/).filter(t => t); 
+            const filterM = document.getElementById('hubMonthFilter')?.value || "all";
+            
+            activeGrid.innerHTML = ''; archiveGrid.innerHTML = '';
+            let activeCount = 0; let archiveCount = 0;
+            const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+
+            allRoomsCache.forEach(room => {
+                const lastUpd = room.lastUpdated || room.createdAt || now;
+                const createdDate = new Date(room.createdAt || now);
+                const roomMonth = createdDate.toLocaleString('th-TH', { month: 'long', year: 'numeric' });
+                
+                const isArchived = room.isDeleted || ((now - lastUpd) > ONE_YEAR_MS); 
+                const timeAgo = calculateTimeAgo(lastUpd);
+
+                if (filterM !== "all" && roomMonth !== filterM) return;
+                
+                if (searchTerms.length > 0) {
+                    const nameLower = (room.name || "").toLowerCase();
+                    const idLower = room.id.toLowerCase();
+                    const matchAll = searchTerms.every(term => nameLower.includes(term) || idLower.includes(term));
+                    if (!matchAll) return;
+                }
+
+                if(isArchived) {
+                    archiveGrid.innerHTML += `
+                        <div class="bg-gradient-to-br from-white via-white to-rose-50/40 dark:from-slate-800 dark:via-slate-800 dark:to-rose-950/30 p-5 rounded-2xl shadow-sm border border-rose-200/70 dark:border-rose-900/50 hover:border-rose-300 dark:hover:border-rose-800 transition-all flex flex-col h-full group">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2.5 py-1 rounded-lg tracking-wider border border-rose-100 dark:border-rose-900/60">รหัส: ${room.id}</span>
+                                <span class="text-xs text-rose-500 font-medium flex items-center gap-1">🗑️ ในถังขยะ</span>
+                            </div>
+                            <h4 class="font-bold text-base text-slate-800 dark:text-white mb-4 line-clamp-2 leading-snug">${room.name || "ใบงานไม่ระบุชื่อ"}</h4>
+                            <div class="mt-auto pt-2">
+                                <button onclick="restoreRoom(event, '${room.id}')" class="w-full bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+                                    <span>♻️</span> เอากลับมาใช้งาน
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    archiveCount++;
+                }
+                else {
+                    activeGrid.innerHTML += `
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-all cursor-pointer flex flex-col h-full group" onclick="joinSpecificRoom('${room.id}', '${room.name}')">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md tracking-wider">รหัส: ${room.id}</span>
+                                <span class="flex h-2.5 w-2.5 relative" title="ออนไลน์ปกติ"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
+                            </div>
+                            <h4 class="font-black text-lg text-slate-800 dark:text-white mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">${room.name || "ใบงานไม่ระบุชื่อ"}</h4>
+                            <div class="mt-auto pt-5 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-400 font-medium flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> แก้ไข: ${timeAgo}</span>
+                                <span class="text-indigo-600 dark:text-indigo-400 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 -translate-x-2 group-hover:translate-x-0">เข้าห้อง <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg></span>
+                            </div>
+                        </div>
+                    `;
+                    activeCount++;
+                }
+            });
+
+            if(activeCount === 0) activeGrid.innerHTML = '<div class="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 w-full"><span class="text-4xl mb-3 opacity-50">🔍</span><span class="font-bold text-sm">ไม่พบใบงานที่กำลังดำเนินการ</span></div>';
+            if(archiveCount === 0) archiveGrid.innerHTML = '<div class="col-span-full py-8 text-center text-slate-400 font-medium text-xs border border-slate-100 dark:border-slate-700/50 rounded-2xl bg-white dark:bg-slate-800/30 w-full">ไม่มีห้องรอเคลียร์</div>';
+        }
+
+        function restoreRoom(event, roomId) {
+            event.stopPropagation();
+            db.ref('rooms_meta/' + roomId + '/isDeleted').remove();
+            db.ref('rooms_meta/' + roomId + '/lastUpdated').set(firebase.database.ServerValue.TIMESTAMP);
+            loadHubRooms();
+        }
+
+        function forceDeleteRoom(event, roomId) {
+            event.stopPropagation();
+            let conf = confirm("⚠️ ยืนยันการลบห้อง " + roomId + " ถาวรใช่ไหม?\nข้อมูลทั้งหมดจะหายไปและไม่สามารถกู้คืนได้!");
+            if (conf) {
+                db.ref('rooms/' + roomId).remove();
+                db.ref('rooms_meta/' + roomId).remove();
+                loadHubRooms();
+            }
         }
 
     </script>
