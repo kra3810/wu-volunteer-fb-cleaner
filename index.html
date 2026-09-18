@@ -846,7 +846,8 @@
             }).then(() => {
                 currentRoomId = roomCode;
                 alert("✅ สร้างห้องสำเร็จ!\nรหัสห้องคือ: " + roomCode + "\n\nบอกรหัสนี้ให้เพื่อน เพื่อเข้าห้องมาช่วยตรวจได้เลยครับ");
-                document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${code} (Online)</span>`;
+                // 🌟 แก้ตัวแปรตรงนี้จาก ${code} เป็น ${roomCode} เรียบร้อยครับ
+                document.getElementById('roomStatusText').innerHTML = `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded shadow-sm font-bold">🟢 รหัสห้อง: ${roomCode} (Online)</span>`;
                 startListening(); initLiveCursor();
             }).catch(error => {
                 alert("❌ เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
