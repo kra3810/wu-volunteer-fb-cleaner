@@ -1979,32 +1979,34 @@
 
             let counts = {};
             let bonusCount = 0;
+            let replyCount = 0; // ตัวนับเม้นย่อย
 
             dataToSummarize.forEach(d => { 
                 let t = d["ประเภทงาน"]; 
-                counts[t] = (counts[t] || 0) + 1; 
+                if (t && t !== "ไม่ได้ระบุ") counts[t] = (counts[t] || 0) + 1; 
                 
                 if (!d.isFaded && !d.isDuplicateInstance && getBonusScore(d) > 0) {
                     bonusCount++;
+                }
+                // เช็คยอดเม้นย่อย
+                if (!d.isFaded && !d.isDuplicateInstance && d["สถานะ"] === "เม้นย่อย") {
+                    replyCount++;
                 }
             });
 
             let catHtml = '';
             
-            // ปุ่ม "ทั้งหมด"
             let allClass = activeCategoryFilters.length === 0 
                 ? "bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-300 dark:ring-indigo-500" 
                 : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-600";
             catHtml += `<button onclick="setFilter(null)" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all ${allClass}">ทั้งหมด</button>`;
 
-            // ปุ่ม "โบนัส"
             if (bonusCount > 0) {
                 let baseBonusClass = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800";
                 let activeBonusClass = activeCategoryFilters.includes('bonus') ? "ring-2 ring-offset-1 ring-emerald-500 shadow-sm opacity-100 border-emerald-400 dark:border-emerald-500" : "opacity-100 hover:bg-emerald-100 dark:hover:bg-emerald-900/50";
                 catHtml += `<button onclick="setFilter('bonus')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${baseBonusClass} ${activeBonusClass}">✨ ได้โบนัส (${bonusCount})</button>`;
             }
 
-            // ปุ่ม "ซ้ำ"
             if (duplicates > 0) {
                 let dupClass = activeCategoryFilters.includes('duplicate') 
                     ? "bg-rose-600 text-white border-rose-600 shadow-md ring-2 ring-rose-300 dark:ring-rose-500" 
@@ -2012,15 +2014,19 @@
                 catHtml += `<button onclick="setFilter('duplicate')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${dupClass}">⚠️ ส่งซ้ำ (${duplicates})</button>`;
             }
 
+            // 🌟 บังคับสร้างปุ่ม "เม้นย่อย" ตลอดเวลา (แม้ยอดเป็น 0)
+            let replyClass = activeCategoryFilters.includes('reply') 
+                ? "bg-slate-700 text-white border-slate-700 shadow-md ring-2 ring-slate-400 dark:bg-slate-600 dark:border-slate-500 dark:ring-slate-400" 
+                : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700";
+            catHtml += `<button onclick="setFilter('reply')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${replyClass}">↪️ เม้นย่อย (${replyCount})</button>`;
+
+            // ปุ่มหมวดหมู่งาน
             Object.keys(counts).forEach(cat => {
                 let baseClass = CATEGORY_COLORS[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
                 let activeClass = activeCategoryFilters.includes(cat) ? "ring-2 ring-offset-1 ring-current shadow-sm opacity-100" : (activeCategoryFilters.length > 0 ? "opacity-50 hover:opacity-80" : "opacity-100");
                 catHtml += `<button onclick="setFilter('${cat}')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all ${baseClass} ${activeClass}">${cat} (${counts[cat]})</button>`;
             });
 
-            if(Object.keys(counts).length === 0 && duplicates === 0 && bonusCount === 0) {
-                catHtml = '<span class="text-slate-400 dark:text-slate-500 font-normal text-xs">ไม่มีข้อมูลหมวดหมู่</span>';
-            }
             document.getElementById('sumCategories').innerHTML = catHtml;
             updateScoreDashboard(dataToSummarize);
         }
@@ -2138,6 +2144,10 @@
                     let isMatch = false;
                     if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) isMatch = true;
                     if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) isMatch = true;
+                    
+                    // 🌟 กรองเม้นย่อย
+                    if (activeCategoryFilters.includes('reply') && item["สถานะ"] === "เม้นย่อย") isMatch = true;
+                    
                     if (activeCategoryFilters.includes(item["ประเภทงาน"])) isMatch = true;
                     return isMatch;
                 });
@@ -2367,6 +2377,10 @@
                 if (activeCategoryFilters.length === 0) return true;
                 if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) return true;
                 if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) return true;
+                
+                // 🌟 ให้ Excel ดึงเฉพาะเม้นย่อยได้
+                if (activeCategoryFilters.includes('reply') && item["สถานะ"] === "เม้นย่อย") return true;
+                
                 if (activeCategoryFilters.includes(item["ประเภทงาน"])) return true;
                 return false;
             }
