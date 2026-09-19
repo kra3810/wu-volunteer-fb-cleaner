@@ -2210,54 +2210,65 @@
             // 🌟🌟🌟 ระบบเรียงลำดับแบบเกาะกลุ่ม (Smart Sorting) 🌟🌟🌟
             let idToSeq = {};
             let threadToSeq = {};
-            
-            // สแกนหาเลขลำดับของแต่ละรหัสและสายสนทนา
+            let threadMinIndex = {};
+
+            // 1. สแกนหาความสัมพันธ์ของเลขลำดับก่อน
             finalRenderData.forEach(item => {
                 let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
+                let t = item["สายสนทนา"];
+                let id = item["รหัสนักศึกษา"];
+
+                if (t && t !== "-") {
+                    if (threadMinIndex[t] === undefined || item.recordIndex < threadMinIndex[t]) {
+                        threadMinIndex[t] = item.recordIndex; // หาต้นขั้วของสายสนทนา
+                    }
+                }
+
                 if (seqVal && seqVal.trim() !== "") {
                     let seqNum = parseInt(seqVal);
                     if (!isNaN(seqNum)) {
-                        if (item["รหัสนักศึกษา"]) {
-                            if (idToSeq[item["รหัสนักศึกษา"]] === undefined || seqNum < idToSeq[item["รหัสนักศึกษา"]]) idToSeq[item["รหัสนักศึกษา"]] = seqNum;
+                        if (id) {
+                            if (idToSeq[id] === undefined || seqNum < idToSeq[id]) idToSeq[id] = seqNum;
                         }
-                        if (item["สายสนทนา"] && item["สายสนทนา"] !== "-") {
-                            if (threadToSeq[item["สายสนทนา"]] === undefined || seqNum < threadToSeq[item["สายสนทนา"]]) threadToSeq[item["สายสนทนา"]] = seqNum;
+                        if (t && t !== "-") {
+                            if (threadToSeq[t] === undefined || seqNum < threadToSeq[t]) threadToSeq[t] = seqNum;
                         }
                     }
                 }
             });
 
+            // 2. จัดเรียง
             finalRenderData.sort((a, b) => {
-                // ดึงค่าลำดับ ถ้าไม่มีให้ไปเกาะจากแม่มัน (รหัส/สายสนทนาเดียวกัน)
-                let getEffSeq = (item) => {
+                let getSortData = (item) => {
                     let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
                     let seq = parseInt(seqVal);
-                    if (!isNaN(seq)) return seq;
-                    if (idToSeq[item["รหัสนักศึกษา"]] !== undefined) return idToSeq[item["รหัสนักศึกษา"]];
-                    if (threadToSeq[item["สายสนทนา"]] !== undefined) return threadToSeq[item["สายสนทนา"]];
-                    return Infinity; // ถ้าไม่มีแม่ให้เกาะ ให้ไปต่อท้ายสุด
+                    
+                    let effSeq = Infinity; // ถ้าไม่มีเลขเลย จะโดนปัดไปล่างสุด
+                    if (!isNaN(seq)) effSeq = seq;
+                    else if (item["รหัสนักศึกษา"] && idToSeq[item["รหัสนักศึกษา"]] !== undefined) effSeq = idToSeq[item["รหัสนักศึกษา"]];
+                    else if (item["สายสนทนา"] && item["สายสนทนา"] !== "-" && threadToSeq[item["สายสนทนา"]] !== undefined) effSeq = threadToSeq[item["สายสนทนา"]];
+
+                    let isMainWithSeq = !isNaN(seq) ? 1 : 0;
+                    let t = item["สายสนทนา"];
+                    let groupIndex = (t && t !== "-") ? threadMinIndex[t] : item.recordIndex;
+
+                    return { effSeq, isMainWithSeq, groupIndex, recordIndex: item.recordIndex };
                 };
 
-                let aEffSeq = getEffSeq(a);
-                let bEffSeq = getEffSeq(b);
+                let dataA = getSortData(a);
+                let dataB = getSortData(b);
 
-                // กฎที่ 1: เรียงลำดับ 178, 179... 
-                if (aEffSeq !== bEffSeq) {
-                    return aEffSeq - bEffSeq;
-                }
+                // กฎ 1: เรียงตามเลขลำดับเป็นหลัก (1, 2, 3...)
+                if (dataA.effSeq !== dataB.effSeq) return dataA.effSeq - dataB.effSeq;
 
-                // กฎที่ 2: ถ้าเกาะกลุ่มแม่เดียวกัน (เลขเดียวกัน) ตัวจริงที่มีเลขต้องอยู่บนเสมอ
-                let aHasSeq = (a["ลำดับที่"] && a["ลำดับที่"].trim() !== "") ? 1 : 0;
-                let bHasSeq = (b["ลำดับที่"] && b["ลำดับที่"].trim() !== "") ? 1 : 0;
-                if (aHasSeq !== bHasSeq) return bHasSeq - aHasSeq;
+                // กฎ 2: ถ้าเลขเดียวกัน (ลูกเกาะแม่) ให้อยู่เกาะกลุ่มกันตามสายสนทนาต้นขั้ว
+                if (dataA.groupIndex !== dataB.groupIndex) return dataA.groupIndex - dataB.groupIndex;
 
-                // กฎที่ 3: เม้นหลักต้องมาก่อนเม้นย่อย
-                let aMain = a["สถานะ"] === "เม้นหลัก" ? 1 : 0;
-                let bMain = b["สถานะ"] === "เม้นหลัก" ? 1 : 0;
-                if (aMain !== bMain) return bMain - aMain;
+                // กฎ 3: ตัวจริงที่มีเลขลำดับ ต้องอยู่บรรทัดบนสุดของกลุ่มเสมอ
+                if (dataA.isMainWithSeq !== dataB.isMainWithSeq) return dataB.isMainWithSeq - dataA.isMainWithSeq;
 
-                // กฎที่ 4: เรียงตามเวลาคอมเมนต์ (ใครมาก่อนอยู่บน)
-                return a.recordIndex - b.recordIndex;
+                // กฎ 4: เรียงตามเวลาคอมเมนต์
+                return dataA.recordIndex - dataB.recordIndex;
             });
 
             if (finalRenderData.length === 0) {
