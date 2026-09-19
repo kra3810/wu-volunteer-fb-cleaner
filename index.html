@@ -1979,7 +1979,8 @@
 
             let counts = {};
             let bonusCount = 0;
-            let replyCount = 0; // ตัวนับเม้นย่อย
+            let replyCount = 0; 
+            let fadedCount = 0; // 🌟 เพิ่มตัวนับคนที่ถูกซ่อน
 
             dataToSummarize.forEach(d => { 
                 let t = d["ประเภทงาน"]; 
@@ -1988,9 +1989,12 @@
                 if (!d.isFaded && !d.isDuplicateInstance && getBonusScore(d) > 0) {
                     bonusCount++;
                 }
-                // เช็คยอดเม้นย่อย
                 if (!d.isFaded && !d.isDuplicateInstance && d["สถานะ"] === "เม้นย่อย") {
                     replyCount++;
+                }
+                // 🌟 นับยอดที่ถูกซ่อน (กดรูปตา)
+                if (d.isFaded) {
+                    fadedCount++;
                 }
             });
 
@@ -2014,13 +2018,17 @@
                 catHtml += `<button onclick="setFilter('duplicate')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${dupClass}">⚠️ ส่งซ้ำ (${duplicates})</button>`;
             }
 
-            // 🌟 บังคับสร้างปุ่ม "เม้นย่อย" ตลอดเวลา (แม้ยอดเป็น 0)
             let replyClass = activeCategoryFilters.includes('reply') 
                 ? "bg-slate-700 text-white border-slate-700 shadow-md ring-2 ring-slate-400 dark:bg-slate-600 dark:border-slate-500 dark:ring-slate-400" 
                 : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700";
             catHtml += `<button onclick="setFilter('reply')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${replyClass}">↪️ เม้นย่อย (${replyCount})</button>`;
 
-            // ปุ่มหมวดหมู่งาน
+            // 🌟 สร้างปุ่ม "ซ่อนไว้" (จะโชว์ตลอดเวลาที่มีคนถูกซ่อน)
+            let fadedClass = activeCategoryFilters.includes('faded') 
+                ? "bg-slate-700 text-white border-slate-700 shadow-md ring-2 ring-slate-400 dark:bg-slate-600 dark:border-slate-500 dark:ring-slate-400" 
+                : "bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-500 dark:border-slate-700 dark:hover:bg-slate-700";
+            catHtml += `<button onclick="setFilter('faded')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${fadedClass}">👁️ ซ่อนไว้ (${fadedCount})</button>`;
+
             Object.keys(counts).forEach(cat => {
                 let baseClass = CATEGORY_COLORS[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
                 let activeClass = activeCategoryFilters.includes(cat) ? "ring-2 ring-offset-1 ring-current shadow-sm opacity-100" : (activeCategoryFilters.length > 0 ? "opacity-50 hover:opacity-80" : "opacity-100");
@@ -2144,9 +2152,10 @@
                     let isMatch = false;
                     if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) isMatch = true;
                     if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) isMatch = true;
-                    
-                    // 🌟 กรองเม้นย่อย
                     if (activeCategoryFilters.includes('reply') && item["สถานะ"] === "เม้นย่อย") isMatch = true;
+                    
+                    // 🌟 กรองรายการที่ถูกซ่อน
+                    if (activeCategoryFilters.includes('faded') && item.isFaded) isMatch = true;
                     
                     if (activeCategoryFilters.includes(item["ประเภทงาน"])) isMatch = true;
                     return isMatch;
@@ -2162,9 +2171,10 @@
 
             let finalRenderData = [];
             if (currentMode === 'merged') {
-                 let isViewingSpecificDuplicate = activeCategoryFilters.length === 0 && searchQuery !== "" && displayData.every(d => d["รหัสนักศึกษา"].toLowerCase().includes(searchQuery));
+                 // 🌟 แก้ไข: ถ้ามีการกดปุ่ม "ซ่อนไว้" หรือ "ซ้ำ" ให้ข้ามการรวมข้อมูล เพื่อให้มันแสดงแถวออกมาแยกเป็นคนๆ ได้อย่างถูกต้อง
+                 let isBypassMerge = activeCategoryFilters.includes('duplicate') || activeCategoryFilters.includes('faded') || (activeCategoryFilters.length === 0 && searchQuery !== "" && displayData.every(d => d["รหัสนักศึกษา"].toLowerCase().includes(searchQuery)));
                  
-                 if (!isViewingSpecificDuplicate) {
+                 if (!isBypassMerge) {
                       let mergedGroups = {};
                       displayData.forEach(item => {
                           if (item.isFaded || item.isDuplicateInstance) return; 
@@ -2377,9 +2387,10 @@
                 if (activeCategoryFilters.length === 0) return true;
                 if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) return true;
                 if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) return true;
-                
-                // 🌟 ให้ Excel ดึงเฉพาะเม้นย่อยได้
                 if (activeCategoryFilters.includes('reply') && item["สถานะ"] === "เม้นย่อย") return true;
+                
+                // 🌟 ให้ Excel สามารถดึงตัวที่ถูกซ่อนมาได้ (ถ้าเปิดกรองเอาไว้)
+                if (activeCategoryFilters.includes('faded') && item.isFaded) return true;
                 
                 if (activeCategoryFilters.includes(item["ประเภทงาน"])) return true;
                 return false;
@@ -2391,7 +2402,8 @@
                 if (includeFileName && cols.file) obj["ชื่อไฟล์ต้นทาง"] = item.fileName;
                 let idStr = item["รหัสนักศึกษา"];
                 if (!item["isIdValid"]) idStr += " [รหัสไม่ครบ]";
-                if (item.isDuplicate) idStr += " [ส่งซ้ำ]";
+                if (item.isDuplicateInstance) idStr += " [ส่งซ้ำ]";
+                if (item.isFaded) idStr += " [ถูกซ่อน]"; // 🌟 เติม Label ให้รู้ว่าซ่อน
                 if (cols.id) obj["รหัสนักศึกษา"] = idStr;
                 if (cols.name) obj["ชื่อ"] = item["ชื่อ"];
                 if (cols.surname) obj["นามสกุล"] = item["นามสกุล"];
@@ -2423,7 +2435,11 @@
 
             if (currentMode === 'separate') {
                 Object.keys(allFilesData).forEach(fileName => {
-                    const activeRecords = allFilesData[fileName].filter(item => !item.isFaded && isItemMatchFilters(item));
+                    const activeRecords = allFilesData[fileName].filter(item => {
+                        // 🌟 ถ้าซ่อนอยู่ และ ไม่ได้กดกรองซ่อน ให้ข้าม
+                        if (item.isFaded && !activeCategoryFilters.includes('faded')) return false;
+                        return isItemMatchFilters(item);
+                    });
                     const cleanRecords = activeRecords.map(item => prepareRow(item, false));
                     if(cleanRecords.length === 0) return;
                     const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
@@ -2431,6 +2447,7 @@
                     let sheetName = fileName.replace(/\.[^/.]+$/, "").substring(0, 30);
                     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
                 });
+                if (workbook.SheetNames.length === 0) return alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
                 XLSX.writeFile(workbook, "Separate_Students_Report.xlsx");
             } else {
                 let mergedList = [];
@@ -2438,7 +2455,9 @@
                 
                 Object.values(allFilesData).forEach(fileRecords => { 
                     fileRecords.forEach(item => {
-                        if (item.isFaded || item.isDuplicateInstance) return;
+                        // 🌟 ดักให้ตัวซ่อนผ่านเข้ามาได้ ถ้าผู้ใช้จงใจกรอง
+                        if (item.isFaded && !activeCategoryFilters.includes('faded')) return;
+                        if (item.isDuplicateInstance && !activeCategoryFilters.includes('duplicate')) return;
                         if (!isItemMatchFilters(item)) return;
                         
                         let id = item["รหัสนักศึกษา"];
