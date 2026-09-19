@@ -1391,7 +1391,10 @@
             return scores;
         }
 
+        let focusTimer; // 🌟 เพิ่มตัวแปรหน่วงเวลา
+
         function setFocus(fileName, recordIndex, field) {
+            clearTimeout(focusTimer); // 🌟 ยกเลิกการล้างโฟกัส ถ้ามีการกดเปลี่ยนช่องทันที
             isEditing = true;
             if (currentRoomId) {
                 db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).set({ 
@@ -1406,9 +1409,12 @@
         }
 
         function clearFocus() {
-            isEditing = false;
-            if (currentRoomId) db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).remove();
-            checkPendingUpdate();
+            // 🌟 หน่วงเวลา 200ms ก่อนรีเฟรชตาราง ป้องกันช่องพิมพ์หายวับไป
+            focusTimer = setTimeout(() => {
+                isEditing = false;
+                if (currentRoomId) db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).remove();
+                checkPendingUpdate();
+            }, 200);
         }
 
         document.addEventListener('click', (e) => {
@@ -1494,7 +1500,9 @@
                 }
             });
             db.ref('rooms/' + currentRoomId + '/focus').on('value', snapshot => {
-                roomFocusData = snapshot.val() || {}; renderTable(); 
+                roomFocusData = snapshot.val() || {}; 
+                // 🌟 แก้ตรงนี้: ถ้ากำลังพิมพ์อยู่ ให้รอพิมพ์เสร็จก่อนค่อยรีเฟรช
+                if (isEditing) pendingFirebaseUpdate = true; else renderTable(); 
             });
             db.ref('rooms/' + currentRoomId + '/cursors').on('value', snapshot => {
                 roomCursorData = snapshot.val() || {};
@@ -1861,7 +1869,11 @@
                     allFilesData[fileName][recordIndex].manualScore = parseFloat(val);
                     if (currentRoomId) db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(fileName)}/${recordIndex}/manualScore`).set(parseFloat(val));
                 }
-                saveState(); renderTable(); 
+                saveState(); 
+                
+                // 🌟 ป้องกันการรีเฟรชกะทันหัน
+                if (!isEditing) renderTable(); 
+                else pendingFirebaseUpdate = true;
             }
         }
 
@@ -2865,7 +2877,12 @@
                     if (currentRoomId) syncAllData(); // ดึงตารางซ้ำใหม่ทั้งแผง
                 }
                 updateSummary(currentlyDisplayedData); saveState(); 
-                if (field === 'ประเภทงาน') renderTable();
+                
+                // 🌟 ถ้าแก้ประเภทงาน ให้รีเฟรชตารางแค่ตอนที่ไม่ได้พิมพ์ช่องอื่นอยู่
+                if (field === 'ประเภทงาน') {
+                    if (!isEditing) renderTable();
+                    else pendingFirebaseUpdate = true;
+                }
             }
         }
 
