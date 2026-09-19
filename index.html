@@ -2058,12 +2058,21 @@
             Object.values(idGroups).forEach(group => {
                 if (group.length > 1) {
                     group.sort((a, b) => {
+                        // 🌟 กฎที่ 1 (ใหม่ล่าสุด): คนที่มี "ลำดับที่" ต้องชนะ และแสดงผลเป็นตัวจริงเสมอ!
+                        let aHasSeq = (a["ลำดับที่"] && a["ลำดับที่"].trim() !== "") ? 1 : 0;
+                        let bHasSeq = (b["ลำดับที่"] && b["ลำดับที่"].trim() !== "") ? 1 : 0;
+                        if (aHasSeq !== bHasSeq) return bHasSeq - aHasSeq;
+
+                        // กฎที่ 2: ถ้ามีลำดับทั้งคู่ หรือไม่มีทั้งคู่ ให้ดูว่าเป็น "เม้นหลัก" หรือไม่
                         let aMain = a["สถานะ"] === "เม้นหลัก" ? 1 : 0;
                         let bMain = b["สถานะ"] === "เม้นหลัก" ? 1 : 0;
                         if (aMain !== bMain) return bMain - aMain; 
+                        
+                        // กฎที่ 3: ดูยอดไลก์
                         let aLikes = a["ยอดไลก์"] || 0;
                         let bLikes = b["ยอดไลก์"] || 0;
                         if (aLikes !== bLikes) return bLikes - aLikes; 
+                        
                         return a.recordIndex - b.recordIndex; 
                     });
 
@@ -2072,6 +2081,7 @@
                             item.isDuplicateInstance = false;
                         } else {
                             if (!item.isDuplicateInstance) { 
+                                // คนที่แพ้ จะโดนตีเป็นเม้นซ้ำ (⚠️) และถูกซ่อนตาทันที
                                 item.isDuplicateInstance = true;
                                 item.isFaded = true; 
                             }
@@ -3166,7 +3176,6 @@
             return "ไม่ได้ระบุ";
         }
 
-        // 🌟 1. ฟังก์ชันแจกลำดับที่ (เวอร์ชันสมบูรณ์)
         function assignSequenceNumbers(fileName) {
             if (!allFilesData[fileName] || !rawThreadsData[fileName]) return;
 
@@ -3188,14 +3197,39 @@
 
                 let seqStart = null;
                 let seqEnd = null;
+                let found = false;
 
-                // สแกนหาคำว่า "ลำดับที่ X-Y" หรือ "ลำดับ X-Y" หรือ "ลำดับที่: X" (รองรับรูปแบบเยอะขึ้น)
+                // 🌟 สเต็ป 1: หาแบบตรงไปตรงมา (มีคำว่า ลำดับที่)
                 for (let c of rawThread) {
-                    let match = c.text.match(/ลำดับ(?:ที่)?\s*:?\s*(\d+)(?:\s*-\s*(\d+))?/);
+                    let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+                    let match = cleanText.match(/ลำดับ(?:ที่)?\s*[:=]?\s*(\d{1,4})(?:\s*[-–—ถึง]+\s*(\d{1,4}))?/);
                     if (match) {
                         seqStart = parseInt(match[1]);
                         seqEnd = match[2] ? parseInt(match[2]) : seqStart;
-                        break; 
+                        found = true; break; 
+                    }
+                }
+
+                // 🌟 สเต็ป 2: ถ้าไม่เจอคำว่า "ลำดับ" ให้แสกนหา "ตัวเลข-ตัวเลข" ในเม้นตอบกลับของแอดมินโดยตรง (แก้บั๊ก 410-412)
+                if (!found) {
+                    for (let c of rawThread) {
+                        if (!c.isReply) continue; // ค้นหาเฉพาะในเม้นย่อย (แอดมินมักจะตอบตรงนี้)
+                        let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+                        
+                        // หาช่วงตัวเลข X-Y ที่ลอยๆ อยู่ เช่น "Chotiros 410-412"
+                        let matchRange = cleanText.match(/(\d{1,4})\s*[-–—ถึง]+\s*(\d{1,4})/);
+                        if (matchRange) {
+                            seqStart = parseInt(matchRange[1]);
+                            seqEnd = parseInt(matchRange[2]);
+                            found = true; break;
+                        }
+                        // หาเลขเดี่ยวๆ ที่อยู่ท้ายประโยค เช่น "Chotiros 179"
+                        let matchSingle = cleanText.match(/\b(\d{1,4})$/);
+                        if (matchSingle) {
+                            seqStart = parseInt(matchSingle[1]);
+                            seqEnd = seqStart;
+                            found = true; break;
+                        }
                     }
                 }
 
@@ -3206,8 +3240,8 @@
                         if (currentSeq <= seqEnd) {
                             r["ลำดับที่"] = currentSeq.toString();
                             currentSeq++;
+                            r.isFaded = false; 
                         } else {
-                            // คนเกินมา ให้ปล่อยช่องลำดับว่าง และ ปิดการมองเห็น
                             r["ลำดับที่"] = "";
                             r.isFaded = true; 
                         }
