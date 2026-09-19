@@ -2058,17 +2058,16 @@
             Object.values(idGroups).forEach(group => {
                 if (group.length > 1) {
                     group.sort((a, b) => {
-                        // 🌟 กฎที่ 1 (ใหม่ล่าสุด): คนที่มี "ลำดับที่" ต้องชนะ และแสดงผลเป็นตัวจริงเสมอ!
-                        let aHasSeq = (a["ลำดับที่"] && a["ลำดับที่"].trim() !== "") ? 1 : 0;
-                        let bHasSeq = (b["ลำดับที่"] && b["ลำดับที่"].trim() !== "") ? 1 : 0;
-                        if (aHasSeq !== bHasSeq) return bHasSeq - aHasSeq;
+                        // 🌟 กฎที่ 1: ใครมีเลขลำดับ ถือเป็นตัวจริงชนะทันที!
+                        let aSeq = (a["ลำดับที่"] && a["ลำดับที่"].trim() !== "") ? 1 : 0;
+                        let bSeq = (b["ลำดับที่"] && b["ลำดับที่"].trim() !== "") ? 1 : 0;
+                        if (aSeq !== bSeq) return bSeq - aSeq;
 
-                        // กฎที่ 2: ถ้ามีลำดับทั้งคู่ หรือไม่มีทั้งคู่ ให้ดูว่าเป็น "เม้นหลัก" หรือไม่
+                        // กฎที่ 2: ถ้ามีทั้งคู่ หรือไม่มีทั้งคู่ ให้เม้นหลักชนะ
                         let aMain = a["สถานะ"] === "เม้นหลัก" ? 1 : 0;
                         let bMain = b["สถานะ"] === "เม้นหลัก" ? 1 : 0;
                         if (aMain !== bMain) return bMain - aMain; 
                         
-                        // กฎที่ 3: ดูยอดไลก์
                         let aLikes = a["ยอดไลก์"] || 0;
                         let bLikes = b["ยอดไลก์"] || 0;
                         if (aLikes !== bLikes) return bLikes - aLikes; 
@@ -2080,8 +2079,8 @@
                         if (idx === 0) {
                             item.isDuplicateInstance = false;
                         } else {
+                            // คนที่แพ้ จะกลายเป็นเม้นซ้ำ และโดนซ่อนตาทันที
                             if (!item.isDuplicateInstance) { 
-                                // คนที่แพ้ จะโดนตีเป็นเม้นซ้ำ (⚠️) และถูกซ่อนตาทันที
                                 item.isDuplicateInstance = true;
                                 item.isFaded = true; 
                             }
@@ -2139,7 +2138,7 @@
             function getThClass(baseClass) { let cls = baseClass; if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; } return cls; }
 
             if (currentMode === 'merged' && cols.file) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
-            if (cols.seq) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ลำดับที่</th>`; // 🌟 หัวตาราง
+            if (cols.seq) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ลำดับที่</th>`;
             if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
             if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
             if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
@@ -2170,7 +2169,6 @@
                     if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) isMatch = true;
                     if (activeCategoryFilters.includes('reply') && item["สถานะ"] === "เม้นย่อย") isMatch = true;
                     if (activeCategoryFilters.includes('faded') && item.isFaded) isMatch = true;
-                    
                     if (activeCategoryFilters.includes(item["ประเภทงาน"])) isMatch = true;
                     return isMatch;
                 });
@@ -2204,15 +2202,31 @@
                           }
                       });
                       finalRenderData = Object.values(mergedGroups);
-                      if (cols.score && searchQuery === "") {
-                          finalRenderData.sort((a,b) => {
-                              let aScore = Object.values(a._mergedScoreMap).reduce((sum, s) => sum + s, 0);
-                              let bScore = Object.values(b._mergedScoreMap).reduce((sum, s) => sum + s, 0);
-                              return bScore - aScore;
-                          });
-                      }
                  } else { finalRenderData = displayData; }
             } else { finalRenderData = displayData; }
+
+            // 🌟🌟🌟 ระบบเรียงลำดับตาราง (Sorting) 🌟🌟🌟
+            // บังคับเรียงตาม "เลขลำดับที่" จากน้อยไปมากเสมอ 1, 2, 3... 178, 179
+            finalRenderData.sort((a, b) => {
+                // ดึงค่าลำดับที่ออกมา (รองรับทั้งโหมดแยกและรวมหน้า)
+                let valA = a._mergedSources ? (a._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"] || "") : (a["ลำดับที่"] || "");
+                let valB = b._mergedSources ? (b._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"] || "") : (b["ลำดับที่"] || "");
+                
+                let seqA = parseInt(valA);
+                let seqB = parseInt(valB);
+                
+                let isANaN = isNaN(seqA);
+                let isBNaN = isNaN(seqB);
+
+                if (!isANaN && !isBNaN) {
+                    return seqA - seqB; // เลขน้อยอยู่บน เลขมากอยู่ล่าง (178 แล้วไป 179)
+                }
+                if (!isANaN && isBNaN) return -1; // คนมีเลข ดันขึ้นไปอยู่บนๆ
+                if (isANaN && !isBNaN) return 1;  // คนไม่มีเลข (ช่องว่าง) ปัดตกลงไปอยู่ข้างล่างสุด
+                
+                // ถ้าไม่มีเลขทั้งคู่ (หรือซ้ำกัน) ให้เรียงตามเวลาที่คอมเมนต์
+                return a.recordIndex - b.recordIndex;
+            });
 
             if (finalRenderData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">ไม่พบข้อมูลที่ตรงกับการค้นหา หรือ ตัวกรอง</td></tr>`;
@@ -2249,7 +2263,8 @@
                         }
                     }
 
-                    let seqSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ลำดับที่', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 font-bold text-center w-full block min-w-[30px] ${focusClassSeq}" style="${focusStyleSeq}">${item["ลำดับที่"] || ""}</span>`;
+                    // เอาคลาสที่เป็นไอคอน ⚠️ ออกไปแล้ว
+                    let seqSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ลำดับที่', this.innerText);" class="text-slate-700 dark:text-slate-300 font-bold text-center w-full block min-w-[30px] outline-none rounded focus:bg-yellow-100 dark:focus:bg-yellow-900 transition-colors ${focusClassSeq}" style="${focusStyleSeq}">${item["ลำดับที่"] || ""}</span>`;
                     let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusClassId}" style="${focusStyleId}">${item["รหัสนักศึกษา"]}</span>`;
                     let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusClassName}" style="${focusStyleName}">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusClassSurname}" style="${focusStyleSurname}">${item["นามสกุล"]}</span>`;
@@ -2323,7 +2338,6 @@
                         rowCells.push({ content: `<div class="row-content">${fileHtml}</div>`, type: 'normal', colname: 'ไฟล์ต้นทาง' });
                     }
                     
-                    // 🌟 วางคอลัมน์ ลำดับที่
                     if (cols.seq) {
                         if (item._mergedSources) {
                             let seqs = [...new Set(item._mergedSources.map(s => s["ลำดับที่"]).filter(Boolean))].join(", ");
