@@ -563,6 +563,10 @@
                         <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
                         <div class="flex flex-wrap gap-2">
                             <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไฟล์ต้นทาง</div></label>
+                            
+                            <!-- 🌟 ปุ่มเปิดปิดคอลัมน์ ลำดับที่ -->
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_seq" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none text-indigo-600 dark:text-indigo-400">ลำดับที่</div></label>
+                            
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">นามสกุล</div></label>
@@ -1724,6 +1728,7 @@
         function getSelectedColumns() {
             return {
                 file: document.getElementById('col_file') ? document.getElementById('col_file').checked : false,
+                seq: document.getElementById('col_seq') ? document.getElementById('col_seq').checked : false, // 🌟
                 id: document.getElementById('col_id').checked, name: document.getElementById('col_name').checked,
                 surname: document.getElementById('col_surname').checked, status: document.getElementById('col_status').checked,
                 type: document.getElementById('col_type').checked, likes: document.getElementById('col_likes').checked,
@@ -2124,6 +2129,7 @@
             function getThClass(baseClass) { let cls = baseClass; if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; } return cls; }
 
             if (currentMode === 'merged' && cols.file) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
+            if (cols.seq) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ลำดับที่</th>`; // 🌟 หัวตาราง
             if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
             if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
             if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
@@ -2153,8 +2159,6 @@
                     if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) isMatch = true;
                     if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) isMatch = true;
                     if (activeCategoryFilters.includes('reply') && item["สถานะ"] === "เม้นย่อย") isMatch = true;
-                    
-                    // 🌟 กรองรายการที่ถูกซ่อน
                     if (activeCategoryFilters.includes('faded') && item.isFaded) isMatch = true;
                     
                     if (activeCategoryFilters.includes(item["ประเภทงาน"])) isMatch = true;
@@ -2171,7 +2175,6 @@
 
             let finalRenderData = [];
             if (currentMode === 'merged') {
-                 // 🌟 แก้ไข: ถ้ามีการกดปุ่ม "ซ่อนไว้" หรือ "ซ้ำ" ให้ข้ามการรวมข้อมูล เพื่อให้มันแสดงแถวออกมาแยกเป็นคนๆ ได้อย่างถูกต้อง
                  let isBypassMerge = activeCategoryFilters.includes('duplicate') || activeCategoryFilters.includes('faded') || (activeCategoryFilters.length === 0 && searchQuery !== "" && displayData.every(d => d["รหัสนักศึกษา"].toLowerCase().includes(searchQuery)));
                  
                  if (!isBypassMerge) {
@@ -2216,18 +2219,15 @@
                     tr.setAttribute('data-recordindex', item.recordIndex); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    // --- 🌟 ดึงสีประจำตัวมาสร้างกรอบไฮไลต์ ---
-                    let focusStyleId = "", focusStyleName = "", focusStyleSurname = "", focusStyleScore = "";
-                    let focusClassId = "", focusClassName = "", focusClassSurname = "", focusClassScore = "";
+                    let focusStyleId = "", focusStyleName = "", focusStyleSurname = "", focusStyleScore = "", focusStyleSeq = "";
+                    let focusClassId = "", focusClassName = "", focusClassSurname = "", focusClassScore = "", focusClassSeq = "";
 
                     for (let uid in roomFocusData) {
-                        if (uid === myUserId) continue; // ข้ามของตัวเอง
+                        if (uid === myUserId) continue; 
                         let focus = roomFocusData[uid];
                         if (String(focus.fileName) === String(item.fileName) && String(focus.recordIndex) === String(item.recordIndex)) {
                             let ringColor = focus.color || "#d946ef"; 
                             let bgColor = focus.bgColor || "#fdf4ff";
-                            
-                            // ฝัง CSS Inline เข้าไปทับสีเดิมของคลาส
                             let inlineStyle = `box-shadow: 0 0 0 3px ${ringColor}, 0 0 12px ${ringColor}; background-color: ${bgColor}; color: ${ringColor}; transform: scale(1.15); z-index: 60; position: relative; border-radius: 4px; font-weight: 900;`;
                             let baseClass = " transition-all ";
 
@@ -2235,10 +2235,11 @@
                             if (focus.field === 'ชื่อ') { focusStyleName = inlineStyle; focusClassName = baseClass; }
                             if (focus.field === 'นามสกุล') { focusStyleSurname = inlineStyle; focusClassSurname = baseClass; }
                             if (focus.field === 'คะแนน') { focusStyleScore = inlineStyle; focusClassScore = baseClass; }
+                            if (focus.field === 'ลำดับที่') { focusStyleSeq = inlineStyle; focusClassSeq = baseClass; }
                         }
                     }
 
-                    // เอา Style ที่คำนวณได้ ไปยัดใส่ให้ตรงช่อง
+                    let seqSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ลำดับที่', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 font-bold text-center w-full block min-w-[30px] ${focusClassSeq}" style="${focusStyleSeq}">${item["ลำดับที่"] || ""}</span>`;
                     let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusClassId}" style="${focusStyleId}">${item["รหัสนักศึกษา"]}</span>`;
                     let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusClassName}" style="${focusStyleName}">${item["ชื่อ"]}</span>`;
                     let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusClassSurname}" style="${focusStyleSurname}">${item["นามสกุล"]}</span>`;
@@ -2310,6 +2311,16 @@
                     if (currentMode === 'merged' && cols.file) {
                         let fileHtml = item._mergedSources && item._mergedSources.length > 1 ? `<span class="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800" title="พบจากหลายไฟล์">รวม ${item._mergedSources.length} ไฟล์</span>` : `<span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName}</span>`;
                         rowCells.push({ content: `<div class="row-content">${fileHtml}</div>`, type: 'normal', colname: 'ไฟล์ต้นทาง' });
+                    }
+                    
+                    // 🌟 วางคอลัมน์ ลำดับที่
+                    if (cols.seq) {
+                        if (item._mergedSources) {
+                            let seqs = [...new Set(item._mergedSources.map(s => s["ลำดับที่"]).filter(Boolean))].join(", ");
+                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-300 flex justify-center">${seqs}</div>`, type: 'center', colname: 'ลำดับที่' });
+                        } else {
+                            rowCells.push({ content: `<div class="row-content flex justify-center">${seqSpan}</div>`, type: 'center', colname: 'ลำดับที่' });
+                        }
                     }
 
                     if (cols.id) {
@@ -2824,14 +2835,12 @@
             applyTheme('light');
         }
 
-        // 🌟 ฟังก์ชันเพิ่มแถวใหม่ด้วยมือ (ส่งข้อมูลให้เพื่อนเห็นทันที)
         function addNewRow() {
             let files = Object.keys(allFilesData);
             if (files.length === 0) {
                 return alert("⚠️ กรุณาอัปโหลดไฟล์ CSV อย่างน้อย 1 ไฟล์ก่อน เพื่อใช้เป็นฐานข้อมูลหลักครับ");
             }
 
-            // ถ้ารวมหน้าเดียว ให้เอาไปแปะไว้ไฟล์แรกสุด ถ้าแยกหน้า ให้แปะไฟล์ที่กำลังเปิดอยู่
             let targetFile = (currentMode === 'separate') ? document.getElementById('fileSelectDropdown').value : files[0];
             
             if (!allFilesData[targetFile]) allFilesData[targetFile] = [];
@@ -2840,6 +2849,7 @@
             let newRow = {
                 "recordIndex": newIndex,
                 "fileName": targetFile,
+                "ลำดับที่": "", 
                 "รหัสนักศึกษา": "",
                 "isIdValid": false,
                 "ชื่อ": "",
@@ -3156,6 +3166,67 @@
             return "ไม่ได้ระบุ";
         }
 
+        // 🌟 1. ฟังก์ชันแจกลำดับที่ (เวอร์ชันสมบูรณ์)
+        function assignSequenceNumbers(fileName) {
+            if (!allFilesData[fileName] || !rawThreadsData[fileName]) return;
+
+            let records = allFilesData[fileName];
+            let threads = {};
+
+            // 1. แยกเม้นหลัก เม้นย่อย ตามสายสนทนา
+            records.forEach(r => {
+                let t = r["สายสนทนา"];
+                if (!threads[t]) threads[t] = { main: [], reply: [] };
+                if (r.isReply) threads[t].reply.push(r);
+                else threads[t].main.push(r);
+            });
+
+            // 2. วิเคราะห์แต่ละสายสนทนา
+            for (let threadNo in threads) {
+                let rawThread = rawThreadsData[fileName][threadNo];
+                if (!rawThread) continue;
+
+                let seqStart = null;
+                let seqEnd = null;
+
+                // สแกนหาคำว่า "ลำดับที่ X-Y" หรือ "ลำดับ X-Y" หรือ "ลำดับที่: X" (รองรับรูปแบบเยอะขึ้น)
+                for (let c of rawThread) {
+                    let match = c.text.match(/ลำดับ(?:ที่)?\s*:?\s*(\d+)(?:\s*-\s*(\d+))?/);
+                    if (match) {
+                        seqStart = parseInt(match[1]);
+                        seqEnd = match[2] ? parseInt(match[2]) : seqStart;
+                        break; 
+                    }
+                }
+
+                // 3. แจกลำดับให้เม้นหลัก และ "ซ่อน" คนที่เกินโควตา
+                if (seqStart !== null) {
+                    let currentSeq = seqStart;
+                    threads[threadNo].main.forEach(r => {
+                        if (currentSeq <= seqEnd) {
+                            r["ลำดับที่"] = currentSeq.toString();
+                            currentSeq++;
+                        } else {
+                            // คนเกินมา ให้ปล่อยช่องลำดับว่าง และ ปิดการมองเห็น
+                            r["ลำดับที่"] = "";
+                            r.isFaded = true; 
+                        }
+                    });
+                } else {
+                    threads[threadNo].main.forEach(r => {
+                        r["ลำดับที่"] = "";
+                    });
+                }
+
+                // 4. เม้นสายย่อย ปิดตาซ่อนไว้ก่อน และไม่ให้ลำดับ 100%
+                threads[threadNo].reply.forEach(r => {
+                    r.isFaded = true;
+                    r["ลำดับที่"] = "";
+                });
+            }
+        }
+
+        // 🌟 2. ฟังก์ชันโหลดข้อมูลหลัก (ซ่อมให้โหลดตารางได้ตามปกติแล้ว)
         function parseCSVData(fileName, text) {
             const rows = parseCSVRobust(text);
             if (rows.length < 2) return;
@@ -3230,7 +3301,6 @@
                 const isReply = parentId !== "" && parentId !== "undefined";
                 const likeCount = likeIdx !== -1 ? parseInt(cols[likeIdx]) || 0 : 0;
                 
-                // --- ดึงข้อมูลจำลอง Facebook ---
                 const authorIdx = indexOfIgnoreCase(headers, 'User Name'); 
                 const authorName = authorIdx !== -1 && cols[authorIdx] ? cols[authorIdx].trim() : "ผู้ใช้งาน";
                 const timeIdx = indexOfIgnoreCase(headers, 'Comment Time'); 
@@ -3239,7 +3309,6 @@
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
                 const resolvedUrl = resolveUrl(commentId);
 
-                // เก็บลงฐานข้อมูลจำลอง (ดักไว้ไม่ให้มันทำงานซ้ำซ้อน)
                 if (!rawThreadsData[fileName]) rawThreadsData[fileName] = {};
                 if (!rawThreadsData[fileName][threadNo]) rawThreadsData[fileName][threadNo] = [];
                 const isAlreadyAdded = rawThreadsData[fileName][threadNo].some(item => item.id === commentId);
@@ -3254,7 +3323,6 @@
                         time: commentTime
                     });
                 }
-                // -----------------------------
 
                 const rawLines = fullText.split('\n');
                 const cleanLines = rawLines.map(line => line.trim().replace(/เเ/g, 'แ'));
@@ -3279,7 +3347,9 @@
                         let pointType = detectPointType(cleanLines, lineIndex);
 
                         fileRecords.push({
-                            "recordIndex": fileRecords.length, "fileName": fileName, "รหัสนักศึกษา": studentId,
+                            "recordIndex": fileRecords.length, "fileName": fileName, 
+                            "ลำดับที่": "", 
+                            "รหัสนักศึกษา": studentId,
                             "isIdValid": isIdValid, "ชื่อ": firstName, "นามสกุล": lastName,
                             "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", "สายสนทนา": threadNo,
                             "isReply": isReply, "ประเภทงาน": pointType, "ยอดไลก์": likeCount,
@@ -3291,8 +3361,14 @@
                 });
             }
             allFilesData[fileName] = fileRecords;
+            
+            // 🌟 1. รันระบบแจกลำดับ และ ซ่อนเม้นย่อย/คนเกิน
+            assignSequenceNumbers(fileName); 
+            
+            // 🌟 2. จากนั้นเช็คคนส่งซ้ำ
             evaluateDuplicates(fileName);
         }
+            
         // ==========================================
         // 🌟 ระบบ HUB & SIDEBAR MANAGEMENT (บอท 1 ปี)
         // ==========================================
