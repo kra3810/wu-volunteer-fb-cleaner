@@ -2058,7 +2058,7 @@
             Object.values(idGroups).forEach(group => {
                 if (group.length > 1) {
                     group.sort((a, b) => {
-                        // 🌟 กฎที่ 1: ใครมีเลขลำดับ ถือเป็นตัวจริงชนะทันที!
+                        // 🌟 กฎที่ 1 (ใหม่): ใครมีเลขลำดับ ถือเป็นตัวจริงชนะทันที!
                         let aSeq = (a["ลำดับที่"] && a["ลำดับที่"].trim() !== "") ? 1 : 0;
                         let bSeq = (b["ลำดับที่"] && b["ลำดับที่"].trim() !== "") ? 1 : 0;
                         if (aSeq !== bSeq) return bSeq - aSeq;
@@ -2079,8 +2079,8 @@
                         if (idx === 0) {
                             item.isDuplicateInstance = false;
                         } else {
-                            // คนที่แพ้ จะกลายเป็นเม้นซ้ำ และโดนซ่อนตาทันที
                             if (!item.isDuplicateInstance) { 
+                                // คนที่แพ้ จะกลายเป็นเม้นซ้ำ (⚠️) และโดนซ่อนตาทันที
                                 item.isDuplicateInstance = true;
                                 item.isFaded = true; 
                             }
@@ -2203,28 +2203,60 @@
                       });
                       finalRenderData = Object.values(mergedGroups);
                  } else { finalRenderData = displayData; }
-            } else { finalRenderData = displayData; }
+            } else { 
+                finalRenderData = displayData; 
+            }
 
-            // 🌟🌟🌟 ระบบเรียงลำดับตาราง (Sorting) 🌟🌟🌟
-            // บังคับเรียงตาม "เลขลำดับที่" จากน้อยไปมากเสมอ 1, 2, 3... 178, 179
-            finalRenderData.sort((a, b) => {
-                // ดึงค่าลำดับที่ออกมา (รองรับทั้งโหมดแยกและรวมหน้า)
-                let valA = a._mergedSources ? (a._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"] || "") : (a["ลำดับที่"] || "");
-                let valB = b._mergedSources ? (b._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"] || "") : (b["ลำดับที่"] || "");
-                
-                let seqA = parseInt(valA);
-                let seqB = parseInt(valB);
-                
-                let isANaN = isNaN(seqA);
-                let isBNaN = isNaN(seqB);
-
-                if (!isANaN && !isBNaN) {
-                    return seqA - seqB; // เลขน้อยอยู่บน เลขมากอยู่ล่าง (178 แล้วไป 179)
+            // 🌟🌟🌟 ระบบเรียงลำดับแบบเกาะกลุ่ม (Smart Sorting) 🌟🌟🌟
+            let idToSeq = {};
+            let threadToSeq = {};
+            
+            // สแกนหาเลขลำดับของแต่ละรหัสและสายสนทนา
+            finalRenderData.forEach(item => {
+                let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
+                if (seqVal && seqVal.trim() !== "") {
+                    let seqNum = parseInt(seqVal);
+                    if (!isNaN(seqNum)) {
+                        if (item["รหัสนักศึกษา"]) {
+                            if (idToSeq[item["รหัสนักศึกษา"]] === undefined || seqNum < idToSeq[item["รหัสนักศึกษา"]]) idToSeq[item["รหัสนักศึกษา"]] = seqNum;
+                        }
+                        if (item["สายสนทนา"] && item["สายสนทนา"] !== "-") {
+                            if (threadToSeq[item["สายสนทนา"]] === undefined || seqNum < threadToSeq[item["สายสนทนา"]]) threadToSeq[item["สายสนทนา"]] = seqNum;
+                        }
+                    }
                 }
-                if (!isANaN && isBNaN) return -1; // คนมีเลข ดันขึ้นไปอยู่บนๆ
-                if (isANaN && !isBNaN) return 1;  // คนไม่มีเลข (ช่องว่าง) ปัดตกลงไปอยู่ข้างล่างสุด
-                
-                // ถ้าไม่มีเลขทั้งคู่ (หรือซ้ำกัน) ให้เรียงตามเวลาที่คอมเมนต์
+            });
+
+            finalRenderData.sort((a, b) => {
+                // ดึงค่าลำดับ ถ้าไม่มีให้ไปเกาะจากแม่มัน (รหัส/สายสนทนาเดียวกัน)
+                let getEffSeq = (item) => {
+                    let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
+                    let seq = parseInt(seqVal);
+                    if (!isNaN(seq)) return seq;
+                    if (idToSeq[item["รหัสนักศึกษา"]] !== undefined) return idToSeq[item["รหัสนักศึกษา"]];
+                    if (threadToSeq[item["สายสนทนา"]] !== undefined) return threadToSeq[item["สายสนทนา"]];
+                    return Infinity; // ถ้าไม่มีแม่ให้เกาะ ให้ไปต่อท้ายสุด
+                };
+
+                let aEffSeq = getEffSeq(a);
+                let bEffSeq = getEffSeq(b);
+
+                // กฎที่ 1: เรียงลำดับ 178, 179... 
+                if (aEffSeq !== bEffSeq) {
+                    return aEffSeq - bEffSeq;
+                }
+
+                // กฎที่ 2: ถ้าเกาะกลุ่มแม่เดียวกัน (เลขเดียวกัน) ตัวจริงที่มีเลขต้องอยู่บนเสมอ
+                let aHasSeq = (a["ลำดับที่"] && a["ลำดับที่"].trim() !== "") ? 1 : 0;
+                let bHasSeq = (b["ลำดับที่"] && b["ลำดับที่"].trim() !== "") ? 1 : 0;
+                if (aHasSeq !== bHasSeq) return bHasSeq - aHasSeq;
+
+                // กฎที่ 3: เม้นหลักต้องมาก่อนเม้นย่อย
+                let aMain = a["สถานะ"] === "เม้นหลัก" ? 1 : 0;
+                let bMain = b["สถานะ"] === "เม้นหลัก" ? 1 : 0;
+                if (aMain !== bMain) return bMain - aMain;
+
+                // กฎที่ 4: เรียงตามเวลาคอมเมนต์ (ใครมาก่อนอยู่บน)
                 return a.recordIndex - b.recordIndex;
             });
 
@@ -2263,7 +2295,6 @@
                         }
                     }
 
-                    // เอาคลาสที่เป็นไอคอน ⚠️ ออกไปแล้ว
                     let seqSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ลำดับที่', this.innerText);" class="text-slate-700 dark:text-slate-300 font-bold text-center w-full block min-w-[30px] outline-none rounded focus:bg-yellow-100 dark:focus:bg-yellow-900 transition-colors ${focusClassSeq}" style="${focusStyleSeq}">${item["ลำดับที่"] || ""}</span>`;
                     let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusClassId}" style="${focusStyleId}">${item["รหัสนักศึกษา"]}</span>`;
                     let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusClassName}" style="${focusStyleName}">${item["ชื่อ"]}</span>`;
