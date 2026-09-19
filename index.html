@@ -8,10 +8,50 @@
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
     <style>
+        /* --- ตั้งค่าหน้ากระดาษพิมพ์ A4 --- */
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+
+        /* ซ่อน Print Container ตอนใช้งานเว็บปกติ */
+        #printContainer { display: none; }
+        #printContainer:not(.hidden) { display: block !important; width: 100%; background: white; font-family: 'Sarabun', sans-serif !important; }
+
+        /* --- ตั้งค่าหน้ากระดาษพิมพ์ A4 (มาตรฐานใหม่ 100%) --- */
+        @media print {
+            /* 1. ลบ URL และวันที่ของเบราว์เซอร์ทิ้ง */
+            @page { margin: 0mm; size: A4 portrait; }
+            body { background: white !important; margin: 0; padding: 0; }
+            
+            /* 2. จัดการหน้ากระดาษทีละหน้า ไม่ให้ตารางขาดครึ่ง */
+            .print-page { 
+                padding: 15mm !important; /* เว้นขอบกันตกขอบกระดาษจริง */
+                width: 100%; 
+                height: 100vh; /* บังคับ 1 หน้าเต็มพอดี */
+                box-sizing: border-box; 
+                page-break-after: always; 
+                page-break-inside: avoid;
+                position: relative;
+                background: white;
+            }
+            .print-page:last-child { page-break-after: auto; }
+            
+            /* 3. ตีกรอบตารางคมๆ และกระชับพื้นที่ */
+            .sign-table { width: 100%; border-collapse: collapse !important; }
+            .sign-table th, .sign-table td {
+                border: 1px solid #000 !important; 
+                padding: 4px 6px !important; /* กระชับช่องว่าง */
+                font-size: 14pt !important; 
+                color: #000 !important;
+                height: 26px !important; /* บังคับความสูงแถวให้เป๊ะ */
+                line-height: 1.2 !important;
+            }
+            .sign-table th { background-color: #fed7aa !important; text-align: center; font-weight: bold; }
+        }
+
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -205,9 +245,9 @@
                 <svg class="w-5 h-5 opacity-60 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                 วิธีดึงไฟล์ CSV
             </button>
-            <button onclick="alert('โมดูลดึงรายชื่อ กำลังอยู่ในช่วงพัฒนาครับ! จะมาในอัปเดตหน้า 🚀')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-indigo-300 hover:bg-slate-50 dark:hover:bg-indigo-800/50 hover:text-indigo-600 dark:hover:text-white rounded-xl font-semibold transition-all text-sm group">
+            <button onclick="openSignSheetModal()" class="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-indigo-300 hover:bg-slate-50 dark:hover:bg-indigo-800/50 hover:text-indigo-600 dark:hover:text-white rounded-xl font-semibold transition-all text-sm group">
                 <svg class="w-5 h-5 opacity-60 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                ระบบทำรายชื่อ <span class="bg-slate-100 text-slate-500 dark:bg-indigo-500/20 dark:text-indigo-200 border border-slate-200 dark:border-indigo-500/30 text-[9px] px-1.5 py-0.5 rounded ml-auto uppercase tracking-wider font-bold">Soon</span>
+                ระบบทำรายชื่อ
             </button>
         </nav>
         
@@ -714,6 +754,109 @@
             </div>
         </div>
     </div>
+    <!-- 🖨️ คอนเทนเนอร์สำหรับพิมพ์ (จะถูกซ่อนไว้ตอนเล่นเว็บปกติ โผล่มาแค่ตอนกด Print) -->
+    <div id="printContainer" class="hidden absolute top-0 left-0 w-full bg-white z-[999999]"></div>
+
+    <!-- 📝 Modal ตั้งค่าสร้างใบรายชื่อ -->
+    <div id="signSheetModal" class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 shrink-0">
+                <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">📑 ระบบสร้างใบเซ็นชื่อ (Sign-in Sheet)</h3>
+                <button onclick="closeSignSheetModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold p-1">✕</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-6">
+                <!-- ข้อมูลหัวกระดาษ -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-indigo-600 dark:text-indigo-400 border-b border-indigo-100 dark:border-indigo-900/50 pb-2">1. ข้อมูลหัวกระดาษเอกสาร</h4>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="shrink-0">
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 text-center">โลโก้ (สี่เหลี่ยมจัตุรัส)</label>
+                            <div class="relative w-20 h-20 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-indigo-500 cursor-pointer overflow-hidden group bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center" onclick="document.getElementById('logoUpload').click()">
+                                <img id="logoPreview" src="" class="w-full h-full object-contain hidden" alt="Logo">
+                                <span id="logoPlaceholder" class="text-2xl text-slate-400 group-hover:text-indigo-500">📷</span>
+                                <input type="file" id="logoUpload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 space-y-3">
+                            <!-- 🌟 เพิ่มช่องกรอกหัวกระดาษ -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">หัวกระดาษเอกสาร *</label>
+                                <input type="text" id="printDocTitle" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" value="รายชื่อนักศึกษาเข้าร่วม">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">ชื่อกิจกรรม / วิชา *</label>
+                                <input type="text" id="printEventName" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="เช่น กิจกรรมปลูกป่า...">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">วัน/เดือน/ปี และ เวลา *</label>
+                                    <input type="text" id="printDateTime" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="เช่น 24 พ.ย. 69 เวลา 08:30 น.">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">สถานที่ *</label>
+                                    <input type="text" id="printLocation" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="เช่น อาคารไทยบุรี">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- แหล่งข้อมูล -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-indigo-600 dark:text-indigo-400 border-b border-indigo-100 dark:border-indigo-900/50 pb-2">2. เลือกแหล่งรายชื่อนักศึกษา</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="relative flex cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm focus:outline-none has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/20">
+                            <input type="radio" name="dataSource" value="active" class="sr-only" checked onchange="toggleUploadField()">
+                            <div class="flex w-full items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">📋</span>
+                                    <div class="text-sm">
+                                        <p class="font-bold text-slate-900 dark:text-white">ดึงจากใบงานปัจจุบัน</p>
+                                        <div class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">ใช้รายชื่อจากหน้าตารางที่เปิดอยู่ตอนนี้</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="relative flex cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm focus:outline-none has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/20">
+                            <input type="radio" name="dataSource" value="upload" class="sr-only" onchange="toggleUploadField()">
+                            <div class="flex w-full items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">📁</span>
+                                    <div class="text-sm">
+                                        <p class="font-bold text-slate-900 dark:text-white">อัปโหลดไฟล์ (CSV/Excel)</p>
+                                        <div class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">ใช้ไฟล์ที่ดาวน์โหลดจากระบบเรามาทำใหม่</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- 🌟 อัปเกรดให้รองรับ .xlsx ด้วย -->
+                    <div id="printUploadArea" class="hidden mt-2 p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition" onclick="document.getElementById('printFileInput').click()">
+                        <input type="file" id="printFileInput" accept=".csv, .xlsx, .xls" class="hidden" onchange="handlePrintFileUpload(event)">
+                        <span class="text-2xl mb-1 block text-slate-400">📄</span>
+                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">คลิกเพื่ออัปโหลดไฟล์ Excel (.xlsx) หรือ CSV</p>
+                        <p id="printFileNameDisplay" class="text-xs text-indigo-500 mt-1 font-medium"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 shrink-0">
+                <span class="text-xs text-slate-500 font-medium">💡 กดสร้างแล้ว ระบบจะให้คุณ Save เป็น PDF ผ่านหน้าต่าง Print</span>
+                <div class="flex gap-2">
+                    <button onclick="closeSignSheetModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition">ยกเลิก</button>
+                    <button onclick="generateSignSheet()" class="px-5 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition transform hover:scale-105 flex items-center gap-2">
+                        <span>🖨️</span> จัดหน้าและพิมพ์ PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Script ควบคุมการทำงาน -->
     <script>
@@ -759,20 +902,289 @@
         let lastClientY = -1000;
         let isMouseInside = false;
 
-        function clearAllArchivedRooms() {
-            if (confirm("คุณต้องการลบห้องในถังขยะทั้งหมดแบบถาวรใช่หรือไม่?")) {
-                // ล้างข้อมูลห้องในถังขยะ (ปรับชื่อตัวแปรตามระบบจริงของคุณ เช่น archivedRooms)
-                if (typeof archivedRooms !== 'undefined') {
-                    archivedRooms = [];
-                }
-                // บันทึกข้อมูลและอัปเดตการแสดงผลหน้าจอ
-                if (typeof saveRoomsToStorage === 'function') {
-                    saveRoomsToStorage();
-                }
-                if (typeof renderHubRooms === 'function') {
-                    renderHubRooms();
-                }
+        // ==========================================
+        // 🌟 ระบบทำใบรายชื่อ (Sign-in Sheet Generator)
+        // ==========================================
+        let printLogoBase64 = "";
+        let externalPrintData = []; // เก็บข้อมูลกรณีเลือกอัปโหลดไฟล์ใหม่
+
+        // อย่าลืมไปเปลี่ยนปุ่ม "ระบบทำรายชื่อ SOON" ใน Sidebar ให้เรียกใช้ฟังก์ชันนี้นะครับ
+        function openSignSheetModal() {
+            document.getElementById('signSheetModal').classList.remove('hidden');
+            // โหลดโลโก้ที่เคยอัปโหลดไว้ (ถ้ามี)
+            const savedLogo = localStorage.getItem('printLogo');
+            if (savedLogo) {
+                printLogoBase64 = savedLogo;
+                document.getElementById('logoPreview').src = savedLogo;
+                document.getElementById('logoPreview').classList.remove('hidden');
+                document.getElementById('logoPlaceholder').classList.add('hidden');
             }
+            toggleUploadField();
+        }
+
+        function closeSignSheetModal() {
+            document.getElementById('signSheetModal').classList.add('hidden');
+        }
+
+        function toggleUploadField() {
+            const source = document.querySelector('input[name="dataSource"]:checked').value;
+            const uploadArea = document.getElementById('printUploadArea');
+            if (source === 'upload') {
+                uploadArea.classList.remove('hidden');
+            } else {
+                uploadArea.classList.add('hidden');
+            }
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    printLogoBase64 = e.target.result;
+                    document.getElementById('logoPreview').src = printLogoBase64;
+                    document.getElementById('logoPreview').classList.remove('hidden');
+                    document.getElementById('logoPlaceholder').classList.add('hidden');
+                    localStorage.setItem('printLogo', printLogoBase64); // จำรูปไว้ใช้รอบหน้า
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handlePrintFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('printFileNameDisplay').innerText = `✅ โหลดไฟล์: ${file.name}`;
+            
+            const ext = file.name.split('.').pop().toLowerCase();
+            
+            // 🌟 เพิ่มระบบอ่านไฟล์ Excel (.xlsx)
+            if (ext === 'xlsx' || ext === 'xls') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, {defval: ""});
+                    
+                    externalPrintData = [];
+                    const seenIds = new Set();
+                    
+                    json.forEach(row => {
+                        let id = row["รหัสนักศึกษา"];
+                        let name = row["ชื่อ"];
+                        let surname = row["นามสกุล"];
+                        
+                        if (id) {
+                            let cleanId = String(id).replace(/\D/g, '').substring(0, 8); // ป้องกันติดอักขระแปลกๆ
+                            if (cleanId.length >= 7 && !seenIds.has(cleanId)) {
+                                seenIds.add(cleanId);
+                                externalPrintData.push({
+                                    id: cleanId,
+                                    name: ((name || "") + " " + (surname || "")).trim() || "-"
+                                });
+                            }
+                        }
+                    });
+                    
+                    if (externalPrintData.length === 0) {
+                        alert("❌ ไม่พบข้อมูล 'รหัสนักศึกษา' ในไฟล์ Excel นี้ (กรุณาใช้ไฟล์ที่โหลดจากระบบ)");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                // ระบบอ่าน CSV แบบเดิม
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const rows = parseCSVRobust(e.target.result);
+                    externalPrintData = [];
+                    const headers = rows[0].map(h => h.trim());
+                    const commentIdx = headers.indexOf('Comment');
+                    
+                    if (commentIdx === -1) {
+                        alert("❌ รูปแบบไฟล์ไม่ถูกต้อง ไม่พบคอลัมน์ Comment");
+                        return;
+                    }
+
+                    const seenIds = new Set();
+                    for (let i = 1; i < rows.length; i++) {
+                        let cols = rows[i];
+                        if (!cols || cols.length <= commentIdx) continue;
+                        let fullText = cols[commentIdx] || "";
+                        
+                        const idMatch = fullText.match(/\b([0-9]{7,9})\b/);
+                        if (idMatch) {
+                            const studentId = idMatch[1];
+                            if (!seenIds.has(studentId)) {
+                                seenIds.add(studentId);
+                                const nameObj = extractStudentName(fullText, studentId); 
+                                externalPrintData.push({
+                                    id: studentId,
+                                    name: (nameObj.firstName + " " + nameObj.lastName).trim() || "-"
+                                });
+                            }
+                        }
+                    }
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
+        }
+
+        function generateSignSheet() {
+            // ดึงค่าจากฟอร์ม
+            const docTitle = document.getElementById('printDocTitle').value.trim() || "รายชื่อนักศึกษาเข้าร่วม";
+            const eventName = document.getElementById('printEventName').value.trim();
+            const dateTime = document.getElementById('printDateTime').value.trim();
+            const location = document.getElementById('printLocation').value.trim();
+            const source = document.querySelector('input[name="dataSource"]:checked').value;
+
+            if (!eventName || !dateTime || !location) {
+                alert("⚠️ กรุณากรอก ชื่อกิจกรรม, วันเวลา และสถานที่ ให้ครบถ้วนครับ");
+                return;
+            }
+
+            let studentList = [];
+
+            // 1. ดึงข้อมูล
+            if (source === 'active') {
+                if (currentlyDisplayedData.length === 0) {
+                    alert("⚠️ ไม่มีข้อมูลในตารางปัจจุบัน กรุณาอัปโหลดไฟล์ในหน้าทำงานก่อนครับ");
+                    return;
+                }
+                const uniqueData = currentlyDisplayedData.filter(d => !d.isFaded && !d.isDuplicateInstance);
+                uniqueData.forEach(item => {
+                    studentList.push({
+                        id: item["รหัสนักศึกษา"],
+                        name: (item["ชื่อ"] + " " + item["นามสกุล"]).trim(),
+                        // 🌟 ข้อมูลที่ดึงมาใส่ในช่องยังคงเป็น "ประเภทงาน"
+                        typeData: (item["ประเภทงาน"] && item["ประเภทงาน"] !== "ไม่ได้ระบุ") ? item["ประเภทงาน"] : ""
+                    });
+                });
+                studentList = studentList.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
+            } else {
+                if (externalPrintData.length === 0) {
+                    alert("⚠️ กรุณาอัปโหลดไฟล์ (CSV/Excel) และรอให้ระบบอ่านข้อมูลเสร็จก่อนครับ");
+                    return;
+                }
+                studentList = [...externalPrintData];
+            }
+
+            // 2. ล็อกจำนวน 25 แถวต่อหน้า
+            const ROWS_PER_PAGE = 25; 
+            let totalRows = studentList.length;
+            let targetRows = Math.ceil(totalRows / ROWS_PER_PAGE) * ROWS_PER_PAGE;
+            
+            if (targetRows === totalRows && totalRows > 0) {
+                targetRows += ROWS_PER_PAGE;
+            } else {
+                targetRows += ROWS_PER_PAGE;
+            }
+
+            for (let i = totalRows; i < targetRows; i++) {
+                studentList.push(null);
+            }
+
+            let totalPages = studentList.length / ROWS_PER_PAGE;
+            let counter = 1;
+
+            // 3. สร้าง HTML
+            let printHtml = "<!DOCTYPE html>\n<html lang=\"th\">\n<head>\n";
+            printHtml += "<meta charset=\"UTF-8\">\n";
+            printHtml += "<title>ใบเซ็นชื่อ</title>\n";
+            printHtml += "<link href=\"https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap\" rel=\"stylesheet\">\n";
+            printHtml += "<style>\n";
+            printHtml += "@page { size: A4 portrait; margin: 0; }\n";
+            printHtml += "* { box-sizing: border-box; }\n";
+            printHtml += "body { margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; background: #e2e8f0; color: black; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n";
+            
+            printHtml += ".page-a4 { width: 210mm; height: 296mm; padding: 10mm 15mm; margin: 0 auto; background: white; page-break-after: always; position: relative; overflow: hidden; }\n";
+            printHtml += ".page-a4:last-child { page-break-after: auto; }\n";
+            
+            printHtml += ".header-block { text-align: center; margin-bottom: 12px; }\n";
+            printHtml += ".header-block img { height: 75px; object-fit: contain; margin-bottom: 8px; }\n";
+            printHtml += ".t-main { font-size: 16pt; font-weight: bold; margin-bottom: 8px; }\n";
+            printHtml += ".t-sub { font-size: 13pt; margin-bottom: 4px; line-height: 1.5; font-weight: normal; }\n";
+            
+            printHtml += "table { width: 100%; border-collapse: collapse; table-layout: fixed; }\n";
+            printHtml += "th, td { border: 0.5pt solid black !important; padding: 2px 4px; font-size: 12pt; height: 27.5px; vertical-align: middle; word-wrap: break-word; overflow: hidden; }\n";
+            
+            printHtml += "th { background-color: #eab308 !important; font-weight: normal; text-align: center; height: 34px; }\n";
+            
+            printHtml += ".tc { text-align: center; }\n";
+            printHtml += ".nw { white-space: nowrap; }\n";
+            printHtml += "</style>\n</head>\n<body>\n";
+
+            for (let p = 0; p < totalPages; p++) {
+                printHtml += "<div class=\"page-a4\">\n";
+                
+                printHtml += "<div class=\"header-block\">\n";
+                if (printLogoBase64) printHtml += "<img src=\"" + printLogoBase64 + "\">\n";
+                printHtml += "<div class=\"t-main\">" + docTitle + "</div>\n";
+                printHtml += "<div class=\"t-sub\">" + eventName + "</div>\n";
+                printHtml += "<div class=\"t-sub\">" + location + "</div>\n";
+                printHtml += "<div class=\"t-sub\">" + dateTime + "</div>\n";
+                printHtml += "</div>\n";
+                
+                printHtml += "<table>\n<thead>\n<tr>\n";
+                printHtml += "<th class=\"nw\" style=\"width: 7%;\">ลำดับ</th>\n";
+                printHtml += "<th class=\"nw\" style=\"width: 16%;\">รหัสนักศึกษา</th>\n";
+                printHtml += "<th style=\"width: 30%;\">ชื่อ-สกุล</th>\n";
+                printHtml += "<th class=\"nw\" style=\"width: 16%;\">คะแนน</th>\n"; // 🌟 หัวคอลัมน์กลับมาเป็นคำว่า "คะแนน"
+                printHtml += "<th style=\"width: 16%;\">ลายเซ็น</th>\n";
+                printHtml += "<th style=\"width: 15%;\">หมายเหตุ</th>\n";
+                printHtml += "</tr>\n</thead>\n<tbody>\n";
+
+                for (let r = 0; r < ROWS_PER_PAGE; r++) {
+                    const student = studentList[(p * ROWS_PER_PAGE) + r];
+                    printHtml += "<tr>\n";
+                    printHtml += "<td class=\"tc\">" + counter + "</td>\n";
+                    if (student) {
+                        printHtml += "<td class=\"tc\">" + student.id + "</td>\n";
+                        printHtml += "<td>" + student.name + "</td>\n";
+                        
+                        // หย่อนข้อมูลประเภทงานลงในช่องนี้
+                        printHtml += "<td class=\"tc\" style=\"font-size: 11pt;\">" + (student.typeData || "") + "</td>\n";
+                        
+                    } else {
+                        printHtml += "<td></td><td></td><td></td>\n";
+                    }
+                    printHtml += "<td></td><td></td>\n";
+                    printHtml += "</tr>\n";
+                    counter++;
+                }
+
+                printHtml += "</tbody>\n</table>\n";
+                printHtml += "</div>\n";
+            }
+
+            printHtml += "\x3C/body\x3E\x3C/html\x3E"; 
+
+            let printFrame = document.getElementById('hiddenPrintFrame');
+            if (!printFrame) {
+                printFrame = document.createElement('iframe');
+                printFrame.id = 'hiddenPrintFrame';
+                printFrame.style.position = 'fixed';
+                printFrame.style.right = '0';
+                printFrame.style.bottom = '0';
+                printFrame.style.width = '0';
+                printFrame.style.height = '0';
+                printFrame.style.border = '0';
+                document.body.appendChild(printFrame);
+            }
+
+            let doc = printFrame.contentWindow.document;
+            doc.open();
+            doc.write(printHtml);
+            doc.close();
+
+            document.getElementById('signSheetModal').classList.add('hidden');
+
+            printFrame.contentWindow.document.fonts.ready.then(() => {
+                setTimeout(() => {
+                    printFrame.contentWindow.focus();
+                    printFrame.contentWindow.print();
+                }, 400);
+            });
         }
 
         function sendCursorData() {
