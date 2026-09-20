@@ -910,8 +910,43 @@
         </div>
     </div>
 
+    <!-- โหลดเดอร์กลางจอเวลาเข้าห้อง -->
+    <div id="fullScreenLoader" class="hidden fixed inset-0 z-[1000] bg-slate-900/40 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity opacity-0">
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-[90%] mx-auto transform transition-all duration-300 scale-95" id="fullScreenLoaderCard">
+            <svg class="animate-spin h-12 w-12 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-xl font-bold text-slate-700 dark:text-white mb-1">กำลังเข้าสู่ห้อง...</span>
+            <span class="text-sm text-slate-500 dark:text-slate-400 text-center">โปรดรอสักครู่ ระบบกำลังดึงข้อมูลและประมวลผล</span>
+        </div>
+    </div>
+
     <!-- Script ควบคุมการทำงาน -->
     <script>
+        function showFullScreenLoader() {
+            const loader = document.getElementById('fullScreenLoader');
+            const card = document.getElementById('fullScreenLoaderCard');
+            loader.classList.remove('hidden');
+            // Allow display: block to apply before animating opacity
+            requestAnimationFrame(() => {
+                loader.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            });
+        }
+
+        function hideFullScreenLoader() {
+            const loader = document.getElementById('fullScreenLoader');
+            const card = document.getElementById('fullScreenLoaderCard');
+            loader.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            setTimeout(() => {
+                loader.classList.add('hidden');
+            }, 300); // Wait for transition
+        }
+
         let allFilesData = {}; 
         let currentMode = 'separate';
         let workMode = 'review'; // 'review' = ตรวจสอบคะแนน/รายชื่อ | 'sequence' = ทำลำดับรายชื่อ
@@ -4426,6 +4461,7 @@
         // --- กดการ์ดเพื่อเข้าห้อง ---
         function joinSpecificRoom(code, name) {
             currentRoomId = code;
+            showFullScreenLoader();
             
             db.ref('rooms/' + code).once('value').then(snapshot => {
                 if (snapshot.exists()) {
@@ -4441,7 +4477,6 @@
                     restoreModeMemory(); 
                     renderTable(); 
                     saveState();
-                    initUIAfterLoad(); renderTable(); saveState();
                     showWorkspace(name, code);
                     startListening(); initLiveCursor();
                 } else {
@@ -4451,10 +4486,14 @@
                     initUIAfterLoad(); 
                     restoreModeMemory(); 
                     renderTable();
-                    initUIAfterLoad(); renderTable();
                     showWorkspace(name, code);
                     startListening(); initLiveCursor();
                 }
+                hideFullScreenLoader();
+            }).catch(error => {
+                console.error("Error joining room:", error);
+                alert("❌ เกิดข้อผิดพลาดในการเข้าห้อง โปรดลองใหม่อีกครั้ง");
+                hideFullScreenLoader();
             });
         }
 
