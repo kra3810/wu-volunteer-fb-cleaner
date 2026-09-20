@@ -599,8 +599,10 @@
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_checked" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none text-emerald-600 dark:text-emerald-400">✓ ตรวจแล้ว</div></label>
                             <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไฟล์ต้นทาง</div></label>
                             
-                            <!-- 🌟 ปุ่มเปิดปิดคอลัมน์ ลำดับที่ -->
+                            <!-- 🌟 ปุ่มเปิดปิดคอลัมน์ ลำดับที่ และ ทีม -->
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_seq" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none text-indigo-600 dark:text-indigo-400">ลำดับที่</div></label>
+                            
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_team" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none text-fuchsia-600 dark:text-fuchsia-400">ทีม</div></label>
                             
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">รหัส</div></label>
                             <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ชื่อ</div></label>
@@ -1997,15 +1999,18 @@
         function applyWorkModeColumnDefaults() {
             const colChecked = document.getElementById('col_checked');
             const colSeq = document.getElementById('col_seq');
+            const colTeam = document.getElementById('col_team');
             const colScore = document.getElementById('col_score');
             const colOriginal = document.getElementById('col_original');
             if (workMode === 'review') {
                 if (colSeq) colSeq.checked = false;
+                if (colTeam) colTeam.checked = false;
                 if (colChecked) colChecked.checked = true;
             } else if (workMode === 'sequence') {
                 if (colScore) colScore.checked = false;
                 if (colOriginal) colOriginal.checked = false;
                 if (colSeq) colSeq.checked = true;
+                if (colTeam) colTeam.checked = true;
                 if (colChecked) colChecked.checked = false;
             }
         }
@@ -2102,6 +2107,7 @@
                 checked: document.getElementById('col_checked') ? document.getElementById('col_checked').checked : false,
                 file: document.getElementById('col_file') ? document.getElementById('col_file').checked : false,
                 seq: document.getElementById('col_seq') ? document.getElementById('col_seq').checked : false,
+                team: document.getElementById('col_team') ? document.getElementById('col_team').checked : false,
                 id: document.getElementById('col_id').checked, name: document.getElementById('col_name').checked,
                 surname: document.getElementById('col_surname').checked, status: document.getElementById('col_status').checked,
                 type: document.getElementById('col_type').checked, likes: document.getElementById('col_likes').checked,
@@ -2580,6 +2586,7 @@
             if (cols.checked) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-16')}">✓</th>`;
             if (currentMode === 'merged' && cols.file) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
             if (cols.seq) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ลำดับที่</th>`;
+            if (cols.team) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ทีม</th>`;
             if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
             if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ชื่อ</th>`;
             if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">นามสกุล</th>`;
@@ -2868,6 +2875,16 @@
                             rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-300 flex justify-center">${seqs}</div>`, type: 'center', colname: 'ลำดับที่' });
                         } else {
                             rowCells.push({ content: `<div class="row-content flex justify-center">${seqSpan}</div>`, type: 'center', colname: 'ลำดับที่' });
+                        }
+                    }
+
+                    if (cols.team) {
+                        if (item._mergedSources) {
+                            let teams = [...new Set(item._mergedSources.map(s => s["ทีม"]).filter(Boolean))].join(", ");
+                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-300 flex justify-center">${teams}</div>`, type: 'center', colname: 'ทีม' });
+                        } else {
+                            let teamVal = item["ทีม"] || "";
+                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-300 flex justify-center">${teamVal}</div>`, type: 'center', colname: 'ทีม' });
                         }
                     }
 
@@ -3693,6 +3710,9 @@
                 'เทอม1', 'เทอม2', 'ทั้ง2คน', 'ทั้ง3คน', 'จิตอาสา', 'ภาวะผู้นำ', 'ผู้นำ'
             ]);
 
+            let bestName = { firstName: "", lastName: "" };
+            let maxTokens = 0;
+
             const parts = fullText.split(studentId);
             for (let sideText of [parts[1] || "", parts[0] || ""]) {
                 let cleaned = sideText.replace(/\(.*?\)/g, ' '); 
@@ -3703,15 +3723,24 @@
                 let tokens = cleaned.split(/\s+/);
                 let nameTokens = [];
                 for (let t of tokens) {
-                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || t.match(/[0-9]{7,9}/)) break;
+                    if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || 
+                        t.startsWith('สำนัก') || t.startsWith('คณะ') || t.startsWith('สาขา') || t.startsWith('หลักสูตร') || t.startsWith('วิทยาลัย') ||
+                        t.startsWith('ไทยพุทธ') || t.startsWith('พุทธ') || t.startsWith('อิสลาม') || t.startsWith('มุสลิม') || t.startsWith('คริสต์') ||
+                        t.match(/[0-9]{7,9}/)) break;
                     if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
                     nameTokens.push(t);
                 }
 
-                if (nameTokens.length >= 2) return { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
-                else if (nameTokens.length === 1) return { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
+                if (nameTokens.length > maxTokens) {
+                    maxTokens = nameTokens.length;
+                    if (nameTokens.length >= 2) {
+                        bestName = { firstName: cleanHonorifics(nameTokens[0]), lastName: nameTokens.slice(1).join(" ") };
+                    } else if (nameTokens.length === 1) {
+                        bestName = { firstName: cleanHonorifics(nameTokens[0]), lastName: "" };
+                    }
+                }
             }
-            return { firstName: "", lastName: "" };
+            return bestName;
         }
 
         function detectPointType(lines, currentIndex) {
@@ -3797,67 +3826,153 @@
                 else threads[t].main.push(r);
             });
 
+            // 1. ตรวจสอบว่าไฟล์นี้ใช้ระบบอะไร โดยดูจากคอมเมนต์แรกๆ ที่มีคีย์เวิร์ด
+            let isTeamMode = false;
             for (let threadNo in threads) {
                 let rawThread = rawThreadsData[fileName][threadNo];
                 if (!rawThread) continue;
-
-                let seqStart = null;
-                let seqEnd = null;
-                let found = false;
-
                 for (let c of rawThread) {
                     let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
-                    let match = cleanText.match(/ลำดับ(?:ที่)?\s*[:=]?\s*(\d{1,4})(?:\s*[-–—ถึง]+\s*(\d{1,4}))?/);
-                    if (match) {
-                        seqStart = parseInt(match[1]);
-                        seqEnd = match[2] ? parseInt(match[2]) : seqStart;
-                        found = true; break; 
+                    if (cleanText.match(/(?:ธีม|ทีม|ทีมที่|กลุ่ม)\s*[:=]?\s*(\d{1,4})/i)) {
+                        isTeamMode = true;
+                        break;
+                    }
+                    if (cleanText.match(/ลำดับ(?:ที่)?\s*[:=]?\s*(\d{1,4})/i)) {
+                        break;
                     }
                 }
+                if (isTeamMode) break;
+            }
 
-                if (!found) {
+            if (isTeamMode) {
+                // ระบบทีม (ธีม/ทีม)
+                let teamGroups = {};
+                for (let threadNo in threads) {
+                    let rawThread = rawThreadsData[fileName][threadNo];
+                    if (!rawThread) continue;
+                    let teamNum = null;
                     for (let c of rawThread) {
-                        if (!c.isReply) continue;
                         let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
-                        let matchRange = cleanText.match(/(\d{1,4})\s*[-–—ถึง]+\s*(\d{1,4})/);
-                        if (matchRange) {
-                            seqStart = parseInt(matchRange[1]);
-                            seqEnd = parseInt(matchRange[2]);
-                            found = true; break;
-                        }
-                        let matchSingle = cleanText.match(/\b(\d{1,4})$/);
-                        if (matchSingle) {
-                            seqStart = parseInt(matchSingle[1]);
-                            seqEnd = seqStart;
-                            found = true; break;
+                        let teamMatch = cleanText.match(/(?:ธีม|ทีม|ทีมที่|กลุ่ม)\s*[:=]?\s*(\d{1,4})/i);
+                        if (teamMatch) {
+                            teamNum = parseInt(teamMatch[1]);
+                            break;
                         }
                     }
-                }
-
-                if (seqStart !== null) {
-                    let currentSeq = seqStart;
-                    threads[threadNo].main.forEach(r => {
-                        if (currentSeq <= seqEnd) {
-                            r["ลำดับที่"] = currentSeq.toString();
-                            currentSeq++;
-                            r.isFaded = false; 
-                        } else {
+                    if (teamNum === null) {
+                        // ถ้าไม่เจอคำว่าทีม ลองหาตัวเลขเพียวๆ ในคอมเมนต์ย่อย (TA ตอบ)
+                        for (let c of rawThread) {
+                            if (c.isReply) {
+                                let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+                                if (!cleanText.match(/คะแนน|แต้ม/)) {
+                                    let bareMatch = cleanText.match(/(?:\b|^)(\d{1,4})(?:\b|$)/);
+                                    if (bareMatch) {
+                                        teamNum = parseInt(bareMatch[1]);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (teamNum !== null) {
+                        if (!teamGroups[teamNum]) teamGroups[teamNum] = [];
+                        teamGroups[teamNum].push(...threads[threadNo].main);
+                        
+                        threads[threadNo].reply.forEach(r => {
+                            r.isFaded = (workMode === 'sequence'); 
+                            r["ลำดับที่"] = "";
+                        });
+                    } else {
+                        threads[threadNo].main.forEach(r => {
                             r["ลำดับที่"] = "";
                             r.isFaded = true; 
-                        }
-                    });
-                } else {
-                    threads[threadNo].main.forEach(r => {
-                        r["ลำดับที่"] = "";
-                        r.isFaded = true; 
-                    });
+                        });
+                        threads[threadNo].reply.forEach(r => {
+                            r.isFaded = (workMode === 'sequence'); 
+                            r["ลำดับที่"] = "";
+                        });
+                    }
                 }
 
-                // เม้นย่อย: ค่าเริ่มต้นผูกกับโหมดปัจจุบัน (Sequence = ปิดตา, Review = เปิดตา)
-                threads[threadNo].reply.forEach(r => {
-                    r.isFaded = (workMode === 'sequence'); 
-                    r["ลำดับที่"] = "";
-                });
+                // แจกลำดับที่โดยเรียงตามหมายเลขทีม และรันเลขต่อเนื่องกันไปเลย (ไม่มีการเว้นว่างถ้าทีมหาย)
+                let sortedTeams = Object.keys(teamGroups).map(Number).sort((a, b) => a - b);
+                let currentGlobalSeq = 1;
+                
+                for (let teamNum of sortedTeams) {
+                    let students = teamGroups[teamNum];
+                    students.forEach(r => {
+                        r["ลำดับที่"] = currentGlobalSeq.toString();
+                        r["ทีม"] = teamNum.toString();
+                        currentGlobalSeq++;
+                        r.isFaded = false;
+                    });
+                }
+            } else {
+                // ระบบเก่า (ลำดับที่)
+                for (let threadNo in threads) {
+                    let rawThread = rawThreadsData[fileName][threadNo];
+                    if (!rawThread) continue;
+
+                    let seqStart = null;
+                    let seqEnd = null;
+                    let found = false;
+
+                    for (let c of rawThread) {
+                        let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+                        let match = cleanText.match(/ลำดับ(?:ที่)?\s*[:=]?\s*(\d{1,4})(?:\s*[-–—ถึง]+\s*(\d{1,4}))?/);
+                        if (match) {
+                            seqStart = parseInt(match[1]);
+                            seqEnd = match[2] ? parseInt(match[2]) : seqStart;
+                            found = true; break; 
+                        }
+                    }
+
+                    if (!found) {
+                        for (let c of rawThread) {
+                            if (!c.isReply) continue;
+                            let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+                            let matchRange = cleanText.match(/(\d{1,4})\s*[-–—ถึง]+\s*(\d{1,4})/);
+                            if (matchRange) {
+                                seqStart = parseInt(matchRange[1]);
+                                seqEnd = parseInt(matchRange[2]);
+                                found = true; break;
+                            }
+                            let matchSingle = cleanText.match(/\b(\d{1,4})$/);
+                            if (matchSingle) {
+                                seqStart = parseInt(matchSingle[1]);
+                                seqEnd = seqStart;
+                                found = true; break;
+                            }
+                        }
+                    }
+
+                    if (seqStart !== null) {
+                        let currentSeq = seqStart;
+                        threads[threadNo].main.forEach(r => {
+                            // ดึงเลขที่ TA พิมพ์มาตรงๆ ใส่ในช่องทีม โดยไม่ใช้สูตรหาร
+                            r["ทีม"] = seqStart.toString();
+
+                            if (currentSeq <= seqEnd) {
+                                r["ลำดับที่"] = currentSeq.toString();
+                                currentSeq++;
+                                r.isFaded = false; 
+                            } else {
+                                r["ลำดับที่"] = "";
+                                r.isFaded = true; 
+                            }
+                        });
+                    } else {
+                        threads[threadNo].main.forEach(r => {
+                            r["ลำดับที่"] = "";
+                            r.isFaded = true; 
+                        });
+                    }
+
+                    threads[threadNo].reply.forEach(r => {
+                        r.isFaded = (workMode === 'sequence'); 
+                        r["ลำดับที่"] = "";
+                    });
+                }
             }
 
             // กวาดซ้ำ: อันไหนไม่มีลำดับที่ ให้ซ่อนไว้ก่อนทั้งหมดทันที (ยกเว้นเม้นย่อย)
@@ -3992,8 +4107,11 @@
                 const cleanLines = rawLines.map(line => line.trim().replace(/เเ/g, 'แ'));
 
                 cleanLines.forEach((cleanSubLine, lineIndex) => {
-                    const idMatch = cleanSubLine.match(/\b([0-9]{7,9})\b/);
-                    if (idMatch) {
+                    // กรองวงเล็บที่มีคำว่า "มาแทน" ออกไป เพื่อไม่ให้ดึงรหัสนักศึกษาของคนที่มาแทน
+                    let textForIdSearch = cleanSubLine.replace(/\([^)]*มาแทน[^)]*\)/g, '');
+                    
+                    const idMatches = [...textForIdSearch.matchAll(/\b([0-9]{7,9})\b/g)];
+                    idMatches.forEach(idMatch => {
                         const studentId = idMatch[1];
                         seenIdsInThisFile.add(studentId); 
 
@@ -4012,7 +4130,7 @@
 
                         fileRecords.push({
                             "recordIndex": fileRecords.length, "fileName": fileName, 
-                            "ลำดับที่": "", 
+                            "ลำดับที่": "", "ทีม": "", 
                             "รหัสนักศึกษา": studentId,
                             "isIdValid": isIdValid, "ชื่อ": firstName, "นามสกุล": lastName,
                             "สถานะ": isReply ? "เม้นย่อย" : "เม้นหลัก", "สายสนทนา": threadNo,
@@ -4021,7 +4139,7 @@
                             "commentUrl": resolvedUrl,
                             "commentId": commentId
                         });
-                    }
+                    });
                 });
             }
             allFilesData[fileName] = fileRecords;
