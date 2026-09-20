@@ -564,13 +564,9 @@
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
                 <div class="flex flex-col gap-3 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                     <span class="text-sm font-bold text-slate-600 dark:text-slate-300">โหมดการทำงาน:</span>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-indigo-500 bg-indigo-50/70 dark:bg-indigo-900/30 shadow-md transform hover:-translate-y-1 group overflow-hidden">
-                            <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all"></div>
-                            <div id="iconWorkReview" class="flex-shrink-0 w-11 h-11 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-colors relative z-10">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full p-1">
                         <!-- Review Mode Button -->
-                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/40 dark:to-slate-800 shadow-[0_8px_30px_rgb(99,102,241,0.2)] dark:shadow-[0_8px_30px_rgb(99,102,241,0.15)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10">
+                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/40 dark:to-slate-800 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-900/40 transform scale-[1.02] -translate-y-1 group overflow-hidden z-10">
                             <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
                             
                             <!-- Checkmark Badge for Active State -->
@@ -581,17 +577,12 @@
                             <div id="iconWorkReview" class="flex-shrink-0 w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-all duration-500 relative z-10 group-hover:scale-110">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <div class="relative z-10 pt-0.5">
                             <div class="relative z-10 pt-0.5 pr-6">
                                 <div id="titleWorkReview" class="font-bold text-indigo-700 dark:text-indigo-300 text-base mb-1 transition-colors">ตรวจสอบข้อมูล (Review)</div>
-                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">ดูข้อมูลทั้งหมด หาคนซ้ำ เช็คคะแนน ไม่บังคับการจัดเรียงลำดับ</div>
                                 <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้เหมาะสำหรับดูข้อมูลทั้งหมด หาคนซ้ำ หรือเช็คคะแนน โดยไม่สนใจเลขลำดับ</div>
                             </div>
                         </button>
                         
-                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-transparent bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/60 shadow-sm hover:shadow-md transform hover:-translate-y-1 group overflow-hidden">
-                            <div class="absolute -right-4 -top-4 w-24 h-24 bg-teal-500/0 rounded-full blur-xl group-hover:bg-slate-500/10 transition-all"></div>
-                            <div id="iconWorkSequence" class="flex-shrink-0 w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-colors group-hover:bg-slate-300 dark:group-hover:bg-slate-600 relative z-10">
                         <!-- Sequence Mode Button -->
                         <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md transform hover:-translate-y-0.5 opacity-70 hover:opacity-100 group overflow-hidden z-0">
                             <div class="absolute -right-4 -top-4 w-32 h-32 bg-teal-500/0 rounded-full blur-2xl group-hover:bg-teal-500/5 transition-all duration-500"></div>
@@ -604,9 +595,6 @@
                             <div id="iconWorkSequence" class="flex-shrink-0 w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-slate-300 dark:group-hover:bg-slate-600 group-hover:text-slate-600 dark:group-hover:text-slate-300 relative z-10">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
                             </div>
-                            <div class="relative z-10 pt-0.5">
-                                <div id="titleWorkSequence" class="font-bold text-slate-600 dark:text-slate-300 text-base mb-1 transition-colors group-hover:text-slate-800 dark:group-hover:text-slate-200">เรียงเลขลำดับ (Sequence)</div>
-                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">ทำตารางเซ็นชื่อ เรียงตามลำดับเป๊ะๆ ซ่อนคนที่ไม่มีลำดับ</div>
                             <div class="relative z-10 pt-0.5 pr-6">
                                 <div id="titleWorkSequence" class="font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300">เรียงเลขลำดับ (Sequence)</div>
                                 <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้ใช้เวลาเขียนใบเซ็นชื่อ จะเรียงตามลำดับเป๊ะๆ และซ่อนคนที่กรอกลำดับผิด</div>
@@ -2109,26 +2097,19 @@
             
             if (!btnReview || !btnSequence) return;
             
-            const inactiveCard = "relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-transparent bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/60 shadow-sm hover:shadow-md transform hover:-translate-y-1 group overflow-hidden";
-            const inactiveIcon = "flex-shrink-0 w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-colors group-hover:bg-slate-300 dark:group-hover:bg-slate-600 relative z-10";
-            const inactiveTitle = "font-bold text-slate-600 dark:text-slate-300 text-base mb-1 transition-colors group-hover:text-slate-800 dark:group-hover:text-slate-200";
             const inactiveCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md transform hover:-translate-y-0.5 opacity-70 hover:opacity-100 group overflow-hidden z-0";
             const inactiveIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-slate-300 dark:group-hover:bg-slate-600 group-hover:text-slate-600 dark:group-hover:text-slate-300 relative z-10";
             const inactiveTitle = "font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300";
             const inactiveBadge = "absolute top-3 right-3 text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-full p-1 shadow-sm transition-all duration-500 opacity-0 scale-50";
 
             // Review Active Classes (Indigo)
-            const activeReviewCard = "relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-indigo-500 bg-indigo-50/70 dark:bg-indigo-900/30 shadow-md transform hover:-translate-y-1 group overflow-hidden";
-            const activeReviewIcon = "flex-shrink-0 w-11 h-11 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-colors relative z-10";
-            const activeReviewCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/40 dark:to-slate-800 shadow-[0_8px_30px_rgb(99,102,241,0.2)] dark:shadow-[0_8px_30px_rgb(99,102,241,0.15)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
+            const activeReviewCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/40 dark:to-slate-800 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-900/40 transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
             const activeReviewIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-all duration-500 relative z-10 group-hover:scale-110";
             const activeReviewTitle = "font-bold text-indigo-700 dark:text-indigo-300 text-base mb-1 transition-colors";
             const activeReviewBadge = "absolute top-3 right-3 text-indigo-500 bg-indigo-100 dark:bg-indigo-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100";
 
             // Sequence Active Classes (Teal)
-            const activeSeqCard = "relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-teal-500 bg-teal-50/70 dark:bg-teal-900/30 shadow-md transform hover:-translate-y-1 group overflow-hidden";
-            const activeSeqIcon = "flex-shrink-0 w-11 h-11 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-md transition-colors relative z-10";
-            const activeSeqCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-teal-500 bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/40 dark:to-slate-800 shadow-[0_8px_30px_rgb(20,184,166,0.2)] dark:shadow-[0_8px_30px_rgb(20,184,166,0.15)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
+            const activeSeqCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-teal-500 bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/40 dark:to-slate-800 shadow-xl shadow-teal-500/20 dark:shadow-teal-900/40 transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
             const activeSeqIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-md transition-all duration-500 relative z-10 group-hover:scale-110";
             const activeSeqTitle = "font-bold text-teal-700 dark:text-teal-400 text-base mb-1 transition-colors";
             const activeSeqBadge = "absolute top-3 right-3 text-teal-500 bg-teal-100 dark:bg-teal-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100";
