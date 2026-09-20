@@ -625,7 +625,6 @@
                 <!-- แบนเนอร์ย้อนกลับสำหรับโหมดกรอง/สายสนทนา -->
                 <div id="threadBackBanner" class="hidden bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-800 p-3 flex justify-between items-center transition-all">
                     <div class="flex items-center gap-3">
-                        <button type="button" onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
                         <button onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                             กลับสู่ตารางรวม
@@ -1621,7 +1620,6 @@
         // --- ตัวแปรความจำสำหรับปุ่ม "ดูหน้าซ้ำ" ---
         let previousCategoryFilters = [];
         let previousScrollPos = 0;
-        let isStudentIdDrilldown = false;
 
         // --- ตัวแปรความจำสำหรับปุ่ม "กางสายสนทนา" โดยเฉพาะ (แยกกันจะได้ไม่ตีกัน) ---
         let savedWindowScroll = 0;
@@ -1661,34 +1659,11 @@
                         });
                     }
                 }
-                if (spacer) spacer.style.height = '0px';
-                setTimeout(() => {
-                    if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
-                    mainScrollContainer.scrollTo(0, savedWindowScroll);
-                }, 10);
-            } else if (isStudentIdDrilldown) {
-                // คืนค่าจากการกดปุ่มซ้ำของรหัสนักศึกษา (ไม่ว่าจะเคยมีฟิลเตอร์อะไรอยู่หรือไม่ก็ตาม)
-                activeCategoryFilters = [...previousCategoryFilters];
-                previousCategoryFilters = [];
-                isStudentIdDrilldown = false;
-                if(searchInput) searchInput.value = "";
-                renderTable();
-                if (spacer) spacer.style.height = '0px';
-                setTimeout(() => { 
-                    if (tableContainer && previousScrollPos) tableContainer.scrollTop = previousScrollPos;
-                    if (mainScrollContainer && lastWindowScrollPos !== undefined) mainScrollContainer.scrollTo(0, lastWindowScrollPos);
-                }, 10);
             } else if (activeCategoryFilters.length > 0 || (searchInput && searchInput.value.trim() !== "")) {
-                // ออกจากโหมดกรองข้อมูลอื่นๆ (กลับสู่หน้าจอหลักล้วนๆ)
                 // ออกจากโหมดกรองข้อมูล
                 activeCategoryFilters = [];
                 if(searchInput) searchInput.value = "";
                 renderTable();
-                if (spacer) spacer.style.height = '0px';
-                setTimeout(() => {
-                    if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
-                    mainScrollContainer.scrollTo(0, savedWindowScroll);
-                }, 10);
             }
             
             if (spacer) spacer.style.height = '0px';
@@ -2436,34 +2411,13 @@
             event.stopPropagation();
             const searchInput = document.getElementById('searchInput');
             const tableContainer = document.querySelector('.table-container');
-            const mainScrollContainer = document.querySelector('main');
             
-            let spacer = document.getElementById('page-magic-spacer');
-            if (!spacer) {
-                spacer = document.createElement('div');
-                spacer.id = 'page-magic-spacer';
-                mainScrollContainer.appendChild(spacer);
-            }
-            const docHeightBefore = mainScrollContainer.scrollHeight;
-
             if (searchInput.value === studentId) {
                 searchInput.value = '';
                 activeCategoryFilters = [...previousCategoryFilters];
-                isStudentIdDrilldown = false;
                 renderTable(); 
-                
-                const docHeightAfter = mainScrollContainer.scrollHeight;
-                if (docHeightBefore > docHeightAfter) {
-                    spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
-                } else {
-                    spacer.style.height = '0px';
-                }
-
-                if (tableContainer || mainScrollContainer) {
                 if (tableContainer) {
                     setTimeout(() => {
-                        if (tableContainer && previousScrollPos) tableContainer.scrollTop = previousScrollPos;
-                        if (mainScrollContainer && lastWindowScrollPos !== undefined) mainScrollContainer.scrollTop = lastWindowScrollPos;
                         tableContainer.scrollTop = previousScrollPos;
                     }, 10);
                 }
@@ -2471,19 +2425,10 @@
                 if (tableContainer) {
                     previousScrollPos = tableContainer.scrollTop;
                 }
-                if (mainScrollContainer) {
-                    lastWindowScrollPos = mainScrollContainer.scrollTop;
-                }
                 previousCategoryFilters = [...activeCategoryFilters];
-                isStudentIdDrilldown = true;
                 searchInput.value = studentId;
                 activeCategoryFilters = [];
                 renderTable(); 
-                
-                const docHeightAfter = mainScrollContainer.scrollHeight;
-                if (docHeightBefore > docHeightAfter) {
-                    spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
-                }
             }
         }
 
