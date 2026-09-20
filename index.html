@@ -564,9 +564,54 @@
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
                 <div class="flex flex-col gap-3 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                     <span class="text-sm font-bold text-slate-600 dark:text-slate-300">โหมดการทำงาน:</span>
-                    <div class="inline-flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg shrink-0 w-full sm:w-auto">
-                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap">✅ ตรวจสอบคะแนน/รายชื่อ</button>
-                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap">🔢 ทำลำดับรายชื่อ</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-indigo-500 bg-indigo-50/70 dark:bg-indigo-900/30 shadow-md transform hover:-translate-y-1 group overflow-hidden">
+                            <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all"></div>
+                            <div id="iconWorkReview" class="flex-shrink-0 w-11 h-11 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-colors relative z-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full p-1">
+                        <!-- Review Mode Button -->
+                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/40 dark:to-slate-800 shadow-[0_8px_30px_rgb(99,102,241,0.2)] dark:shadow-[0_8px_30px_rgb(99,102,241,0.15)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10">
+                            <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+                            
+                            <!-- Checkmark Badge for Active State -->
+                            <div id="badgeWorkReview" class="absolute top-3 right-3 text-indigo-500 bg-indigo-100 dark:bg-indigo-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            </div>
+
+                            <div id="iconWorkReview" class="flex-shrink-0 w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-all duration-500 relative z-10 group-hover:scale-110">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div class="relative z-10 pt-0.5">
+                            <div class="relative z-10 pt-0.5 pr-6">
+                                <div id="titleWorkReview" class="font-bold text-indigo-700 dark:text-indigo-300 text-base mb-1 transition-colors">ตรวจสอบข้อมูล (Review)</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">ดูข้อมูลทั้งหมด หาคนซ้ำ เช็คคะแนน ไม่บังคับการจัดเรียงลำดับ</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้เหมาะสำหรับดูข้อมูลทั้งหมด หาคนซ้ำ หรือเช็คคะแนน โดยไม่สนใจเลขลำดับ</div>
+                            </div>
+                        </button>
+                        
+                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-transparent bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/60 shadow-sm hover:shadow-md transform hover:-translate-y-1 group overflow-hidden">
+                            <div class="absolute -right-4 -top-4 w-24 h-24 bg-teal-500/0 rounded-full blur-xl group-hover:bg-slate-500/10 transition-all"></div>
+                            <div id="iconWorkSequence" class="flex-shrink-0 w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-colors group-hover:bg-slate-300 dark:group-hover:bg-slate-600 relative z-10">
+                        <!-- Sequence Mode Button -->
+                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md transform hover:-translate-y-0.5 opacity-70 hover:opacity-100 group overflow-hidden z-0">
+                            <div class="absolute -right-4 -top-4 w-32 h-32 bg-teal-500/0 rounded-full blur-2xl group-hover:bg-teal-500/5 transition-all duration-500"></div>
+                            
+                            <!-- Checkmark Badge for Active State (Hidden Initially) -->
+                            <div id="badgeWorkSequence" class="absolute top-3 right-3 text-teal-500 bg-teal-100 dark:bg-teal-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-0 scale-50">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            </div>
+
+                            <div id="iconWorkSequence" class="flex-shrink-0 w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-slate-300 dark:group-hover:bg-slate-600 group-hover:text-slate-600 dark:group-hover:text-slate-300 relative z-10">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+                            </div>
+                            <div class="relative z-10 pt-0.5">
+                                <div id="titleWorkSequence" class="font-bold text-slate-600 dark:text-slate-300 text-base mb-1 transition-colors group-hover:text-slate-800 dark:group-hover:text-slate-200">เรียงเลขลำดับ (Sequence)</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">ทำตารางเซ็นชื่อ เรียงตามลำดับเป๊ะๆ ซ่อนคนที่ไม่มีลำดับ</div>
+                            <div class="relative z-10 pt-0.5 pr-6">
+                                <div id="titleWorkSequence" class="font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300">เรียงเลขลำดับ (Sequence)</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้ใช้เวลาเขียนใบเซ็นชื่อ จะเรียงตามลำดับเป๊ะๆ และซ่อนคนที่กรอกลำดับผิด</div>
+                            </div>
+                        </button>
                     </div>
                     <div id="sequenceStatsBar" class="hidden w-full p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl text-sm"></div>
                     <div id="substitutionStatsBar" class="hidden w-full p-2 bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-400 dark:text-slate-500 italic"></div>
@@ -1086,11 +1131,11 @@
                 reader.onload = function(e) {
                     const rows = parseCSVRobust(e.target.result);
                     externalPrintData = [];
-                    const headers = rows[0].map(h => h.trim());
-                    const commentIdx = headers.indexOf('Comment');
+                    const headers = rows[0].map(h => h ? h.toString().trim().replace(/^\uFEFF/, '') : '');
+                    const commentIdx = headers.findIndex(item => /^(Comment|Message|Text|ข้อความ|เนื้อหา)$/i.test(item));
                     
                     if (commentIdx === -1) {
-                        alert("❌ รูปแบบไฟล์ไม่ถูกต้อง ไม่พบคอลัมน์ Comment");
+                        alert("❌ รูปแบบไฟล์ไม่ถูกต้อง ไม่พบคอลัมน์ Comment, Message หรือ ข้อความ");
                         return;
                     }
 
@@ -1100,8 +1145,11 @@
                         if (!cols || cols.length <= commentIdx) continue;
                         let fullText = cols[commentIdx] || "";
                         
-                        const idMatch = fullText.match(/\b([0-9]{7,9})\b/);
-                        if (idMatch) {
+                        // กรองคนที่มาแทนออก
+                        let cleanSubLine = fullText.replace(/\([^)]*มาแทน[^)]*\)/g, '');
+                        
+                        const idMatches = [...cleanSubLine.matchAll(/\b([0-9]{7,9})\b/g)];
+                        idMatches.forEach(idMatch => {
                             const studentId = idMatch[1];
                             if (!seenIds.has(studentId)) {
                                 seenIds.add(studentId);
@@ -1111,7 +1159,7 @@
                                     name: (nameObj.firstName + " " + nameObj.lastName).trim() || "-"
                                 });
                             }
-                        }
+                        });
                     }
                 };
                 reader.readAsText(file, 'UTF-8');
@@ -2051,15 +2099,60 @@
         function updateWorkModeUI() {
             const btnReview = document.getElementById('btnWorkReview');
             const btnSequence = document.getElementById('btnWorkSequence');
+            const iconReview = document.getElementById('iconWorkReview');
+            const titleReview = document.getElementById('titleWorkReview');
+            const badgeReview = document.getElementById('badgeWorkReview');
+            
+            const iconSequence = document.getElementById('iconWorkSequence');
+            const titleSequence = document.getElementById('titleWorkSequence');
+            const badgeSequence = document.getElementById('badgeWorkSequence');
+            
             if (!btnReview || !btnSequence) return;
-            const activeClass = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap";
-            const inactiveClass = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap";
+            
+            const inactiveCard = "relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-transparent bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/60 shadow-sm hover:shadow-md transform hover:-translate-y-1 group overflow-hidden";
+            const inactiveIcon = "flex-shrink-0 w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-colors group-hover:bg-slate-300 dark:group-hover:bg-slate-600 relative z-10";
+            const inactiveTitle = "font-bold text-slate-600 dark:text-slate-300 text-base mb-1 transition-colors group-hover:text-slate-800 dark:group-hover:text-slate-200";
+            const inactiveCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md transform hover:-translate-y-0.5 opacity-70 hover:opacity-100 group overflow-hidden z-0";
+            const inactiveIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-slate-300 dark:group-hover:bg-slate-600 group-hover:text-slate-600 dark:group-hover:text-slate-300 relative z-10";
+            const inactiveTitle = "font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300";
+            const inactiveBadge = "absolute top-3 right-3 text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-full p-1 shadow-sm transition-all duration-500 opacity-0 scale-50";
+
+            // Review Active Classes (Indigo)
+            const activeReviewCard = "relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-indigo-500 bg-indigo-50/70 dark:bg-indigo-900/30 shadow-md transform hover:-translate-y-1 group overflow-hidden";
+            const activeReviewIcon = "flex-shrink-0 w-11 h-11 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-colors relative z-10";
+            const activeReviewCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/40 dark:to-slate-800 shadow-[0_8px_30px_rgb(99,102,241,0.2)] dark:shadow-[0_8px_30px_rgb(99,102,241,0.15)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
+            const activeReviewIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md transition-all duration-500 relative z-10 group-hover:scale-110";
+            const activeReviewTitle = "font-bold text-indigo-700 dark:text-indigo-300 text-base mb-1 transition-colors";
+            const activeReviewBadge = "absolute top-3 right-3 text-indigo-500 bg-indigo-100 dark:bg-indigo-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100";
+
+            // Sequence Active Classes (Teal)
+            const activeSeqCard = "relative flex items-start gap-3.5 p-4 rounded-xl border-2 transition-all duration-300 text-left cursor-pointer border-teal-500 bg-teal-50/70 dark:bg-teal-900/30 shadow-md transform hover:-translate-y-1 group overflow-hidden";
+            const activeSeqIcon = "flex-shrink-0 w-11 h-11 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-md transition-colors relative z-10";
+            const activeSeqCard = "relative flex items-start gap-3.5 p-5 rounded-2xl border-2 transition-all duration-500 text-left cursor-pointer border-teal-500 bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/40 dark:to-slate-800 shadow-[0_8px_30px_rgb(20,184,166,0.2)] dark:shadow-[0_8px_30px_rgb(20,184,166,0.15)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
+            const activeSeqIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-md transition-all duration-500 relative z-10 group-hover:scale-110";
+            const activeSeqTitle = "font-bold text-teal-700 dark:text-teal-400 text-base mb-1 transition-colors";
+            const activeSeqBadge = "absolute top-3 right-3 text-teal-500 bg-teal-100 dark:bg-teal-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100";
+
             if (workMode === 'review') {
-                btnReview.className = activeClass;
-                btnSequence.className = inactiveClass;
+                btnReview.className = activeReviewCard;
+                if (iconReview) iconReview.className = activeReviewIcon;
+                if (titleReview) titleReview.className = activeReviewTitle;
+                if (badgeReview) badgeReview.className = activeReviewBadge;
+                
+                btnSequence.className = inactiveCard;
+                if (iconSequence) iconSequence.className = inactiveIcon;
+                if (titleSequence) titleSequence.className = inactiveTitle;
+                if (badgeSequence) badgeSequence.className = inactiveBadge;
             } else {
-                btnSequence.className = activeClass;
-                btnReview.className = inactiveClass;
+                btnSequence.className = activeSeqCard;
+                if (iconSequence) iconSequence.className = activeSeqIcon;
+                if (titleSequence) titleSequence.className = activeSeqTitle;
+                if (badgeSequence) badgeSequence.className = activeSeqBadge;
+                
+                btnReview.className = inactiveCard;
+                if (iconReview) iconReview.className = inactiveIcon;
+                if (titleReview) titleReview.className = inactiveTitle;
+                if (badgeReview) badgeReview.className = inactiveBadge;
             }
             const subBar = document.getElementById('substitutionStatsBar');
             if (subBar) {
@@ -2781,8 +2874,28 @@
                 let lastRenderedSeq = 0;
 
                 finalRenderData.forEach((item, index) => {
-                    // 🌟 ไม่ต้องใช้ appendSequenceGapRow แล้ว เพราะฟังก์ชันอัปเดตสรุปยอดสร้างตารางให้แล้ว
-                    
+                    // 🌟 สร้างแถวแจ้งเตือนลำดับตกหล่น (เฉพาะบนหน้าจอ ไม่ลงฐานข้อมูล)
+                    if (workMode === 'sequence' && !isSequenceModeHidden(item) && !item.isDuplicateInstance) {
+                        let currentSeq = getItemSeq(item);
+                        if (currentSeq !== null && currentSeq > lastRenderedSeq + 1) {
+                            for (let missingSeq = lastRenderedSeq + 1; missingSeq < currentSeq; missingSeq++) {
+                                const gapTr = document.createElement('tr');
+                                gapTr.className = "data-row bg-amber-50/70 dark:bg-amber-900/20 border-b border-amber-200/50 dark:border-amber-700/50";
+                                gapTr.setAttribute('data-seq', missingSeq);
+                                gapTr.innerHTML = `<td colspan="15" class="px-4 py-3 text-center text-amber-600 dark:text-amber-400 text-sm font-bold">
+                                    <span class="flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        ตกหล่นลำดับที่ ${missingSeq} (ไม่พบรายชื่อในระบบ)
+                                    </span>
+                                </td>`;
+                                tbody.appendChild(gapTr);
+                            }
+                        }
+                        if (currentSeq !== null && currentSeq > lastRenderedSeq) {
+                            lastRenderedSeq = currentSeq;
+                        }
+                    }
+
                     const tr = document.createElement('tr');
                     const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
                     
@@ -3626,7 +3739,36 @@
         }
 
         function scrollToSequence(seqNum) {
-            const targetRow = document.querySelector(`tr[data-seq="${seqNum}"]`);
+            let targetRow = document.querySelector(`tr[data-seq="${seqNum}"]`);
+            
+            // ถ้าระบบเก่าเคยมี gap row แต่ตอนนี้ถูกลบไปแล้ว ให้เลื่อนไปหาลำดับที่ใกล้เคียงที่สุดแทน
+            if (!targetRow) {
+                const allRows = Array.from(document.querySelectorAll('tr[data-seq]'));
+                let closestRow = null;
+                let minDiff = Infinity;
+                
+                allRows.forEach(row => {
+                    const rowSeq = parseInt(row.getAttribute('data-seq'));
+                    if (!isNaN(rowSeq)) {
+                        const diff = Math.abs(rowSeq - seqNum);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closestRow = row;
+                        }
+                    }
+                });
+                
+                if (closestRow) {
+                    targetRow = closestRow;
+                    // สร้างแจ้งเตือนเล็กๆ
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-amber-500 text-white px-4 py-2 rounded-lg shadow-xl z-[1000] font-bold text-sm transition-opacity duration-300';
+                    toast.innerText = `⚠️ ลำดับที่ ${seqNum} ตกหล่น (เลื่อนมาที่ตำแหน่งใกล้เคียง)`;
+                    document.body.appendChild(toast);
+                    setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+                }
+            }
+            
             if (targetRow) {
                 targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
