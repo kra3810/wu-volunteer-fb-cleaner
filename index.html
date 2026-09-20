@@ -2384,51 +2384,7 @@
                 }
             });
             
-            // 🌟 1. สร้าง Record ว่างสำหรับลำดับที่ขาดหาย (แทนที่ Placeholder เดิม)
-            if (workMode === 'sequence' && foundSeqs.size > 0 && !window.isFillingGaps) {
-                let maxNum = Math.max(...foundSeqs);
-                let missing = [];
-                for (let i = 1; i <= maxNum; i++) {
-                    if (!foundSeqs.has(i)) missing.push(i);
-                }
-                
-                if (missing.length > 0) {
-                    let fileNames = Object.keys(allFilesData);
-                    if (fileNames.length > 0) {
-                        window.isFillingGaps = true;
-                        let targetFile = fileNames[0]; 
-                        missing.forEach(gapNum => {
-                            let newIndex = allFilesData[targetFile].length;
-                            let newRecord = {
-                                "recordIndex": newIndex,
-                                "fileName": targetFile,
-                                "ลำดับที่": gapNum.toString(),
-                                "รหัสนักศึกษา": "",
-                                "isIdValid": false,
-                                "ชื่อ": "",
-                                "นามสกุล": "",
-                                "สถานะ": "เม้นหลัก",
-                                "สายสนทนา": "เพิ่มข้อมูลด้วยตนเอง",
-                                "isReply": false,
-                                "ประเภทงาน": "ไม่ได้ระบุ",
-                                "ยอดไลก์": 0,
-                                "คอมเมนต์เต็มต้นฉบับ": "(แถวว่าง - กรอกข้อมูลให้ครบถ้วน)",
-                                "isFaded": false,
-                                "isDuplicateInstance": false
-                            };
-                            allFilesData[targetFile].push(newRecord);
-                            if (window.currentRoomId && window.db) {
-                                db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(targetFile)}/${newIndex}`).set(encodeKeys(newRecord));
-                            }
-                        });
-                        
-                        if (window.currentRoomId) triggerRoomUpdate();
-                        saveState();
-                        setTimeout(() => { window.isFillingGaps = false; renderTable(); }, 10);
-                        return; // หยุดการทำงานรอบนี้ไปก่อน รอ renderTable รอบใหม่
-                    }
-                }
-            }
+            // 🌟 1. (ปิดใช้งานระบบ Auto-inject แถวว่าง เพราะทำให้เกิดบั๊กข้อมูลซ้ำเมื่อค้นหา)
 
             // เลิกใช้กล่องแจ้งเตือนสีแดง (เพราะมีกล่องสีเหลืองอยู่แล้ว)
             let seqAlertDiv = document.getElementById('sequenceAlertDiv');
@@ -3560,6 +3516,16 @@
         }
 
         function initUIAfterLoad() {
+            let removedFake = false;
+            Object.keys(allFilesData).forEach(fileName => {
+                const oldLen = allFilesData[fileName].length;
+                allFilesData[fileName] = allFilesData[fileName].filter(r => !(r["สายสนทนา"] === "เพิ่มข้อมูลด้วยตนเอง" && r["คอมเมนต์เต็มต้นฉบับ"] === "(แถวว่าง - กรอกข้อมูลให้ครบถ้วน)"));
+                if (allFilesData[fileName].length < oldLen) removedFake = true;
+            });
+            if (removedFake && currentRoomId) {
+                syncAllData();
+            }
+            
             const dropdown = document.getElementById('fileSelectDropdown'); 
             const currentVal = dropdown.value; // จำค่าเดิมที่เลือกไว้ก่อนหน้า
             dropdown.innerHTML = "";
