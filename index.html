@@ -1725,6 +1725,51 @@
             }, 10);
         }
 
+        function updateSequenceStats(data) {
+            let statsContainer = document.getElementById('sequenceStatsBar');
+            if (!statsContainer) return;
+
+            if (sortMode !== 'sequence') {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+
+            let foundSeqs = new Set();
+            data.forEach(item => {
+                let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
+                let num = parseInt(seqVal);
+                if (!isNaN(num)) foundSeqs.add(num);
+            });
+
+            if (foundSeqs.size === 0) {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+
+            statsContainer.classList.remove('hidden');
+
+            let missing = [];
+            let maxNum = Math.max(...foundSeqs);
+            for (let i = 1; i <= maxNum; i++) {
+                if (!foundSeqs.has(i)) missing.push(i);
+            }
+
+            if (missing.length > 0) {
+                statsContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-sm font-bold text-rose-600 dark:text-rose-400 w-full">
+                        <span>⚠️ ตรวจพบเลขลำดับหายไป ${missing.length} ลำดับ (จาก 1 ถึง ${maxNum})</span>
+                        <button onclick="alert('เลขลำดับที่ตกหล่นคือ:\\n${missing.join(', ')}')" class="px-3 py-1 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 rounded-md hover:bg-rose-50 transition text-xs shadow-sm text-rose-600 dark:text-rose-400">ดูเลขที่หาย</button>
+                    </div>
+                `;
+            } else {
+                statsContainer.innerHTML = `
+                    <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400 w-full">
+                        ✅ เลขลำดับครบถ้วนตั้งแต่ 1 ถึง ${maxNum}
+                    </div>
+                `;
+            }
+        }
+
         function getSelectedColumns() {
             return {
                 file: document.getElementById('col_file') ? document.getElementById('col_file').checked : false,
@@ -1979,13 +2024,12 @@
             let valid = dataToSummarize.filter(d => d.isIdValid).length;
             let duplicates = dataToSummarize.filter(d => d.isDuplicateInstance).length;
 
-            document.getElementById('sumTotal').innerText = total; 
-            document.getElementById('sumValid').innerText = valid;
-
             let counts = {};
             let bonusCount = 0;
             let replyCount = 0; 
-            let fadedCount = 0; // 🌟 เพิ่มตัวนับคนที่ถูกซ่อน
+            let fadedCount = 0; 
+            
+            let foundSeqs = new Set();
 
             dataToSummarize.forEach(d => { 
                 let t = d["ประเภทงาน"]; 
@@ -1994,15 +2038,65 @@
                 if (!d.isFaded && !d.isDuplicateInstance && getBonusScore(d) > 0) {
                     bonusCount++;
                 }
-                if (!d.isFaded && !d.isDuplicateInstance && d["สถานะ"] === "เม้นย่อย") {
+                
+                // 🌟 แก้ตรงนี้: นับเม้นย่อยทั้งหมดโดยไม่ติดเงื่อนไข isFaded
+                if (d["สถานะ"] === "เม้นย่อย") {
                     replyCount++;
                 }
-                // 🌟 นับยอดที่ถูกซ่อน (กดรูปตา)
+
                 if (d.isFaded) {
                     fadedCount++;
                 }
+
+                // เก็บเลขลำดับเฉพาะคนที่ไม่ถูกซ่อนและไม่ส่งซ้ำ
+                if (!d.isFaded && !d.isDuplicateInstance) {
+                    let seqVal = d._mergedSources ? (d._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : d["ลำดับที่"];
+                    let num = parseInt(seqVal);
+                    if (!isNaN(num)) foundSeqs.add(num);
+                }
             });
 
+            // 1. จัดการเรื่องลำดับที่หายไป สร้างเป็นกล่องแยกด้านบน
+            let missingHtml = '';
+            if (foundSeqs.size > 0) {
+                let maxNum = Math.max(...foundSeqs);
+                let missing = [];
+                for (let i = 1; i <= maxNum; i++) {
+                    if (!foundSeqs.has(i)) missing.push(i);
+                }
+
+                if (missing.length > 0) {
+                    let shortText = missing.length > 8 ? missing.slice(0, 8).join(', ') + '...' : missing.join(', ');
+                    missingHtml = `
+                    <div class="w-full mb-4 p-3 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center justify-between shadow-sm transition-all">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl animate-pulse">⚠️</span>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-rose-700 dark:text-rose-400">ขาด ${missing.length} ลำดับ (ช่วง 1 ถึง ${maxNum})</span>
+                                <span class="text-xs font-semibold text-rose-500 dark:text-rose-400/80 mt-0.5">เลขที่ตกหล่น: ${shortText}</span>
+                            </div>
+                        </div>
+                        <button onclick="alert('ตรวจสอบจากลำดับ 1 ถึง ${maxNum}\\n\\nลำดับที่ตกหล่นทั้งหมด ${missing.length} ลำดับ ได้แก่:\\n${missing.join(', ')}')" class="shrink-0 ml-3 px-4 py-2 text-xs font-bold bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 border border-rose-300 dark:border-rose-700 rounded-lg shadow-sm hover:bg-rose-100 dark:hover:bg-rose-900 transition-colors">ดูทั้งหมด</button>
+                    </div>`;
+                } else {
+                    missingHtml = `
+                    <div class="w-full mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl flex items-center gap-3 shadow-sm">
+                        <span class="text-xl">✅</span>
+                        <span class="text-sm font-bold text-emerald-700 dark:text-emerald-400">ลำดับที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น</span>
+                    </div>`;
+                }
+            }
+
+            let seqAlertDiv = document.getElementById('sequenceAlertDiv');
+            if (!seqAlertDiv) {
+                seqAlertDiv = document.createElement('div');
+                seqAlertDiv.id = 'sequenceAlertDiv';
+                let sumCategoriesParent = document.getElementById('sumCategories').parentElement;
+                sumCategoriesParent.insertBefore(seqAlertDiv, sumCategoriesParent.firstChild);
+            }
+            seqAlertDiv.innerHTML = missingHtml;
+
+            // 2. อัปเดตปุ่มหมวดหมู่และปุ่มกรองด้านล่าง
             let catHtml = '';
             
             let allClass = activeCategoryFilters.length === 0 
@@ -2028,7 +2122,6 @@
                 : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700";
             catHtml += `<button onclick="setFilter('reply')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${replyClass}">↪️ เม้นย่อย (${replyCount})</button>`;
 
-            // 🌟 สร้างปุ่ม "ซ่อนไว้" (จะโชว์ตลอดเวลาที่มีคนถูกซ่อน)
             let fadedClass = activeCategoryFilters.includes('faded') 
                 ? "bg-slate-700 text-white border-slate-700 shadow-md ring-2 ring-slate-400 dark:bg-slate-600 dark:border-slate-500 dark:ring-slate-400" 
                 : "bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-500 dark:border-slate-700 dark:hover:bg-slate-700";
@@ -2457,6 +2550,7 @@
             }
 
             if (tableContainer) tableContainer.scrollTop = scrollPos;
+            
         }
 
         function downloadExcel() {
@@ -3106,6 +3200,9 @@
                 };
                 reader.readAsText(file, 'UTF-8');
             });
+
+            // 🌟 เคลียร์ค่า input ทิ้ง เพื่อให้สามารถกดเลือก "ไฟล์เดิม" ซ้ำได้
+            event.target.value = '';
         }
 
         function parseCSVRobust(text) {
@@ -3238,7 +3335,6 @@
             let records = allFilesData[fileName];
             let threads = {};
 
-            // 1. แยกเม้นหลัก เม้นย่อย ตามสายสนทนา
             records.forEach(r => {
                 let t = r["สายสนทนา"];
                 if (!threads[t]) threads[t] = { main: [], reply: [] };
@@ -3246,7 +3342,6 @@
                 else threads[t].main.push(r);
             });
 
-            // 2. วิเคราะห์แต่ละสายสนทนา
             for (let threadNo in threads) {
                 let rawThread = rawThreadsData[fileName][threadNo];
                 if (!rawThread) continue;
@@ -3255,7 +3350,6 @@
                 let seqEnd = null;
                 let found = false;
 
-                // 🌟 สเต็ป 1: หาแบบตรงไปตรงมา (มีคำว่า ลำดับที่)
                 for (let c of rawThread) {
                     let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
                     let match = cleanText.match(/ลำดับ(?:ที่)?\s*[:=]?\s*(\d{1,4})(?:\s*[-–—ถึง]+\s*(\d{1,4}))?/);
@@ -3266,20 +3360,16 @@
                     }
                 }
 
-                // 🌟 สเต็ป 2: ถ้าไม่เจอคำว่า "ลำดับ" ให้แสกนหา "ตัวเลข-ตัวเลข" ในเม้นตอบกลับของแอดมินโดยตรง (แก้บั๊ก 410-412)
                 if (!found) {
                     for (let c of rawThread) {
-                        if (!c.isReply) continue; // ค้นหาเฉพาะในเม้นย่อย (แอดมินมักจะตอบตรงนี้)
+                        if (!c.isReply) continue;
                         let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
-                        
-                        // หาช่วงตัวเลข X-Y ที่ลอยๆ อยู่ เช่น "Chotiros 410-412"
                         let matchRange = cleanText.match(/(\d{1,4})\s*[-–—ถึง]+\s*(\d{1,4})/);
                         if (matchRange) {
                             seqStart = parseInt(matchRange[1]);
                             seqEnd = parseInt(matchRange[2]);
                             found = true; break;
                         }
-                        // หาเลขเดี่ยวๆ ที่อยู่ท้ายประโยค เช่น "Chotiros 179"
                         let matchSingle = cleanText.match(/\b(\d{1,4})$/);
                         if (matchSingle) {
                             seqStart = parseInt(matchSingle[1]);
@@ -3289,7 +3379,6 @@
                     }
                 }
 
-                // 3. แจกลำดับให้เม้นหลัก และ "ซ่อน" คนที่เกินโควตา
                 if (seqStart !== null) {
                     let currentSeq = seqStart;
                     threads[threadNo].main.forEach(r => {
@@ -3305,21 +3394,32 @@
                 } else {
                     threads[threadNo].main.forEach(r => {
                         r["ลำดับที่"] = "";
+                        r.isFaded = true; 
                     });
                 }
 
-                // 4. เม้นสายย่อย ปิดตาซ่อนไว้ก่อน และไม่ให้ลำดับ 100%
+                // เม้นย่อย: ซ่อนไว้และไม่มีลำดับ
                 threads[threadNo].reply.forEach(r => {
-                    r.isFaded = true;
+                    r.isFaded = true; 
                     r["ลำดับที่"] = "";
                 });
             }
+
+            // กวาดซ้ำ: อันไหนไม่มีลำดับที่ ให้ซ่อนไว้ก่อนทั้งหมดทันที
+            records.forEach(r => {
+                if (!r["ลำดับที่"] || r["ลำดับที่"].trim() === "") {
+                    r.isFaded = true;
+                }
+            });
         }
 
         // 🌟 2. ฟังก์ชันโหลดข้อมูลหลัก (ซ่อมให้โหลดตารางได้ตามปกติแล้ว)
         function parseCSVData(fileName, text) {
             const rows = parseCSVRobust(text);
-            if (rows.length < 2) return;
+            if (rows.length < 2) {
+                alert(`❌ ไฟล์ ${fileName} ไม่มีข้อมูล หรือไฟล์ว่างเปล่าครับ`);
+                return;
+            }
 
             const headers = rows[0].map(h => h.trim());
             const commentIdIdx = headers.indexOf('Comment ID');
@@ -3330,11 +3430,17 @@
             const replyToIdx = indexOfIgnoreCase(headers, 'Reply To Comment');
             const urlIdx = indexOfIgnoreCase(headers, 'Comment URL');
 
-            if (commentIdx === -1) return;
+            // 🌟 เพิ่ม Alert ดักจับให้รู้ว่าเกิดอะไรขึ้น แทนที่จะเงียบไปเฉยๆ
+            if (commentIdx === -1) {
+                alert(`❌ อัปโหลดไม่สำเร็จ!\nไฟล์ ${fileName} ไม่พบคอลัมน์ชื่อ 'Comment'\n\nกรุณาตรวจสอบว่าโหลดไฟล์มาจากส่วนเสริม Facebook ถูกต้องหรือไม่ครับ`);
+                return;
+            }
 
             let parentMap = {}; let allIds = [];
             let urlMap = {}; 
             let defaultPostUrl = ""; 
+
+            // ... (โค้ดด้านล่างของ parseCSVData ปล่อยไว้เหมือนเดิมจนจบฟังก์ชันครับ)
 
             if (commentIdIdx !== -1) {
                 for (let i = 1; i < rows.length; i++) {
@@ -4052,6 +4158,46 @@
                 db.ref('rooms/' + roomId).remove();
                 db.ref('rooms_meta/' + roomId).remove();
                 loadHubRooms();
+            }
+        }
+
+        // ==========================================
+        // 🌟 ระบบเคลียร์ถังขยะ (ลบห้องทั้งหมดที่อยู่ในหมวดรอเคลียร์)
+        // ==========================================
+        function clearAllArchivedRooms() {
+            const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            
+            // 1. คัดกรองหาห้องที่เข้าข่ายต้องถูกลบทิ้ง
+            const roomsToDelete = allRoomsCache.filter(room => {
+                const lastUpd = room.lastUpdated || room.createdAt || now;
+                return room.isDeleted || ((now - lastUpd) > ONE_YEAR_MS);
+            });
+
+            if (roomsToDelete.length === 0) {
+                alert("ไม่มีห้องในถังขยะให้ลบครับ");
+                return;
+            }
+
+            // 2. ถามย้ำเพื่อความชัวร์ เพราะลบแล้วกู้ไม่ได้
+            let conf = confirm(`⚠️ คำเตือนขั้นเด็ดขาด!\n\nคุณกำลังจะลบห้องจำนวน ${roomsToDelete.length} ห้อง ทิ้งแบบถาวร\nข้อมูลทั้งหมดจะหายไปและ "ไม่สามารถกู้คืนได้อีก"\n\nยืนยันที่จะลบทิ้งใช่หรือไม่?`);
+            
+            if (conf) {
+                let updates = {};
+                
+                // 3. รวบรวมคำสั่งลบ (ใช้ null เพื่อลบโหนดนั้นทิ้ง)
+                roomsToDelete.forEach(room => {
+                    updates['rooms/' + room.id] = null;
+                    updates['rooms_meta/' + room.id] = null;
+                });
+
+                // 4. ยิงคำสั่งอัปเดตไปที่ Firebase รวดเดียว
+                db.ref().update(updates).then(() => {
+                    alert(`🗑️ เคลียร์พื้นที่สำเร็จ! ลบไปทั้งหมด ${roomsToDelete.length} ห้องครับ`);
+                    loadHubRooms(); // รีเฟรชหน้า Hub ใหม่
+                }).catch(error => {
+                    alert("❌ เกิดข้อผิดพลาดในการลบข้อมูล: " + error.message);
+                });
             }
         }
 
