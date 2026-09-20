@@ -442,9 +442,11 @@
                 </div>
 
                 <div id="uploadArea" class="border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition cursor-pointer bg-slate-50 dark:bg-slate-800/50" onclick="document.getElementById('csvFiles').click()">
+                    <input type="file" id="csvFiles" accept=".csv, .xlsx, .xls" multiple class="hidden" onchange="handleFiles(event)">
                     <input type="file" id="csvFiles" accept=".csv" multiple class="hidden" onchange="handleFiles(event)">
                     <div class="flex flex-col items-center justify-center pointer-events-none">
                         <svg class="w-10 h-10 md:w-12 md:h-12 text-indigo-400 dark:text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="text-slate-700 dark:text-slate-200 font-semibold text-base md:text-lg">คลิกที่นี่ หรือลากไฟล์ CSV / Excel มาวาง</p>
                         <p class="text-slate-700 dark:text-slate-200 font-semibold text-base md:text-lg">คลิกที่นี่ หรือลากไฟล์ CSV มาวาง</p>
                         <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-1">รองรับการอัปโหลดหลายไฟล์พร้อมกัน</p>
                         <p id="fileNames" class="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 mt-3 font-medium"></p>
@@ -625,6 +627,7 @@
                 <!-- แบนเนอร์ย้อนกลับสำหรับโหมดกรอง/สายสนทนา -->
                 <div id="threadBackBanner" class="hidden bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-800 p-3 flex justify-between items-center transition-all">
                     <div class="flex items-center gap-3">
+                        <button type="button" onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
                         <button onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                             กลับสู่ตารางรวม
@@ -1620,12 +1623,86 @@
         // --- ตัวแปรความจำสำหรับปุ่ม "ดูหน้าซ้ำ" ---
         let previousCategoryFilters = [];
         let previousScrollPos = 0;
+        let isStudentIdDrilldown = false;
 
         // --- ตัวแปรความจำสำหรับปุ่ม "กางสายสนทนา" โดยเฉพาะ (แยกกันจะได้ไม่ตีกัน) ---
         let savedWindowScroll = 0;
         let savedContainerScroll = 0;
         let threadPrevCategories = []; 
         let threadPrevSearch = "";
+        
+        let roomModeMemory = {};
+
+        function saveCurrentModeMemory() {
+            if (!currentRoomId) return;
+            if (!roomModeMemory[currentRoomId]) roomModeMemory[currentRoomId] = {};
+            const memoryKey = currentMode + "_" + workMode;
+            const searchInput = document.getElementById('searchInput');
+            const tableContainer = document.querySelector('.table-container');
+            const mainScrollContainer = document.querySelector('main');
+            
+            roomModeMemory[currentRoomId][memoryKey] = {
+                activeCategoryFilters: [...activeCategoryFilters],
+                activeThread: activeThread,
+                threadPrevCategories: [...threadPrevCategories],
+                threadPrevSearch: threadPrevSearch,
+                searchStr: searchInput ? searchInput.value : "",
+                isStudentIdDrilldown: isStudentIdDrilldown,
+                previousCategoryFilters: [...previousCategoryFilters],
+                previousScrollPos: previousScrollPos,
+                lastWindowScrollPos: lastWindowScrollPos,
+                savedWindowScroll: savedWindowScroll,
+                savedContainerScroll: savedContainerScroll,
+                scrollMain: mainScrollContainer ? mainScrollContainer.scrollTop : 0,
+                scrollTable: tableContainer ? tableContainer.scrollTop : 0
+            };
+            
+            // บันทึกลง Firebase เพื่อให้จำข้ามอุปกรณ์ได้
+            db.ref('rooms/' + currentRoomId + '/modeMemory').set(encodeKeys(roomModeMemory[currentRoomId]));
+        }
+
+        function restoreModeMemory() {
+            const memoryKey = currentMode + "_" + workMode;
+            const searchInput = document.getElementById('searchInput');
+            const tableContainer = document.querySelector('.table-container');
+            const mainScrollContainer = document.querySelector('main');
+
+            if (currentRoomId && roomModeMemory[currentRoomId] && roomModeMemory[currentRoomId][memoryKey]) {
+                let mem = roomModeMemory[currentRoomId][memoryKey];
+                activeCategoryFilters = mem.activeCategoryFilters ? [...mem.activeCategoryFilters] : [];
+                activeThread = mem.activeThread !== undefined ? mem.activeThread : null;
+                threadPrevCategories = mem.threadPrevCategories ? [...mem.threadPrevCategories] : [];
+                threadPrevSearch = mem.threadPrevSearch || "";
+                if (searchInput) searchInput.value = mem.searchStr || "";
+                isStudentIdDrilldown = mem.isStudentIdDrilldown || false;
+                previousCategoryFilters = mem.previousCategoryFilters ? [...mem.previousCategoryFilters] : [];
+                previousScrollPos = mem.previousScrollPos || 0;
+                lastWindowScrollPos = mem.lastWindowScrollPos || 0;
+                savedWindowScroll = mem.savedWindowScroll || 0;
+                savedContainerScroll = mem.savedContainerScroll || 0;
+                
+                setTimeout(() => {
+                    if (mainScrollContainer) mainScrollContainer.scrollTo(0, mem.scrollMain || 0);
+                    if (tableContainer) tableContainer.scrollTop = mem.scrollTable || 0;
+                }, 20);
+            } else {
+                activeCategoryFilters = [];
+                activeThread = null;
+                threadPrevCategories = [];
+                threadPrevSearch = "";
+                if (searchInput) searchInput.value = "";
+                isStudentIdDrilldown = false;
+                previousCategoryFilters = [];
+                previousScrollPos = 0;
+                lastWindowScrollPos = 0;
+                savedWindowScroll = 0;
+                savedContainerScroll = 0;
+                setTimeout(() => {
+                    if (mainScrollContainer) mainScrollContainer.scrollTo(0, 0);
+                    if (tableContainer) tableContainer.scrollTop = 0;
+                }, 20);
+            }
+        }
 
         function exitThreadView() {
             const mainScrollContainer = document.querySelector('main'); 
@@ -1659,11 +1736,34 @@
                         });
                     }
                 }
+                if (spacer) spacer.style.height = '0px';
+                setTimeout(() => {
+                    if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
+                    mainScrollContainer.scrollTo(0, savedWindowScroll);
+                }, 10);
+            } else if (isStudentIdDrilldown) {
+                // คืนค่าจากการกดปุ่มซ้ำของรหัสนักศึกษา (ไม่ว่าจะเคยมีฟิลเตอร์อะไรอยู่หรือไม่ก็ตาม)
+                activeCategoryFilters = [...previousCategoryFilters];
+                previousCategoryFilters = [];
+                isStudentIdDrilldown = false;
+                if(searchInput) searchInput.value = "";
+                renderTable();
+                if (spacer) spacer.style.height = '0px';
+                setTimeout(() => { 
+                    if (tableContainer && previousScrollPos) tableContainer.scrollTop = previousScrollPos;
+                    if (mainScrollContainer && lastWindowScrollPos !== undefined) mainScrollContainer.scrollTo(0, lastWindowScrollPos);
+                }, 10);
             } else if (activeCategoryFilters.length > 0 || (searchInput && searchInput.value.trim() !== "")) {
+                // ออกจากโหมดกรองข้อมูลอื่นๆ (กลับสู่หน้าจอหลักล้วนๆ)
                 // ออกจากโหมดกรองข้อมูล
                 activeCategoryFilters = [];
                 if(searchInput) searchInput.value = "";
                 renderTable();
+                if (spacer) spacer.style.height = '0px';
+                setTimeout(() => {
+                    if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
+                    mainScrollContainer.scrollTo(0, savedWindowScroll);
+                }, 10);
             }
             
             if (spacer) spacer.style.height = '0px';
@@ -1695,6 +1795,7 @@
                 exitThreadView();
             } else {
                 const docHeightBefore = mainScrollContainer.scrollHeight;
+                spacer.style.height = docHeightBefore + 'px';
                 
                 if (tableContainer) {
                     tableContainer.style.minHeight = ''; 
@@ -1734,6 +1835,13 @@
                                 banner.classList.remove('hidden');
                                 document.getElementById('threadBannerText').innerText = `กำลังดูเฉพาะสายสนทนา: ${threadNo}`;
                             }
+                            
+                            const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
+                            if (docHeightBefore > docHeightAfter) {
+                                spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                            } else {
+                                spacer.style.height = '0px';
+                            }
                         }
                     }, 50);
                     return;
@@ -1751,9 +1859,12 @@
                     }
                 });
 
+                const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
                 const docHeightAfter = mainScrollContainer.scrollHeight;
                 if (docHeightBefore > docHeightAfter) {
                     spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                } else {
+                    spacer.style.height = '0px';
                 }
 
                 const banner = document.getElementById('threadBackBanner');
@@ -1780,6 +1891,9 @@
                 spacer.id = 'page-magic-spacer';
                 mainScrollContainer.appendChild(spacer);
             }
+            
+            // ดามความสูงไว้ก่อนที่ตารางจะถูกลบทิ้ง ป้องกันเบราว์เซอร์เด้ง Scroll
+            spacer.style.height = docHeightBefore + 'px';
 
             if (cat === null) {
                 activeCategoryFilters = []; 
@@ -1794,6 +1908,8 @@
             
             renderTable(); 
 
+            // คำนวณความสูงที่แท้จริงหลังจากหักตัวดามออก
+            const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
             const docHeightAfter = mainScrollContainer.scrollHeight;
             if (docHeightBefore > docHeightAfter) {
                 spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
@@ -1804,8 +1920,11 @@
         }
 
         function switchMode(mode) {
+            if (currentMode === mode) return;
+            saveCurrentModeMemory();
             currentMode = mode; 
             
+            restoreModeMemory();
             // 1. ล้างความจำตัวกรองและการค้นหาทั้งหมด ไม่ให้ข้ามไปตีกันในโหมดใหม่
             activeThread = null; 
             activeCategoryFilters = [];
@@ -1845,7 +1964,9 @@
 
         function switchWorkMode(mode) {
             if (workMode === mode) return;
+            saveCurrentModeMemory();
             workMode = mode;
+            restoreModeMemory();
             activeThread = null;
             activeCategoryFilters = [];
             threadPrevCategories = [];
@@ -1871,6 +1992,7 @@
             updateWorkModeUI();
             const tbody = document.getElementById('tableBody');
             if (tbody) tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-16 text-center text-indigo-500 dark:text-indigo-400 font-bold text-lg animate-pulse">⏳ กำลังสลับโหมดการทำงาน...</td></tr>`;
+            setTimeout(() => { renderTable(); saveState(); }, 10);
             setTimeout(() => { renderTable(); resetScroll(); saveState(); }, 10);
         }
 
@@ -2411,13 +2533,35 @@
             event.stopPropagation();
             const searchInput = document.getElementById('searchInput');
             const tableContainer = document.querySelector('.table-container');
+            const mainScrollContainer = document.querySelector('main');
             
+            let spacer = document.getElementById('page-magic-spacer');
+            if (!spacer) {
+                spacer = document.createElement('div');
+                spacer.id = 'page-magic-spacer';
+                mainScrollContainer.appendChild(spacer);
+            }
+            const docHeightBefore = mainScrollContainer.scrollHeight;
+            spacer.style.height = docHeightBefore + 'px';
+
             if (searchInput.value === studentId) {
                 searchInput.value = '';
                 activeCategoryFilters = [...previousCategoryFilters];
+                isStudentIdDrilldown = false;
                 renderTable(); 
+                
+                const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
+                if (docHeightBefore > docHeightAfter) {
+                    spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                } else {
+                    spacer.style.height = '0px';
+                }
+
+                if (tableContainer || mainScrollContainer) {
                 if (tableContainer) {
                     setTimeout(() => {
+                        if (tableContainer && previousScrollPos) tableContainer.scrollTop = previousScrollPos;
+                        if (mainScrollContainer && lastWindowScrollPos !== undefined) mainScrollContainer.scrollTo(0, lastWindowScrollPos);
                         tableContainer.scrollTop = previousScrollPos;
                     }, 10);
                 }
@@ -2425,10 +2569,21 @@
                 if (tableContainer) {
                     previousScrollPos = tableContainer.scrollTop;
                 }
+                if (mainScrollContainer) {
+                    lastWindowScrollPos = mainScrollContainer.scrollTop;
+                }
                 previousCategoryFilters = [...activeCategoryFilters];
+                isStudentIdDrilldown = true;
                 searchInput.value = studentId;
                 activeCategoryFilters = [];
                 renderTable(); 
+                
+                const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
+                if (docHeightBefore > docHeightAfter) {
+                    spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                } else {
+                    spacer.style.height = '0px';
+                }
             }
         }
 
@@ -3163,6 +3318,7 @@
                 sessionStorage.setItem('fileScores', JSON.stringify(fileScores));
                 // เพิ่มคำสั่งให้จำข้อมูลดิบสำหรับหน้าต่างจำลอง Facebook
                 sessionStorage.setItem('rawThreadsData', JSON.stringify(rawThreadsData)); 
+                sessionStorage.setItem('roomModeMemory', JSON.stringify(roomModeMemory));
                 
                 const fileNamesStr = document.getElementById('fileNames').innerText;
                 if (fileNamesStr) sessionStorage.setItem('fileNamesStr', fileNamesStr);
@@ -3177,6 +3333,8 @@
                 const savedScores = sessionStorage.getItem('fileScores');
                 // โหลดข้อมูลดิบสำหรับหน้าต่างจำลอง Facebook กลับมา
                 const savedRawThreads = sessionStorage.getItem('rawThreadsData'); 
+                const savedModeMemory = sessionStorage.getItem('roomModeMemory');
+                if (savedModeMemory) roomModeMemory = JSON.parse(savedModeMemory);
 
                 if (savedScores) { fileScores = JSON.parse(savedScores); }
                 if (savedRawThreads) { rawThreadsData = JSON.parse(savedRawThreads); }
@@ -3496,6 +3654,15 @@
             document.getElementById('fileNames').innerText = "⏳ กำลังอ่านไฟล์และบันทึกขึ้นคลาวด์ โปรดรอสักครู่...";
 
             Array.from(files).forEach(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                
+                if (ext === 'xlsx' || ext === 'xls') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const csvStr = XLSX.utils.sheet_to_csv(sheet);
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     parseCSVData(file.name, e.target.result);
@@ -3507,11 +3674,38 @@
                         initUIAfterLoad(); 
                         saveState(); 
                         
+                        parseCSVData(file.name, csvStr);
+                        loadedCount++;
+                        fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
+                        
+                        if (loadedCount === files.length) { 
+                            document.getElementById('fileNames').innerText = fileNamesStr;
+                            initUIAfterLoad(); 
+                            saveState(); 
+                            if (currentRoomId) { syncAllData(); triggerRoomUpdate(); }
                         // 🔥 หัวใจสำคัญ: สั่งบันทึกตารางทั้งหมดขึ้น Firebase ทันทีที่ลากไฟล์ลงไป
                         if (currentRoomId) {
                             syncAllData();
                             triggerRoomUpdate();
                         }
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        parseCSVData(file.name, e.target.result);
+                        loadedCount++;
+                        fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
+                        
+                        if (loadedCount === files.length) { 
+                            document.getElementById('fileNames').innerText = fileNamesStr;
+                            initUIAfterLoad(); 
+                            saveState(); 
+                            if (currentRoomId) { syncAllData(); triggerRoomUpdate(); }
+                        }
+                    };
+                    reader.readAsText(file, 'UTF-8');
+                }
                     }
                 };
                 reader.readAsText(file, 'UTF-8');
@@ -3737,17 +3931,28 @@
                 return;
             }
 
+            const headers = rows[0].map(h => h.trim().replace(/^\uFEFF/, ''));
+            
+            function indexOfRegex(arr, regex) { return arr.findIndex(item => regex.test(item)); }
             const headers = rows[0].map(h => h.trim());
             const commentIdIdx = headers.indexOf('Comment ID');
             const commentIdx = headers.indexOf('Comment');
 
             function indexOfIgnoreCase(arr, val) { return arr.findIndex(item => item.toLowerCase() === val.toLowerCase()); }
+            
+            const commentIdIdx = indexOfRegex(headers, /^(Comment ID|ID|รหัสอ้างอิง)$/i);
+            const commentIdx = indexOfRegex(headers, /^(Comment|Message|Text|ข้อความ)$/i);
+            
+            const likeIdx = indexOfRegex(headers, /^(Like Count|Likes|ถูกใจ)$/i);
+            const replyToIdx = indexOfRegex(headers, /^(Reply To Comment|Reply To|Parent)$/i);
+            const urlIdx = indexOfRegex(headers, /^(Comment URL|URL|ลิงก์)$/i);
             const likeIdx = indexOfIgnoreCase(headers, 'Like Count');
             const replyToIdx = indexOfIgnoreCase(headers, 'Reply To Comment');
             const urlIdx = indexOfIgnoreCase(headers, 'Comment URL');
 
             // 🌟 เพิ่ม Alert ดักจับให้รู้ว่าเกิดอะไรขึ้น แทนที่จะเงียบไปเฉยๆ
             if (commentIdx === -1) {
+                alert(`❌ อัปโหลดไม่สำเร็จ!\nไฟล์ ${fileName} ไม่พบคอลัมน์ข้อมูลความคิดเห็น (เช่น 'Comment', 'Message', 'Text')\n\n💡 หากนี่คือไฟล์ "รายชื่อนักศึกษา" กรุณาอัปโหลดที่เมนู "📥 ส่งออก & พิมพ์" ที่อยู่ด้านล่างแทนครับ`);
                 alert(`❌ อัปโหลดไม่สำเร็จ!\nไฟล์ ${fileName} ไม่พบคอลัมน์ชื่อ 'Comment'\n\nกรุณาตรวจสอบว่าโหลดไฟล์มาจากส่วนเสริม Facebook ถูกต้องหรือไม่ครับ`);
                 return;
             }
@@ -3813,8 +4018,10 @@
                 const isReply = parentId !== "" && parentId !== "undefined";
                 const likeCount = likeIdx !== -1 ? parseInt(cols[likeIdx]) || 0 : 0;
                 
+                const authorIdx = indexOfRegex(headers, /^(User Name|Author Name|Author|Name|ชื่อผู้ใช้)$/i); 
                 const authorIdx = indexOfIgnoreCase(headers, 'User Name'); 
                 const authorName = authorIdx !== -1 && cols[authorIdx] ? cols[authorIdx].trim() : "ผู้ใช้งาน";
+                const timeIdx = indexOfRegex(headers, /^(Comment Time|Time|Date|เวลา)$/i); 
                 const timeIdx = indexOfIgnoreCase(headers, 'Comment Time'); 
                 const commentTime = timeIdx !== -1 && cols[timeIdx] ? cols[timeIdx].trim() : "";
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
@@ -3913,6 +4120,8 @@
             document.getElementById('workspaceContainer').classList.add('hidden');
             document.getElementById('navHub').classList.replace('bg-indigo-900/40', 'bg-indigo-600');
             
+            saveCurrentModeMemory();
+
             // ยกเลิกการเชื่อมต่อห้องชั่วคราวเพื่อประหยัดเน็ต
             if(currentRoomId) {
                 db.ref('rooms/' + currentRoomId + '/allFilesData').off();
@@ -4138,6 +4347,7 @@
                 document.getElementById('csvFiles').value = "";
                 document.getElementById('fileNames').innerText = "";
                 document.getElementById('searchInput').value = "";
+                restoreModeMemory();
                 renderTable();
                 
                 // เปลี่ยนหน้าไปตารางทำงาน
@@ -4156,13 +4366,24 @@
                     allFilesData = decodeAllFilesData(data.allFilesData || {});
                     fileScores = normalizeFileScores(data.fileScores); 
                     rawThreadsData = decodeKeys(data.rawThreadsData || {});
+                    if (data.modeMemory) {
+                        roomModeMemory[code] = decodeKeys(data.modeMemory);
+                    }
                     
+                    initUIAfterLoad(); 
+                    restoreModeMemory(); 
+                    renderTable(); 
+                    saveState();
                     initUIAfterLoad(); renderTable(); saveState();
                     showWorkspace(name, code);
                     startListening(); initLiveCursor();
                 } else {
                     // กรณีสร้างห้องไว้แต่ยังไม่ได้ลากไฟล์ลงตาราง
                     allFilesData = {}; fileScores = {}; rawThreadsData = {};
+                    if (roomModeMemory[code]) delete roomModeMemory[code];
+                    initUIAfterLoad(); 
+                    restoreModeMemory(); 
+                    renderTable();
                     initUIAfterLoad(); renderTable();
                     showWorkspace(name, code);
                     startListening(); initLiveCursor();
