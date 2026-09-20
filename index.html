@@ -1836,7 +1836,7 @@
                                 document.getElementById('threadBannerText').innerText = `กำลังดูเฉพาะสายสนทนา: ${threadNo}`;
                             }
                             
-                            const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
+                            const docHeightAfter = mainScrollContainer.scrollHeight;
                             if (docHeightBefore > docHeightAfter) {
                                 spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
                             } else {
@@ -1859,7 +1859,6 @@
                     }
                 });
 
-                const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
                 const docHeightAfter = mainScrollContainer.scrollHeight;
                 if (docHeightBefore > docHeightAfter) {
                     spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
@@ -1909,7 +1908,6 @@
             renderTable(); 
 
             // คำนวณความสูงที่แท้จริงหลังจากหักตัวดามออก
-            const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
             const docHeightAfter = mainScrollContainer.scrollHeight;
             if (docHeightBefore > docHeightAfter) {
                 spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
@@ -2550,7 +2548,7 @@
                 isStudentIdDrilldown = false;
                 renderTable(); 
                 
-                const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
+                const docHeightAfter = mainScrollContainer.scrollHeight;
                 if (docHeightBefore > docHeightAfter) {
                     spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
                 } else {
@@ -2558,11 +2556,9 @@
                 }
 
                 if (tableContainer || mainScrollContainer) {
-                if (tableContainer) {
                     setTimeout(() => {
                         if (tableContainer && previousScrollPos) tableContainer.scrollTop = previousScrollPos;
                         if (mainScrollContainer && lastWindowScrollPos !== undefined) mainScrollContainer.scrollTo(0, lastWindowScrollPos);
-                        tableContainer.scrollTop = previousScrollPos;
                     }, 10);
                 }
             } else {
@@ -2578,7 +2574,7 @@
                 activeCategoryFilters = [];
                 renderTable(); 
                 
-                const docHeightAfter = mainScrollContainer.scrollHeight - docHeightBefore;
+                const docHeightAfter = mainScrollContainer.scrollHeight;
                 if (docHeightBefore > docHeightAfter) {
                     spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
                 } else {
@@ -3663,16 +3659,6 @@
                         const workbook = XLSX.read(data, {type: 'array'});
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
                         const csvStr = XLSX.utils.sheet_to_csv(sheet);
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    parseCSVData(file.name, e.target.result);
-                    loadedCount++;
-                    fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
-                    
-                    if (loadedCount === files.length) { 
-                        document.getElementById('fileNames').innerText = fileNamesStr;
-                        initUIAfterLoad(); 
-                        saveState(); 
                         
                         parseCSVData(file.name, csvStr);
                         loadedCount++;
@@ -3683,10 +3669,6 @@
                             initUIAfterLoad(); 
                             saveState(); 
                             if (currentRoomId) { syncAllData(); triggerRoomUpdate(); }
-                        // 🔥 หัวใจสำคัญ: สั่งบันทึกตารางทั้งหมดขึ้น Firebase ทันทีที่ลากไฟล์ลงไป
-                        if (currentRoomId) {
-                            syncAllData();
-                            triggerRoomUpdate();
                         }
                     };
                     reader.readAsArrayBuffer(file);
@@ -3706,9 +3688,6 @@
                     };
                     reader.readAsText(file, 'UTF-8');
                 }
-                    }
-                };
-                reader.readAsText(file, 'UTF-8');
             });
 
             // 🌟 เคลียร์ค่า input ทิ้ง เพื่อให้สามารถกดเลือก "ไฟล์เดิม" ซ้ำได้
@@ -3931,31 +3910,33 @@
                 return;
             }
 
-            const headers = rows[0].map(h => h.trim().replace(/^\uFEFF/, ''));
-            
             function indexOfRegex(arr, regex) { return arr.findIndex(item => regex.test(item)); }
-            const headers = rows[0].map(h => h.trim());
-            const commentIdIdx = headers.indexOf('Comment ID');
-            const commentIdx = headers.indexOf('Comment');
-
             function indexOfIgnoreCase(arr, val) { return arr.findIndex(item => item.toLowerCase() === val.toLowerCase()); }
+
+            let headerRowIndex = 0;
+            let headers = [];
+            let commentIdx = -1;
             
+            for (let i = 0; i < Math.min(10, rows.length); i++) {
+                const tempHeaders = rows[i].map(h => h ? h.toString().trim().replace(/^\uFEFF/, '') : '');
+                const cIdx = indexOfRegex(tempHeaders, /^(Comment|Message|Text|ข้อความ|เนื้อหา)$/i);
+                if (cIdx !== -1) {
+                    headerRowIndex = i;
+                    headers = tempHeaders;
+                    commentIdx = cIdx;
+                    break;
+                }
+            }
+            
+            if (commentIdx === -1) {
+                alert(`❌ อัปโหลดไม่สำเร็จ!\nไฟล์ ${fileName} ไม่พบคอลัมน์ข้อมูลความคิดเห็น (เช่น 'Comment', 'Message', 'Text')\n\n💡 หากนี่คือไฟล์ "รายชื่อนักศึกษา" กรุณาอัปโหลดที่เมนู "📥 ส่งออก & พิมพ์" ที่อยู่ด้านล่างแทนครับ`);
+                return;
+            }
+
             const commentIdIdx = indexOfRegex(headers, /^(Comment ID|ID|รหัสอ้างอิง)$/i);
-            const commentIdx = indexOfRegex(headers, /^(Comment|Message|Text|ข้อความ)$/i);
-            
             const likeIdx = indexOfRegex(headers, /^(Like Count|Likes|ถูกใจ)$/i);
             const replyToIdx = indexOfRegex(headers, /^(Reply To Comment|Reply To|Parent)$/i);
             const urlIdx = indexOfRegex(headers, /^(Comment URL|URL|ลิงก์)$/i);
-            const likeIdx = indexOfIgnoreCase(headers, 'Like Count');
-            const replyToIdx = indexOfIgnoreCase(headers, 'Reply To Comment');
-            const urlIdx = indexOfIgnoreCase(headers, 'Comment URL');
-
-            // 🌟 เพิ่ม Alert ดักจับให้รู้ว่าเกิดอะไรขึ้น แทนที่จะเงียบไปเฉยๆ
-            if (commentIdx === -1) {
-                alert(`❌ อัปโหลดไม่สำเร็จ!\nไฟล์ ${fileName} ไม่พบคอลัมน์ข้อมูลความคิดเห็น (เช่น 'Comment', 'Message', 'Text')\n\n💡 หากนี่คือไฟล์ "รายชื่อนักศึกษา" กรุณาอัปโหลดที่เมนู "📥 ส่งออก & พิมพ์" ที่อยู่ด้านล่างแทนครับ`);
-                alert(`❌ อัปโหลดไม่สำเร็จ!\nไฟล์ ${fileName} ไม่พบคอลัมน์ชื่อ 'Comment'\n\nกรุณาตรวจสอบว่าโหลดไฟล์มาจากส่วนเสริม Facebook ถูกต้องหรือไม่ครับ`);
-                return;
-            }
 
             let parentMap = {}; let allIds = [];
             let urlMap = {}; 
@@ -4019,10 +4000,8 @@
                 const likeCount = likeIdx !== -1 ? parseInt(cols[likeIdx]) || 0 : 0;
                 
                 const authorIdx = indexOfRegex(headers, /^(User Name|Author Name|Author|Name|ชื่อผู้ใช้)$/i); 
-                const authorIdx = indexOfIgnoreCase(headers, 'User Name'); 
                 const authorName = authorIdx !== -1 && cols[authorIdx] ? cols[authorIdx].trim() : "ผู้ใช้งาน";
                 const timeIdx = indexOfRegex(headers, /^(Comment Time|Time|Date|เวลา)$/i); 
-                const timeIdx = indexOfIgnoreCase(headers, 'Comment Time'); 
                 const commentTime = timeIdx !== -1 && cols[timeIdx] ? cols[timeIdx].trim() : "";
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
