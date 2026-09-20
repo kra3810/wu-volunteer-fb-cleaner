@@ -116,6 +116,29 @@
             opacity: 1; pointer-events: auto;
         }
 
+        .sequence-mode-hidden { display: none !important; }
+
+        .sequence-gap-row td {
+            background: repeating-linear-gradient(
+                -45deg,
+                rgba(251, 191, 36, 0.08),
+                rgba(251, 191, 36, 0.08) 8px,
+                rgba(251, 191, 36, 0.02) 8px,
+                rgba(251, 191, 36, 0.02) 16px
+            ) !important;
+            border-top: 2px dashed rgba(251, 191, 36, 0.45) !important;
+            border-bottom: 2px dashed rgba(251, 191, 36, 0.45) !important;
+        }
+        .dark .sequence-gap-row td {
+            background: repeating-linear-gradient(
+                -45deg,
+                rgba(251, 191, 36, 0.12),
+                rgba(251, 191, 36, 0.12) 8px,
+                rgba(251, 191, 36, 0.04) 8px,
+                rgba(251, 191, 36, 0.04) 16px
+            ) !important;
+        }
+
         .editable-cell {
             outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; 
             transition: all 0.2s; cursor: text; display: inline-block; min-width: 40px; min-height: 24px;
@@ -539,6 +562,15 @@
 
             <!-- กล่องโหมดการทำงานและแสดงผล -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-5 transition-colors">
+                <div class="flex flex-col gap-3 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">โหมดการทำงาน:</span>
+                    <div class="inline-flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg shrink-0 w-full sm:w-auto">
+                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap">✅ ตรวจสอบคะแนน/รายชื่อ</button>
+                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap">🔢 ทำลำดับรายชื่อ</button>
+                    </div>
+                    <div id="sequenceStatsBar" class="hidden w-full p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl text-sm"></div>
+                    <div id="substitutionStatsBar" class="hidden w-full p-2 bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-400 dark:text-slate-500 italic"></div>
+                </div>
                 <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center justify-between">
 
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center w-full xl:w-auto">
@@ -562,6 +594,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 xl:mt-0">
                         <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
                         <div class="flex flex-wrap gap-2">
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_checked" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none text-emerald-600 dark:text-emerald-400">✓ ตรวจแล้ว</div></label>
                             <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable()"><div class="px-2.5 py-1.5 md:px-2 md:py-1 text-xs md:text-sm border border-slate-300 dark:border-slate-600 rounded-lg md:rounded text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-700 transition select-none">ไฟล์ต้นทาง</div></label>
                             
                             <!-- 🌟 ปุ่มเปิดปิดคอลัมน์ ลำดับที่ -->
@@ -588,6 +621,19 @@
 
             <!-- กล่องตาราง -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
+                
+                <!-- แบนเนอร์ย้อนกลับสำหรับโหมดกรอง/สายสนทนา -->
+                <div id="threadBackBanner" class="hidden bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-800 p-3 flex justify-between items-center transition-all">
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
+                        <button onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                            กลับสู่ตารางรวม
+                        </button>
+                        <span id="threadBannerText" class="text-indigo-800 dark:text-indigo-300 font-bold text-sm">กำลังดูเฉพาะบางรายการ</span>
+                    </div>
+                </div>
+
                 <div class="table-container overflow-x-auto max-h-[600px]">
                     <table class="min-w-full text-sm text-left">
                         <thead id="tableHeader" class="bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 uppercase font-bold sticky top-0 z-10 shadow-sm text-xs border-b border-slate-200 dark:border-slate-700"></thead>
@@ -866,6 +912,7 @@
     <script>
         let allFilesData = {}; 
         let currentMode = 'separate';
+        let workMode = 'review'; // 'review' = ตรวจสอบคะแนน/รายชื่อ | 'sequence' = ทำลำดับรายชื่อ
         let activeThread = null; 
         let activeCategoryFilters = []; 
 
@@ -1494,6 +1541,16 @@
             db.ref('rooms/' + currentRoomId + '/allFilesData').on('value', snapshot => {
                 if (snapshot.exists()) {
                     allFilesData = decodeAllFilesData(snapshot.val()); 
+                    
+                    // 🌟 ซ่อมข้อมูลเก่าจาก Firebase
+                    Object.values(allFilesData).forEach(records => {
+                        records.forEach(r => {
+                            if (r["สถานะ"] === "เม้นย่อย") {
+                                r.isFaded = (workMode === 'sequence');
+                            }
+                        });
+                    });
+
                     if (isEditing) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
@@ -1564,6 +1621,7 @@
         // --- ตัวแปรความจำสำหรับปุ่ม "ดูหน้าซ้ำ" ---
         let previousCategoryFilters = [];
         let previousScrollPos = 0;
+        let isStudentIdDrilldown = false;
 
         // --- ตัวแปรความจำสำหรับปุ่ม "กางสายสนทนา" โดยเฉพาะ (แยกกันจะได้ไม่ตีกัน) ---
         let savedWindowScroll = 0;
@@ -1571,8 +1629,78 @@
         let threadPrevCategories = []; 
         let threadPrevSearch = "";
 
+        function exitThreadView() {
+            const mainScrollContainer = document.querySelector('main'); 
+            const tableContainer = document.querySelector('.table-container');
+            const searchInput = document.getElementById('searchInput');
+            let spacer = document.getElementById('page-magic-spacer');
+            
+            if (activeThread !== null) {
+                activeThread = null;
+                
+                let needsRender = false;
+                if (threadPrevCategories.length > 0) {
+                    activeCategoryFilters = [...threadPrevCategories];
+                    threadPrevCategories = [];
+                    needsRender = true;
+                }
+                if (threadPrevSearch !== "") {
+                    if(searchInput) searchInput.value = threadPrevSearch;
+                    threadPrevSearch = "";
+                    needsRender = true;
+                }
+                
+                if (needsRender) {
+                    renderTable();
+                } else {
+                    const tbody = document.getElementById('tableBody');
+                    if (tbody) {
+                        tbody.querySelectorAll('.data-row').forEach(row => {
+                            row.classList.remove('thread-hidden');
+                            row.classList.remove('thread-highlight');
+                        });
+                    }
+                }
+                if (spacer) spacer.style.height = '0px';
+                setTimeout(() => {
+                    if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
+                    mainScrollContainer.scrollTo(0, savedWindowScroll);
+                }, 10);
+            } else if (isStudentIdDrilldown) {
+                // คืนค่าจากการกดปุ่มซ้ำของรหัสนักศึกษา (ไม่ว่าจะเคยมีฟิลเตอร์อะไรอยู่หรือไม่ก็ตาม)
+                activeCategoryFilters = [...previousCategoryFilters];
+                previousCategoryFilters = [];
+                isStudentIdDrilldown = false;
+                if(searchInput) searchInput.value = "";
+                renderTable();
+                if (spacer) spacer.style.height = '0px';
+                setTimeout(() => { 
+                    if (tableContainer && previousScrollPos) tableContainer.scrollTop = previousScrollPos;
+                    if (mainScrollContainer && lastWindowScrollPos !== undefined) mainScrollContainer.scrollTo(0, lastWindowScrollPos);
+                }, 10);
+            } else if (activeCategoryFilters.length > 0 || (searchInput && searchInput.value.trim() !== "")) {
+                // ออกจากโหมดกรองข้อมูลอื่นๆ (กลับสู่หน้าจอหลักล้วนๆ)
+                // ออกจากโหมดกรองข้อมูล
+                activeCategoryFilters = [];
+                if(searchInput) searchInput.value = "";
+                renderTable();
+                if (spacer) spacer.style.height = '0px';
+                setTimeout(() => {
+                    if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
+                    mainScrollContainer.scrollTo(0, savedWindowScroll);
+                }, 10);
+            }
+            
+            if (spacer) spacer.style.height = '0px';
+            if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
+            mainScrollContainer.scrollTo(0, savedWindowScroll);
+            
+            const banner = document.getElementById('threadBackBanner');
+            if (banner) banner.classList.add('hidden');
+        }
+
         function handleToggleThreadClick(event, threadNo, fileName, btn) {
-            event.stopPropagation();
+            if(event && event.stopPropagation) event.stopPropagation();
             const tbody = document.getElementById('tableBody');
             const rows = tbody.querySelectorAll('.data-row');
             const tableContainer = document.querySelector('.table-container');
@@ -1589,32 +1717,7 @@
             }
 
             if (activeThread === threadNo) {
-                activeThread = null;
-                let needsRender = false;
-                if (threadPrevCategories.length > 0) {
-                    activeCategoryFilters = [...threadPrevCategories];
-                    threadPrevCategories = [];
-                    needsRender = true;
-                }
-                if (threadPrevSearch !== "") {
-                    if(searchInput) searchInput.value = threadPrevSearch;
-                    threadPrevSearch = "";
-                    needsRender = true;
-                }
-                
-                if (needsRender) {
-                    renderTable();
-                } else {
-                    rows.forEach(row => {
-                        row.classList.remove('thread-hidden');
-                        row.classList.remove('thread-highlight');
-                    });
-                }
-                
-                spacer.style.height = '0px';
-                if (tableContainer) tableContainer.scrollTop = savedContainerScroll;
-                mainScrollContainer.scrollTo(0, savedWindowScroll);
-                
+                exitThreadView();
             } else {
                 const docHeightBefore = mainScrollContainer.scrollHeight;
                 
@@ -1633,8 +1736,30 @@
                     if(searchInput) searchInput.value = "";
                     renderTable(); 
                     setTimeout(() => {
-                        const newBtn = document.querySelector(`tr[data-thread="${threadNo}"] button`);
-                        if(newBtn) handleToggleThreadClick(event, threadNo, fileName, newBtn);
+                        const newBtn = document.querySelector(`tr[data-thread="${threadNo}"][data-filename="${fileName}"] button`);
+                        if(newBtn) {
+                            handleToggleThreadClick({ stopPropagation: () => {} }, threadNo, fileName, newBtn);
+                        } else {
+                            // If button not found, just manually filter
+                            activeThread = threadNo;
+                            document.querySelectorAll('.data-row').forEach(row => {
+                                const rowThread = row.getAttribute('data-thread');
+                                const rowFile = row.getAttribute('data-filename');
+                                if (rowThread === threadNo && rowFile === fileName) {
+                                    row.classList.remove('thread-hidden');
+                                    row.classList.add('thread-highlight');
+                                } else {
+                                    row.classList.add('thread-hidden');
+                                    row.classList.remove('thread-highlight');
+                                }
+                            });
+                            
+                            const banner = document.getElementById('threadBackBanner');
+                            if (banner) {
+                                banner.classList.remove('hidden');
+                                document.getElementById('threadBannerText').innerText = `กำลังดูเฉพาะสายสนทนา: ${threadNo}`;
+                            }
+                        }
                     }, 50);
                     return;
                 }
@@ -1654,6 +1779,12 @@
                 const docHeightAfter = mainScrollContainer.scrollHeight;
                 if (docHeightBefore > docHeightAfter) {
                     spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                }
+
+                const banner = document.getElementById('threadBackBanner');
+                if (banner) {
+                    banner.classList.remove('hidden');
+                    document.getElementById('threadBannerText').innerText = `กำลังดูเฉพาะสายสนทนา: ${threadNo}`;
                 }
 
                 if (tableContainer) tableContainer.scrollTop = 0;
@@ -1725,23 +1856,113 @@
             }, 10);
         }
 
+        function getItemSeq(item) {
+            let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
+            let num = parseInt(seqVal);
+            return isNaN(num) ? null : num;
+        }
+
+        function isSequenceModeHidden(item) {
+            if (workMode !== 'sequence') return false;
+            // 🌟 ยกเลิกการซ่อนทิ้งไปเลย ตามที่คุณครูต้องการ (ให้ใช้การปิดตา 👁️ แทน)
+            return false;
+        }
+
+        function switchWorkMode(mode) {
+            if (workMode === mode) return;
+            workMode = mode;
+            activeThread = null;
+            activeCategoryFilters = [];
+            threadPrevCategories = [];
+            threadPrevSearch = "";
+            document.getElementById('searchInput').value = "";
+            
+            // 🌟 ปรับค่าเริ่มต้นของเม้นย่อยตามโหมด และเซฟลง Firebase เพื่อให้คงค่าเริ่มต้นนั้นไว้
+            let changed = false;
+            Object.values(allFilesData).forEach(records => {
+                records.forEach(r => {
+                    if (r["สถานะ"] === "เม้นย่อย" && r.isFaded !== (mode === 'sequence')) {
+                        r.isFaded = (mode === 'sequence');
+                        changed = true;
+                    }
+                });
+            });
+            if (changed && currentRoomId) {
+                syncAllData();
+                triggerRoomUpdate();
+            }
+
+            applyWorkModeColumnDefaults();
+            updateWorkModeUI();
+            const tbody = document.getElementById('tableBody');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-16 text-center text-indigo-500 dark:text-indigo-400 font-bold text-lg animate-pulse">⏳ กำลังสลับโหมดการทำงาน...</td></tr>`;
+            setTimeout(() => { renderTable(); resetScroll(); saveState(); }, 10);
+        }
+
+        function applyWorkModeColumnDefaults() {
+            const colChecked = document.getElementById('col_checked');
+            const colSeq = document.getElementById('col_seq');
+            const colScore = document.getElementById('col_score');
+            const colOriginal = document.getElementById('col_original');
+            if (workMode === 'review') {
+                if (colSeq) colSeq.checked = false;
+                if (colChecked) colChecked.checked = true;
+            } else if (workMode === 'sequence') {
+                if (colScore) colScore.checked = false;
+                if (colOriginal) colOriginal.checked = false;
+                if (colSeq) colSeq.checked = true;
+                if (colChecked) colChecked.checked = false;
+            }
+        }
+
+        function updateWorkModeUI() {
+            const btnReview = document.getElementById('btnWorkReview');
+            const btnSequence = document.getElementById('btnWorkSequence');
+            if (!btnReview || !btnSequence) return;
+            const activeClass = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap";
+            const inactiveClass = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-3 py-2 md:py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap";
+            if (workMode === 'review') {
+                btnReview.className = activeClass;
+                btnSequence.className = inactiveClass;
+            } else {
+                btnSequence.className = activeClass;
+                btnReview.className = inactiveClass;
+            }
+            const subBar = document.getElementById('substitutionStatsBar');
+            if (subBar) {
+                if (workMode === 'sequence') {
+                    subBar.classList.remove('hidden');
+                    subBar.textContent = 'เร็วๆ นี้: สรุปรายชื่อว่าใครมาแทนใคร (จะแสดงในส่วนนี้)';
+                } else {
+                    subBar.classList.add('hidden');
+                }
+            }
+        }
+
         function updateSequenceStats(data) {
             let statsContainer = document.getElementById('sequenceStatsBar');
             if (!statsContainer) return;
 
-            if (sortMode !== 'sequence') {
+            if (workMode !== 'sequence') {
                 statsContainer.classList.add('hidden');
                 return;
             }
 
-            let foundSeqs = new Set();
+            let allSeqs = new Set();
+            let completedSeqs = new Set();
             data.forEach(item => {
-                let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
-                let num = parseInt(seqVal);
-                if (!isNaN(num)) foundSeqs.add(num);
+                if (isSequenceModeHidden(item) || item.isDuplicateInstance) return;
+                let num = getItemSeq(item);
+                if (num !== null) {
+                    allSeqs.add(num);
+                    const isIncomplete = (!item["รหัสนักศึกษา"]?.trim() || !item["ชื่อ"]?.trim() || !item["นามสกุล"]?.trim() || item["ประเภทงาน"] === "ไม่ได้ระบุ" || !item["ประเภทงาน"]?.trim());
+                    if (!isIncomplete) {
+                        completedSeqs.add(num);
+                    }
+                }
             });
 
-            if (foundSeqs.size === 0) {
+            if (allSeqs.size === 0) {
                 statsContainer.classList.add('hidden');
                 return;
             }
@@ -1749,22 +1970,33 @@
             statsContainer.classList.remove('hidden');
 
             let missing = [];
-            let maxNum = Math.max(...foundSeqs);
+            let maxNum = Math.max(...allSeqs);
             for (let i = 1; i <= maxNum; i++) {
-                if (!foundSeqs.has(i)) missing.push(i);
+                if (!completedSeqs.has(i)) missing.push(i);
             }
 
             if (missing.length > 0) {
+                let shortList = missing.length > 12 ? missing.slice(0, 12) : missing;
+                let clickableLinks = shortList.map(num => `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="underline decoration-amber-400 hover:text-amber-900 dark:hover:text-amber-100 transition-colors cursor-pointer px-0.5" title="คลิกเพื่อเลื่อนไปยังลำดับที่ ${num}">${num}</a>`).join(', ');
+                if (missing.length > 12) clickableLinks += '...';
+                
                 statsContainer.innerHTML = `
-                    <div class="flex items-center justify-between text-sm font-bold text-rose-600 dark:text-rose-400 w-full">
-                        <span>⚠️ ตรวจพบเลขลำดับหายไป ${missing.length} ลำดับ (จาก 1 ถึง ${maxNum})</span>
-                        <button onclick="alert('เลขลำดับที่ตกหล่นคือ:\\n${missing.join(', ')}')" class="px-3 py-1 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 rounded-md hover:bg-rose-50 transition text-xs shadow-sm text-rose-600 dark:text-rose-400">ดูเลขที่หาย</button>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 w-full">
+                        <div class="flex items-start gap-2">
+                            <span class="text-xl">⚠️</span>
+                            <div>
+                                <div class="font-bold text-amber-800 dark:text-amber-300">สรุปลำดับ 1 ถึง ${maxNum} — ขาด ${missing.length} ลำดับ</div>
+                                <div class="text-xs text-amber-700 dark:text-amber-400/90 mt-0.5">เลขที่ตกหล่น: ${clickableLinks}</div>
+                            </div>
+                        </div>
+                        <button onclick="alert('ลำดับที่ตกหล่นทั้งหมด (${missing.length} ลำดับ):\\n${missing.join(', ')}')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition text-xs font-bold text-amber-700 dark:text-amber-300 shadow-sm">ดูทั้งหมด</button>
                     </div>
                 `;
             } else {
                 statsContainer.innerHTML = `
-                    <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400 w-full">
-                        ✅ เลขลำดับครบถ้วนตั้งแต่ 1 ถึง ${maxNum}
+                    <div class="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-400">
+                        <span>✅</span>
+                        <span>ลำดับที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น</span>
                     </div>
                 `;
             }
@@ -1772,8 +2004,9 @@
 
         function getSelectedColumns() {
             return {
+                checked: document.getElementById('col_checked') ? document.getElementById('col_checked').checked : false,
                 file: document.getElementById('col_file') ? document.getElementById('col_file').checked : false,
-                seq: document.getElementById('col_seq') ? document.getElementById('col_seq').checked : false, // 🌟
+                seq: document.getElementById('col_seq') ? document.getElementById('col_seq').checked : false,
                 id: document.getElementById('col_id').checked, name: document.getElementById('col_name').checked,
                 surname: document.getElementById('col_surname').checked, status: document.getElementById('col_status').checked,
                 type: document.getElementById('col_type').checked, likes: document.getElementById('col_likes').checked,
@@ -2055,46 +2288,58 @@
                     if (!isNaN(num)) foundSeqs.add(num);
                 }
             });
-
-            // 1. จัดการเรื่องลำดับที่หายไป สร้างเป็นกล่องแยกด้านบน
-            let missingHtml = '';
-            if (foundSeqs.size > 0) {
+            
+            // 🌟 1. สร้าง Record ว่างสำหรับลำดับที่ขาดหาย (แทนที่ Placeholder เดิม)
+            if (workMode === 'sequence' && foundSeqs.size > 0 && !window.isFillingGaps) {
                 let maxNum = Math.max(...foundSeqs);
                 let missing = [];
                 for (let i = 1; i <= maxNum; i++) {
                     if (!foundSeqs.has(i)) missing.push(i);
                 }
-
+                
                 if (missing.length > 0) {
-                    let shortText = missing.length > 8 ? missing.slice(0, 8).join(', ') + '...' : missing.join(', ');
-                    missingHtml = `
-                    <div class="w-full mb-4 p-3 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center justify-between shadow-sm transition-all">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl animate-pulse">⚠️</span>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold text-rose-700 dark:text-rose-400">ขาด ${missing.length} ลำดับ (ช่วง 1 ถึง ${maxNum})</span>
-                                <span class="text-xs font-semibold text-rose-500 dark:text-rose-400/80 mt-0.5">เลขที่ตกหล่น: ${shortText}</span>
-                            </div>
-                        </div>
-                        <button onclick="alert('ตรวจสอบจากลำดับ 1 ถึง ${maxNum}\\n\\nลำดับที่ตกหล่นทั้งหมด ${missing.length} ลำดับ ได้แก่:\\n${missing.join(', ')}')" class="shrink-0 ml-3 px-4 py-2 text-xs font-bold bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 border border-rose-300 dark:border-rose-700 rounded-lg shadow-sm hover:bg-rose-100 dark:hover:bg-rose-900 transition-colors">ดูทั้งหมด</button>
-                    </div>`;
-                } else {
-                    missingHtml = `
-                    <div class="w-full mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl flex items-center gap-3 shadow-sm">
-                        <span class="text-xl">✅</span>
-                        <span class="text-sm font-bold text-emerald-700 dark:text-emerald-400">ลำดับที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น</span>
-                    </div>`;
+                    let fileNames = Object.keys(allFilesData);
+                    if (fileNames.length > 0) {
+                        window.isFillingGaps = true;
+                        let targetFile = fileNames[0]; 
+                        missing.forEach(gapNum => {
+                            let newIndex = allFilesData[targetFile].length;
+                            let newRecord = {
+                                "recordIndex": newIndex,
+                                "fileName": targetFile,
+                                "ลำดับที่": gapNum.toString(),
+                                "รหัสนักศึกษา": "",
+                                "isIdValid": false,
+                                "ชื่อ": "",
+                                "นามสกุล": "",
+                                "สถานะ": "เม้นหลัก",
+                                "สายสนทนา": "เพิ่มข้อมูลด้วยตนเอง",
+                                "isReply": false,
+                                "ประเภทงาน": "ไม่ได้ระบุ",
+                                "ยอดไลก์": 0,
+                                "คอมเมนต์เต็มต้นฉบับ": "(แถวว่าง - กรอกข้อมูลให้ครบถ้วน)",
+                                "isFaded": false,
+                                "isDuplicateInstance": false
+                            };
+                            allFilesData[targetFile].push(newRecord);
+                            if (window.currentRoomId && window.db) {
+                                db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(targetFile)}/${newIndex}`).set(encodeKeys(newRecord));
+                            }
+                        });
+                        
+                        if (window.currentRoomId) triggerRoomUpdate();
+                        saveState();
+                        setTimeout(() => { window.isFillingGaps = false; renderTable(); }, 10);
+                        return; // หยุดการทำงานรอบนี้ไปก่อน รอ renderTable รอบใหม่
+                    }
                 }
             }
 
+            // เลิกใช้กล่องแจ้งเตือนสีแดง (เพราะมีกล่องสีเหลืองอยู่แล้ว)
             let seqAlertDiv = document.getElementById('sequenceAlertDiv');
-            if (!seqAlertDiv) {
-                seqAlertDiv = document.createElement('div');
-                seqAlertDiv.id = 'sequenceAlertDiv';
-                let sumCategoriesParent = document.getElementById('sumCategories').parentElement;
-                sumCategoriesParent.insertBefore(seqAlertDiv, sumCategoriesParent.firstChild);
+            if (seqAlertDiv) {
+                seqAlertDiv.innerHTML = '';
             }
-            seqAlertDiv.innerHTML = missingHtml;
 
             // 2. อัปเดตปุ่มหมวดหมู่และปุ่มกรองด้านล่าง
             let catHtml = '';
@@ -2142,9 +2387,11 @@
             let idGroups = {};
             allFilesData[fileName].forEach(item => {
                 let id = item["รหัสนักศึกษา"];
-                if (id) {
+                if (id && item["สถานะ"] === "เม้นหลัก") {
                     if (!idGroups[id]) idGroups[id] = [];
                     idGroups[id].push(item);
+                } else {
+                    item.isDuplicateInstance = false;
                 }
             });
 
@@ -2189,13 +2436,34 @@
             event.stopPropagation();
             const searchInput = document.getElementById('searchInput');
             const tableContainer = document.querySelector('.table-container');
+            const mainScrollContainer = document.querySelector('main');
             
+            let spacer = document.getElementById('page-magic-spacer');
+            if (!spacer) {
+                spacer = document.createElement('div');
+                spacer.id = 'page-magic-spacer';
+                mainScrollContainer.appendChild(spacer);
+            }
+            const docHeightBefore = mainScrollContainer.scrollHeight;
+
             if (searchInput.value === studentId) {
                 searchInput.value = '';
                 activeCategoryFilters = [...previousCategoryFilters];
+                isStudentIdDrilldown = false;
                 renderTable(); 
+                
+                const docHeightAfter = mainScrollContainer.scrollHeight;
+                if (docHeightBefore > docHeightAfter) {
+                    spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                } else {
+                    spacer.style.height = '0px';
+                }
+
+                if (tableContainer || mainScrollContainer) {
                 if (tableContainer) {
                     setTimeout(() => {
+                        if (tableContainer && previousScrollPos) tableContainer.scrollTop = previousScrollPos;
+                        if (mainScrollContainer && lastWindowScrollPos !== undefined) mainScrollContainer.scrollTop = lastWindowScrollPos;
                         tableContainer.scrollTop = previousScrollPos;
                     }, 10);
                 }
@@ -2203,12 +2471,39 @@
                 if (tableContainer) {
                     previousScrollPos = tableContainer.scrollTop;
                 }
+                if (mainScrollContainer) {
+                    lastWindowScrollPos = mainScrollContainer.scrollTop;
+                }
                 previousCategoryFilters = [...activeCategoryFilters];
+                isStudentIdDrilldown = true;
                 searchInput.value = studentId;
                 activeCategoryFilters = [];
                 renderTable(); 
+                
+                const docHeightAfter = mainScrollContainer.scrollHeight;
+                if (docHeightBefore > docHeightAfter) {
+                    spacer.style.height = (docHeightBefore - docHeightAfter) + 'px';
+                }
             }
         }
+
+        function getVisibleColumnCount(cols) {
+            let count = 0;
+            if (cols.checked) count++;
+            if (currentMode === 'merged' && cols.file) count++;
+            if (cols.seq) count++;
+            if (cols.id) count++;
+            if (cols.name) count++;
+            if (cols.surname) count++;
+            if (cols.status) count++;
+            if (cols.type) count++;
+            if (cols.score) count++;
+            if (cols.likes) count++;
+            if (cols.original) count++;
+            return count || 1;
+        }
+
+        // ฟังก์ชัน appendSequenceGapRow ถูกยกเลิกการใช้งานแล้ว
 
         function renderTable() {
             const tableContainer = document.querySelector('.table-container');
@@ -2230,6 +2525,7 @@
             let isFirstCol = true;
             function getThClass(baseClass) { let cls = baseClass; if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; } return cls; }
 
+            if (cols.checked) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700 w-16')}">✓</th>`;
             if (currentMode === 'merged' && cols.file) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ไฟล์ต้นทาง</th>`;
             if (cols.seq) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">ลำดับที่</th>`;
             if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-slate-200 dark:border-slate-700')}">รหัสนักศึกษา</th>`;
@@ -2267,6 +2563,29 @@
                 });
             }
 
+            const banner = document.getElementById('threadBackBanner');
+            if (banner) {
+                if (activeThread !== null) {
+                    banner.classList.remove('hidden');
+                    document.getElementById('threadBannerText').innerText = `กำลังดูเฉพาะสายสนทนา: ${activeThread}`;
+                } else if (activeCategoryFilters.length > 0) {
+                    banner.classList.remove('hidden');
+                    let labels = {
+                        'duplicate': '⚠️ ส่งซ้ำ',
+                        'bonus': '✨ ได้โบนัส',
+                        'reply': '↪️ เม้นย่อย',
+                        'faded': '👁️ ซ่อนไว้'
+                    };
+                    let filterNames = activeCategoryFilters.map(f => labels[f] || f);
+                    document.getElementById('threadBannerText').innerText = `กำลังดูเฉพาะกลุ่ม: ${filterNames.join(', ')}`;
+                } else if (searchQuery.trim() !== "") {
+                    banner.classList.remove('hidden');
+                    document.getElementById('threadBannerText').innerText = `ผลการค้นหา: "${searchQuery}"`;
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+
             if (searchQuery.trim() !== "") {
                 displayData = displayData.filter(item => 
                     item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) || item["ชื่อ"].toLowerCase().includes(searchQuery) ||
@@ -2274,14 +2593,23 @@
                 );
             }
 
+            // 🌟 ให้รายการซ้ำแสดงบนจอเสมอ (แต่อยู่ในสถานะปิดตา/faded ตามค่าเริ่มต้น)
+            // if (workMode === 'review' && !activeCategoryFilters.includes('duplicate')) {
+            //     displayData = displayData.filter(item => !item.isDuplicateInstance);
+            // }
+
             let finalRenderData = [];
             if (currentMode === 'merged') {
                  let isBypassMerge = activeCategoryFilters.includes('duplicate') || activeCategoryFilters.includes('faded') || (activeCategoryFilters.length === 0 && searchQuery !== "" && displayData.every(d => d["รหัสนักศึกษา"].toLowerCase().includes(searchQuery)));
                  
                  if (!isBypassMerge) {
                       let mergedGroups = {};
+                      let unmergedItems = []; // 🌟 เก็บรายการซ้ำ/ซ่อน ไว้แสดงผลด้วยแบบไม่รวบ
                       displayData.forEach(item => {
-                          if (item.isFaded || item.isDuplicateInstance) return; 
+                          if (item.isFaded || item.isDuplicateInstance) {
+                              unmergedItems.push(item);
+                              return;
+                          }
                           let id = item["รหัสนักศึกษา"];
                           if (!mergedGroups[id]) {
                                mergedGroups[id] = { ...item, _mergedSources: [item], _mergedScoreMap: { [item["ประเภทงาน"]]: calculateItemScore(item) } };
@@ -2294,89 +2622,93 @@
                                mergedGroups[id]["ยอดไลก์"] += item["ยอดไลก์"];
                           }
                       });
-                      finalRenderData = Object.values(mergedGroups);
+                      finalRenderData = Object.values(mergedGroups).concat(unmergedItems); // 🌟 รวมรายการที่โดนข้ามกลับเข้าไป
                  } else { finalRenderData = displayData; }
             } else { 
                 finalRenderData = displayData; 
             }
 
-            // 🌟🌟🌟 ระบบเรียงลำดับแบบเกาะกลุ่ม (Smart Sorting) 🌟🌟🌟
-            let idToSeq = {};
-            let threadToSeq = {};
-            let threadMinIndex = {};
+            // เรียงลำดับตามโหมดการทำงาน
+            if (workMode === 'review') {
+                finalRenderData.sort((a, b) => a.recordIndex - b.recordIndex);
+            } else {
+                // 🌟 โหมดทำลำดับรายชื่อ: เรียงตามเลขลำดับ แต่รายการที่ซ่อนยังเกาะสายสนทนา
+                let idToSeq = {};
+                let threadToSeq = {};
+                let threadMinIndex = {};
 
-            // 1. สแกนหาความสัมพันธ์ของเลขลำดับก่อน
-            finalRenderData.forEach(item => {
-                let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
-                let t = item["สายสนทนา"];
-                let id = item["รหัสนักศึกษา"];
-
-                if (t && t !== "-") {
-                    if (threadMinIndex[t] === undefined || item.recordIndex < threadMinIndex[t]) {
-                        threadMinIndex[t] = item.recordIndex; // หาต้นขั้วของสายสนทนา
-                    }
-                }
-
-                if (seqVal && seqVal.trim() !== "") {
-                    let seqNum = parseInt(seqVal);
-                    if (!isNaN(seqNum)) {
-                        if (id) {
-                            if (idToSeq[id] === undefined || seqNum < idToSeq[id]) idToSeq[id] = seqNum;
-                        }
-                        if (t && t !== "-") {
-                            if (threadToSeq[t] === undefined || seqNum < threadToSeq[t]) threadToSeq[t] = seqNum;
-                        }
-                    }
-                }
-            });
-
-            // 2. จัดเรียง
-            finalRenderData.sort((a, b) => {
-                let getSortData = (item) => {
-                    let seqVal = item._mergedSources ? (item._mergedSources.find(s => s["ลำดับที่"])?.["ลำดับที่"]) : item["ลำดับที่"];
-                    let seq = parseInt(seqVal);
-                    
-                    let effSeq = Infinity; // ถ้าไม่มีเลขเลย จะโดนปัดไปล่างสุด
-                    if (!isNaN(seq)) effSeq = seq;
-                    else if (item["รหัสนักศึกษา"] && idToSeq[item["รหัสนักศึกษา"]] !== undefined) effSeq = idToSeq[item["รหัสนักศึกษา"]];
-                    else if (item["สายสนทนา"] && item["สายสนทนา"] !== "-" && threadToSeq[item["สายสนทนา"]] !== undefined) effSeq = threadToSeq[item["สายสนทนา"]];
-
-                    let isMainWithSeq = !isNaN(seq) ? 1 : 0;
+                finalRenderData.forEach(item => {
+                    let seqNum = getItemSeq(item);
                     let t = item["สายสนทนา"];
-                    let groupIndex = (t && t !== "-") ? threadMinIndex[t] : item.recordIndex;
+                    let id = item["รหัสนักศึกษา"];
 
-                    return { effSeq, isMainWithSeq, groupIndex, recordIndex: item.recordIndex };
-                };
+                    if (t && t !== "-") {
+                        if (threadMinIndex[t] === undefined || item.recordIndex < threadMinIndex[t]) {
+                            threadMinIndex[t] = item.recordIndex;
+                        }
+                    }
 
-                let dataA = getSortData(a);
-                let dataB = getSortData(b);
+                    if (seqNum !== null) {
+                        if (id && (idToSeq[id] === undefined || seqNum < idToSeq[id])) idToSeq[id] = seqNum;
+                        if (t && t !== "-" && (threadToSeq[t] === undefined || seqNum < threadToSeq[t])) threadToSeq[t] = seqNum;
+                    }
+                });
 
-                // กฎ 1: เรียงตามเลขลำดับเป็นหลัก (1, 2, 3...)
-                if (dataA.effSeq !== dataB.effSeq) return dataA.effSeq - dataB.effSeq;
+                finalRenderData.sort((a, b) => {
+                    let getSortData = (item) => {
+                        let seq = getItemSeq(item);
+                        let effSeq = Infinity;
+                        if (seq !== null) effSeq = seq;
+                        else if (item["รหัสนักศึกษา"] && idToSeq[item["รหัสนักศึกษา"]] !== undefined) effSeq = idToSeq[item["รหัสนักศึกษา"]];
+                        else if (item["สายสนทนา"] && item["สายสนทนา"] !== "-" && threadToSeq[item["สายสนทนา"]] !== undefined) effSeq = threadToSeq[item["สายสนทนา"]];
 
-                // กฎ 2: ถ้าเลขเดียวกัน (ลูกเกาะแม่) ให้อยู่เกาะกลุ่มกันตามสายสนทนาต้นขั้ว
-                if (dataA.groupIndex !== dataB.groupIndex) return dataA.groupIndex - dataB.groupIndex;
+                        let isMainWithSeq = seq !== null ? 1 : 0;
+                        let t = item["สายสนทนา"];
+                        let groupIndex = (t && t !== "-") ? threadMinIndex[t] : item.recordIndex;
+                        return { effSeq, isMainWithSeq, groupIndex, recordIndex: item.recordIndex };
+                    };
 
-                // กฎ 3: ตัวจริงที่มีเลขลำดับ ต้องอยู่บรรทัดบนสุดของกลุ่มเสมอ
-                if (dataA.isMainWithSeq !== dataB.isMainWithSeq) return dataB.isMainWithSeq - dataA.isMainWithSeq;
+                    let dataA = getSortData(a);
+                    let dataB = getSortData(b);
+                    if (dataA.effSeq !== dataB.effSeq) return dataA.effSeq - dataB.effSeq;
+                    if (dataA.groupIndex !== dataB.groupIndex) return dataA.groupIndex - dataB.groupIndex;
+                    if (dataA.isMainWithSeq !== dataB.isMainWithSeq) return dataB.isMainWithSeq - dataA.isMainWithSeq;
+                    return dataA.recordIndex - dataB.recordIndex;
+                });
+            }
 
-                // กฎ 4: เรียงตามเวลาคอมเมนต์
-                return dataA.recordIndex - dataB.recordIndex;
-            });
+            updateSequenceStats(finalRenderData);
 
             if (finalRenderData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">ไม่พบข้อมูลที่ตรงกับการค้นหา หรือ ตัวกรอง</td></tr>`;
             } else {
+                // เตรียมข้อมูลสำหรับแทรก gap row (เฉพาะโหมด sequence)
+                let lastRenderedSeq = 0;
+
                 finalRenderData.forEach((item, index) => {
+                    // 🌟 ไม่ต้องใช้ appendSequenceGapRow แล้ว เพราะฟังก์ชันอัปเดตสรุปยอดสร้างตารางให้แล้ว
+                    
                     const tr = document.createElement('tr');
                     const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
-                    const duplicateBg = item.isDuplicateInstance ? "bg-rose-50/90 dark:bg-rose-900/30" : rowBgColor;
-                    const fadeClass = item.isFaded ? (item.isDuplicateInstance ? " duplicate-faded" : " row-faded") : "";
+                    
+                    // 🌟 ตรวจสอบว่ามีข้อมูลกรอกครบหรือยัง (รหัส, ชื่อ, นามสกุล, ประเภทงาน)
+                    const isIncomplete = (!item["รหัสนักศึกษา"]?.trim() || !item["ชื่อ"]?.trim() || !item["นามสกุล"]?.trim() || item["ประเภทงาน"] === "ไม่ได้ระบุ" || !item["ประเภทงาน"]?.trim());
+                    
+                    let activeBg = rowBgColor;
+                    if (item.isDuplicateInstance) {
+                        activeBg = "bg-rose-50/90 dark:bg-rose-900/30";
+                    } else if (isIncomplete && !item.isFaded && workMode === 'sequence') {
+                        activeBg = "bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 shadow-[inset_0_0_8px_rgba(251,191,36,0.3)]"; // สีแถวแบบเด่นชัด
+                    }
 
-                    tr.className = `data-row ${fadeClass} ${duplicateBg} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
+                    const fadeClass = item.isFaded ? (item.isDuplicateInstance ? " duplicate-faded" : " row-faded") : "";
+                    const seqHideClass = isSequenceModeHidden(item) ? " sequence-mode-hidden" : "";
+
+                    tr.className = `data-row ${fadeClass}${seqHideClass} ${activeBg} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-slate-200 dark:border-slate-700/50`;
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); 
                     tr.setAttribute('data-filename', item.fileName); 
                     tr.setAttribute('data-recordindex', item.recordIndex); 
+                    tr.setAttribute('data-seq', getItemSeq(item) || ""); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
                     let focusStyleId = "", focusStyleName = "", focusStyleSurname = "", focusStyleScore = "", focusStyleSeq = "";
@@ -2468,6 +2800,11 @@
                     </button>`;
 
                     let rowCells = [];
+                    if (cols.checked) {
+                        let isChecked = item._uiChecked ? 'checked' : '';
+                        let checkboxHtml = `<div class="row-content flex justify-center"><label class="cursor-pointer"><input type="checkbox" ${isChecked} onclick="event.stopPropagation(); toggleRowChecked('${item.fileName}', ${item.recordIndex}, this.checked);" class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500 dark:focus:ring-offset-slate-800 cursor-pointer accent-emerald-600"></label></div>`;
+                        rowCells.push({ content: checkboxHtml, type: 'center', colname: '✓' });
+                    }
                     if (currentMode === 'merged' && cols.file) {
                         let fileHtml = item._mergedSources && item._mergedSources.length > 1 ? `<span class="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800" title="พบจากหลายไฟล์">รวม ${item._mergedSources.length} ไฟล์</span>` : `<span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName}</span>`;
                         rowCells.push({ content: `<div class="row-content">${fileHtml}</div>`, type: 'normal', colname: 'ไฟล์ต้นทาง' });
@@ -2903,6 +3240,19 @@
                     const parsed = JSON.parse(savedData);
                     if (Object.keys(parsed).length > 0) {
                         allFilesData = parsed;
+                        
+                        // 🌟 ซ่อมข้อมูลเก่า: ให้เม้นย่อยเปิด/ปิดตาตามโหมดปัจจุบันเสมอตอนโหลดหน้าเว็บ
+                        let needsFix = false;
+                        Object.values(allFilesData).forEach(records => {
+                            records.forEach(r => {
+                                if (r["สถานะ"] === "เม้นย่อย" && r.isFaded !== (workMode === 'sequence')) {
+                                    r.isFaded = (workMode === 'sequence');
+                                    needsFix = true;
+                                }
+                            });
+                        });
+                        if (needsFix) saveState();
+
                         const savedMode = sessionStorage.getItem('currentMode');
                         if (savedMode) currentMode = savedMode;
                         const savedNames = sessionStorage.getItem('fileNamesStr');
@@ -3104,6 +3454,12 @@
             }
         }
 
+        function toggleRowChecked(fileName, recordIndex, isChecked) {
+            if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
+                allFilesData[fileName][recordIndex]._uiChecked = isChecked;
+            }
+        }
+
         function initUIAfterLoad() {
             const dropdown = document.getElementById('fileSelectDropdown'); 
             const currentVal = dropdown.value; // จำค่าเดิมที่เลือกไว้ก่อนหน้า
@@ -3146,6 +3502,21 @@
         function resetScroll() {
             const tableContainer = document.querySelector('.table-container');
             if (tableContainer) { tableContainer.scrollTop = 0; }
+        }
+
+        function scrollToSequence(seqNum) {
+            const targetRow = document.querySelector(`tr[data-seq="${seqNum}"]`);
+            if (targetRow) {
+                targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // กระพริบสีแถวเพื่อเน้นจุดสนใจ
+                const originalBg = targetRow.style.backgroundColor;
+                targetRow.style.transition = 'background-color 0.3s';
+                targetRow.style.backgroundColor = '#fef08a'; // bg-yellow-200
+                setTimeout(() => {
+                    targetRow.style.backgroundColor = originalBg;
+                }, 1500);
+            }
         }
 
         function switchFile() { 
@@ -3398,16 +3769,16 @@
                     });
                 }
 
-                // เม้นย่อย: ซ่อนไว้และไม่มีลำดับ
+                // เม้นย่อย: ค่าเริ่มต้นผูกกับโหมดปัจจุบัน (Sequence = ปิดตา, Review = เปิดตา)
                 threads[threadNo].reply.forEach(r => {
-                    r.isFaded = true; 
+                    r.isFaded = (workMode === 'sequence'); 
                     r["ลำดับที่"] = "";
                 });
             }
 
-            // กวาดซ้ำ: อันไหนไม่มีลำดับที่ ให้ซ่อนไว้ก่อนทั้งหมดทันที
+            // กวาดซ้ำ: อันไหนไม่มีลำดับที่ ให้ซ่อนไว้ก่อนทั้งหมดทันที (ยกเว้นเม้นย่อย)
             records.forEach(r => {
-                if (!r["ลำดับที่"] || r["ลำดับที่"].trim() === "") {
+                if ((!r["ลำดับที่"] || r["ลำดับที่"].trim() === "") && r["สถานะ"] !== "เม้นย่อย") {
                     r.isFaded = true;
                 }
             });
