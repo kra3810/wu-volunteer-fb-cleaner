@@ -3716,25 +3716,18 @@
         }
 
         function parseCSVRobust(text) {
-            let firstLine = text.split('\n')[0] || "";
-            let sep = ',';
-            if (firstLine.indexOf(';') !== -1 && firstLine.indexOf(',') === -1) sep = ';';
-            if (firstLine.indexOf('\t') !== -1 && firstLine.indexOf(',') === -1) sep = '\t';
-            
             let rows = []; let row = ['']; let inQuotes = false;
             for (let i = 0; i < text.length; i++) {
                 let c = text[i]; let nextC = text[i + 1];
                 if (c === '"') {
                     if (inQuotes && nextC === '"') { row[row.length - 1] += '"'; i++; } 
                     else { inQuotes = !inQuotes; }
-                } else if (c === sep && !inQuotes) { row.push('');
                 } else if (c === ',' && !inQuotes) { row.push('');
                 } else if ((c === '\r' || c === '\n') && !inQuotes) {
                     if (c === '\r' && nextC === '\n') { i++; }
                     rows.push(row); row = [''];
                 } else { row[row.length - 1] += c; }
             }
-            if (rows.length === 0 || (rows.length === 1 && rows[0].length === 1 && rows[0][0] === '')) { return text.split('\n').map(r => r.split(sep)); }
             if (rows.length === 0 || (rows.length === 1 && rows[0].length === 1 && rows[0][0] === '')) { return text.split('\n').map(r => r.split(',')); }
             if (row.length > 1 || row[0] !== '') rows.push(row);
             return rows;
@@ -3946,21 +3939,7 @@
             const commentIdx = headers.indexOf('Comment');
 
             function indexOfIgnoreCase(arr, val) { return arr.findIndex(item => item.toLowerCase() === val.toLowerCase()); }
-
-            let headerRowIndex = 0;
-            let headers = [];
-            let commentIdx = -1;
             
-            for (let i = 0; i < Math.min(10, rows.length); i++) {
-                const tempHeaders = rows[i].map(h => h ? h.toString().trim().replace(/^\uFEFF/, '') : '');
-                const cIdx = indexOfRegex(tempHeaders, /^(Comment|Message|Text|ข้อความ|เนื้อหา)$/i);
-                if (cIdx !== -1) {
-                    headerRowIndex = i;
-                    headers = tempHeaders;
-                    commentIdx = cIdx;
-                    break;
-                }
-            }
             const commentIdIdx = indexOfRegex(headers, /^(Comment ID|ID|รหัสอ้างอิง)$/i);
             const commentIdx = indexOfRegex(headers, /^(Comment|Message|Text|ข้อความ)$/i);
             
@@ -3978,11 +3957,6 @@
                 return;
             }
 
-            const commentIdIdx = indexOfRegex(headers, /^(Comment ID|ID|รหัสอ้างอิง)$/i);
-            const likeIdx = indexOfRegex(headers, /^(Like Count|Likes|ถูกใจ)$/i);
-            const replyToIdx = indexOfRegex(headers, /^(Reply To Comment|Reply To|Parent)$/i);
-            const urlIdx = indexOfRegex(headers, /^(Comment URL|URL|ลิงก์)$/i);
-
             let parentMap = {}; let allIds = [];
             let urlMap = {}; 
             let defaultPostUrl = ""; 
@@ -3990,7 +3964,6 @@
             // ... (โค้ดด้านล่างของ parseCSVData ปล่อยไว้เหมือนเดิมจนจบฟังก์ชันครับ)
 
             if (commentIdIdx !== -1) {
-                for (let i = headerRowIndex + 1; i < rows.length; i++) {
                 for (let i = 1; i < rows.length; i++) {
                     let cols = rows[i];
                     if (!cols || cols.length <= commentIdx) continue;
@@ -4034,7 +4007,6 @@
 
             let fileRecords = []; const seenIdsInThisFile = new Set();
 
-            for (let i = headerRowIndex + 1; i < rows.length; i++) {
             for (let i = 1; i < rows.length; i++) {
                 let cols = rows[i];
                 if (!cols || cols.length <= commentIdx) continue;
