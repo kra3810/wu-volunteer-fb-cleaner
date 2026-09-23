@@ -240,15 +240,15 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-[#090e1a] h-screen overflow-hidden font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex relative">
+<body class="bg-slate-50 dark:bg-[#0c111f] h-screen overflow-hidden font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex relative">
     
     <!-- 🍔 ปุ่มเปิดเมนู (ลอยอยู่มุมซ้ายบน จะโชว์เฉพาะตอนพับ Sidebar) -->
-    <button onclick="toggleSidebar()" class="fixed top-4 left-4 md:top-6 md:left-6 z-[40] p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:outline-none" title="เปิดเมนู">
+    <button onclick="toggleSidebar()" class="fixed top-4 left-4 md:top-6 md:left-6 z-[40] p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 shadow-sm border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all focus:outline-none" title="เปิดเมนู">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
 
     <!-- 🌙 ปุ่มสลับโหมดมืด/สว่าง (Premium Floating Glassmorphism) -->
-    <button onclick="toggleTheme()" class="fixed top-5 right-5 md:top-7 md:right-7 z-[70] p-3 rounded-full bg-white/70 dark:bg-slate-900/70 text-amber-500 dark:text-amber-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] border border-slate-200/50 dark:border-white/10 backdrop-blur-xl hover:scale-110 active:scale-95 group" title="สลับโหมดมืด/สว่าง">
+    <button onclick="toggleTheme()" class="fixed top-5 right-5 md:top-7 md:right-7 z-[70] p-3 rounded-full bg-white/70 dark:bg-slate-900/70 text-amber-500 dark:text-amber-400 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] border border-slate-200/50 dark:border-white/10 backdrop-blur-xl hover:scale-110 active:scale-95 group" title="สลับโหมดมืด/สว่าง">
         <div class="absolute inset-0 rounded-full bg-amber-400/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
         <svg id="icon-sun" class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
         <svg id="icon-moon" class="w-5 h-5 relative z-10 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -259,7 +259,7 @@
         
         <!-- Header & Logo -->
         <div class="p-6 md:p-8 border-b border-slate-200/50 dark:border-white/5 flex justify-between items-center relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
             
             <div class="relative z-10">
                 <h2 class="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 flex items-center gap-3">
@@ -296,7 +296,7 @@
         <!-- 🌟 แถบบอกพื้นที่จัดเก็บ (Storage Footer) -->
         <div class="p-6 m-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-white/5 relative overflow-hidden group">
             <div class="absolute inset-0 bg-gradient-to-br from-transparent to-indigo-500/5 pointer-events-none"></div>
-            <div class="mb-3 flex justify-between items-center text-xs font-black text-slate-700 dark:text-slate-300 relative z-10">
+            <div class="mb-3 flex justify-between items-center text-xs font-black text-slate-700 dark:text-slate-400 relative z-10">
                 <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg> พื้นที่จัดเก็บ</span>
                 <span id="storageText" class="text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md">1GB</span>
             </div>
@@ -308,7 +308,7 @@
     </aside>
 
     <!-- 🖥️ Main Content Area (ส่วนเนื้อหาหลัก) -->
-    <main class="flex-1 h-screen overflow-x-hidden overflow-y-auto relative bg-slate-50 dark:bg-[#090e1a] w-full min-w-0 z-0">
+    <main class="flex-1 h-screen overflow-x-hidden overflow-y-auto relative bg-slate-50 dark:bg-[#0c111f] w-full min-w-0 z-0">
         
         <!-- 🌟 Ambient Mesh Gradient Background (Ultra Modern) -->
         <div class="fixed top-[-10%] left-[-10%] w-[40vw] h-[40vw] max-w-[600px] max-h-[600px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[100px] md:blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen animate-[spin_60s_linear_infinite] z-[-1]"></div>
@@ -323,7 +323,7 @@
         <div id="hubContainer" class="p-4 md:p-8 w-full max-w-7xl mx-auto block animate-in fade-in duration-300 pt-16 md:pt-10 space-y-8">
             
             <!-- 1. ส่วนหัวหน้า Hub (Ultra Modern Header) -->
-            <div class="relative overflow-hidden rounded-[2rem] p-8 md:p-10 shadow-2xl border border-white/20 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 backdrop-blur-2xl flex flex-col md:flex-row justify-between items-center gap-8 group">
+            <div class="relative overflow-hidden rounded-[2rem] p-8 md:p-10 shadow-2xl border border-white/20 dark:border-white/10 bg-white/60 dark:bg-slate-800/40 backdrop-blur-2xl flex flex-col md:flex-row justify-between items-center gap-8 group">
                 <!-- Animated Glowing Orbs Background -->
                 <div class="absolute -right-20 -top-20 w-72 h-72 bg-blue-500/20 dark:bg-blue-500/30 rounded-full blur-[80px] pointer-events-none group-hover:bg-blue-500/30 transition-colors duration-700"></div>
                 <div class="absolute -left-20 -bottom-20 w-72 h-72 bg-purple-500/20 dark:bg-purple-500/30 rounded-full blur-[80px] pointer-events-none group-hover:bg-purple-500/30 transition-colors duration-700"></div>
@@ -364,7 +364,7 @@
                             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">ทำตาม 3 ขั้นตอนง่ายๆ ด้านล่าง เพื่อดึงข้อมูลมาใช้งานได้ทันที</p>
                         </div>
                     </div>
-                    <button onclick="openGuideModal()" class="shrink-0 w-full sm:w-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-500/10 text-sm font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
+                    <button onclick="openGuideModal()" class="shrink-0 w-full sm:w-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-500/10 text-sm font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
                         <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         เปิดดูวิธีดึงไฟล์ CSV
                     </button>
@@ -374,7 +374,7 @@
                     <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/80 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-200 dark:hover:border-blue-800/50 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
                         <div class="flex items-center gap-3 mb-3 relative z-10">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-black shadow-inner">1</div>
+                            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-black shadow-inner">1</div>
                             <h4 class="font-bold text-slate-800 dark:text-white text-sm md:text-base">สร้างห้อง & อัปโหลด</h4>
                         </div>
                         <p class="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium relative z-10 pl-11">
@@ -385,7 +385,7 @@
                     <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/80 shadow-sm hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200 dark:hover:border-purple-800/50 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
                         <div class="flex items-center gap-3 mb-3 relative z-10">
-                            <div class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-black shadow-inner">2</div>
+                            <div class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-black shadow-inner">2</div>
                             <h4 class="font-bold text-slate-800 dark:text-white text-sm md:text-base">ตรวจสอบ & แก้ไข</h4>
                         </div>
                         <p class="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium relative z-10 pl-11">
@@ -396,7 +396,7 @@
                     <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/80 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-200 dark:hover:border-emerald-800/50 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
                         <div class="flex items-center gap-3 mb-3 relative z-10">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-black shadow-inner">3</div>
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-black shadow-inner">3</div>
                             <h4 class="font-bold text-slate-800 dark:text-white text-sm md:text-base">ส่งออก Excel</h4>
                         </div>
                         <p class="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium relative z-10 pl-11">
@@ -411,7 +411,7 @@
                 <!-- Search Box -->
                 <div class="relative w-full flex-1 group">
                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <input type="text" id="hubSearchInput" onkeyup="filterHubRooms()" placeholder="ค้นหาชื่อใบงาน หรือ รหัสห้อง (เช่น WU-1234)..." class="w-full pl-14 pr-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-800 dark:text-white shadow-sm hover:shadow-md focus:shadow-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 outline-none transition-all duration-300 text-sm font-semibold placeholder:text-slate-400 dark:placeholder:text-slate-500 relative z-10">
+                    <input type="text" id="hubSearchInput" onkeyup="filterHubRooms()" placeholder="ค้นหาชื่อใบงาน หรือ รหัสห้อง (เช่น WU-1234)..." class="w-full pl-14 pr-6 py-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-800 dark:text-white shadow-sm hover:shadow-md focus:shadow-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 outline-none transition-all duration-300 text-sm font-semibold placeholder:text-slate-400 dark:placeholder:text-slate-500 relative z-10">
                     <div class="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-slate-400 group-focus-within:text-indigo-500 transition-colors z-10">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
@@ -420,7 +420,7 @@
                 <!-- Month Filter -->
                 <div class="relative w-full sm:w-56 group">
                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <select id="hubMonthFilter" onchange="filterHubRooms()" class="appearance-none w-full pl-12 pr-10 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-800 dark:text-white shadow-sm hover:shadow-md focus:shadow-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 outline-none font-bold cursor-pointer transition-all duration-300 text-sm relative z-10">
+                    <select id="hubMonthFilter" onchange="filterHubRooms()" class="appearance-none w-full pl-12 pr-10 py-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-800 dark:text-white shadow-sm hover:shadow-md focus:shadow-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 outline-none font-bold cursor-pointer transition-all duration-300 text-sm relative z-10">
                         <option value="all">ทุกเดือน</option>
                     </select>
                     <div class="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-indigo-500 dark:text-indigo-400 z-10 pointer-events-none">
@@ -443,7 +443,7 @@
             </div>
 
             <!-- 5. หมวดห้องรอเคลียร์ทิ้ง (ถังขยะพร้อมปุ่มลบทั้งหมด) -->
-            <div class="pt-8 border-t border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="pt-8 border-t border-slate-200 dark:border-slate-500/10 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h3 class="text-base font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
@@ -454,7 +454,7 @@
                         </p>
                     </div>
                     
-                    <button onclick="clearAllArchivedRooms()" class="shrink-0 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                    <button onclick="clearAllArchivedRooms()" class="shrink-0 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/10/60 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
                         <span>⚠️</span> ลบห้องในถังขยะทั้งหมด
                     </button>
                 </div>
@@ -509,7 +509,7 @@
             </div>
 
             <!-- กล่องอัปโหลด CSV -->
-            <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-slate-200/50 dark:border-white/10 overflow-hidden relative transition-colors duration-300">
+            <div class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-slate-200/50 dark:border-white/10 overflow-hidden relative transition-colors duration-300">
                 
                 <!-- Background decoration -->
                 <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
@@ -537,7 +537,7 @@
                         </button>
                     </div>
 
-                    <div id="uploadArea" class="group relative border-2 border-dashed border-indigo-300/50 dark:border-indigo-500/30 rounded-[1.5rem] p-8 md:p-12 text-center hover:border-indigo-500 dark:hover:border-indigo-400 bg-white/40 dark:bg-slate-900/40 hover:bg-white/80 dark:hover:bg-slate-800/60 backdrop-blur-sm transition-all duration-300 cursor-pointer overflow-hidden shadow-inner" onclick="document.getElementById('csvFiles').click()">
+                    <div id="uploadArea" class="group relative border-2 border-dashed border-indigo-300/50 dark:border-indigo-500/30 rounded-[1.5rem] p-8 md:p-12 text-center hover:border-indigo-500 dark:hover:border-indigo-400 bg-white/40 dark:bg-transparent dark:hover:bg-indigo-500/10 backdrop-blur-sm transition-all duration-300 cursor-pointer overflow-hidden" onclick="document.getElementById('csvFiles').click()">
                         
                         <!-- Hover glow effect inside the drop zone -->
                         <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
@@ -547,39 +547,39 @@
                         <div class="flex flex-col items-center justify-center pointer-events-none relative z-10">
                             <!-- Animated Icon -->
                             <div class="relative mb-5 group-hover:-translate-y-2 transition-transform duration-300">
-                                <div class="absolute inset-0 bg-indigo-400/20 dark:bg-indigo-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="bg-gradient-to-br from-indigo-50 to-white dark:from-slate-700 dark:to-slate-800 w-16 h-16 rounded-full flex items-center justify-center shadow-lg border border-white dark:border-slate-600 relative z-10">
+                                <div class="absolute inset-0 bg-indigo-400/20 dark:bg-indigo-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-500/20 dark:to-indigo-500/5 backdrop-blur-md w-16 h-16 rounded-full flex items-center justify-center shadow-lg border border-white dark:border-indigo-500/30 relative z-10">
                                     <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                 </div>
                             </div>
                             
                             <p class="text-slate-800 dark:text-white font-black text-lg md:text-xl tracking-tight">คลิกที่นี่ หรือ ลากไฟล์มาวาง</p>
                             <div class="flex items-center gap-2.5 mt-3">
-                                <span class="bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-widest border border-emerald-200/50 dark:border-emerald-800/50">.CSV</span>
-                                <span class="bg-green-100/80 text-green-700 dark:bg-green-900/50 dark:text-green-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-widest border border-green-200/50 dark:border-green-800/50">.XLSX</span>
-                                <span class="bg-blue-100/80 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-widest border border-blue-200/50 dark:border-blue-800/50">.XLS</span>
+                                <span class="bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-widest border border-emerald-200/50 dark:border-emerald-500/10/50">.CSV</span>
+                                <span class="bg-green-100/80 text-green-700 dark:bg-green-900/50 dark:text-green-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-widest border border-green-200/50 dark:border-green-500/10/50">.XLSX</span>
+                                <span class="bg-blue-100/80 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-widest border border-blue-200/50 dark:border-blue-500/10/50">.XLS</span>
                             </div>
                             <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-4 font-semibold">รองรับการอัปโหลดพร้อมกันหลายไฟล์</p>
                             
-                            <p id="fileNames" class="text-xs md:text-sm text-indigo-700 dark:text-indigo-300 mt-4 font-bold bg-indigo-50/80 dark:bg-indigo-900/50 border border-indigo-200/50 dark:border-indigo-800/50 px-4 py-1.5 rounded-lg empty:hidden max-w-full truncate backdrop-blur-sm"></p>
+                            <p id="fileNames" class="text-xs md:text-sm text-indigo-700 dark:text-indigo-400 mt-4 font-bold bg-indigo-50/80 dark:bg-indigo-900/50 border border-indigo-200/50 dark:border-indigo-500/10/50 px-4 py-1.5 rounded-lg empty:hidden max-w-full truncate backdrop-blur-sm"></p>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- แผงข้อมูลรวม (Stat, Category, Settings, Score) -->
-            <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-slate-200/50 dark:border-white/10 overflow-hidden transition-colors relative z-10">
+            <div class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-slate-200/50 dark:border-white/10 overflow-hidden transition-colors relative z-10">
                 
                 <!-- ส่วนบน: สถิติ และ หมวดหมู่ -->
                 <div class="p-5 md:p-6 flex flex-col xl:flex-row gap-6 xl:gap-10 relative z-10">
                     <!-- กล่องนักศึกษาทั้งหมด และ รหัส 8 หลัก -->
                     <div class="flex gap-4 shrink-0">
-                        <div class="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800/80 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 w-full xl:w-36 flex flex-col justify-center shadow-sm overflow-hidden group">
+                        <div class="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-white/5 dark:to-white/10 backdrop-blur-sm p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-white/10 w-full xl:w-36 flex flex-col justify-center shadow-sm overflow-hidden group">
                             <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-slate-200 dark:bg-slate-700 rounded-full blur-xl opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
                             <span class="text-slate-500 dark:text-slate-400 text-xs font-bold mb-1.5 uppercase tracking-wider relative z-10">ทั้งหมด</span>
                             <span id="sumTotal" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white leading-none relative z-10">0</span>
                         </div>
-                        <div class="relative bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-900/10 p-4 md:p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 w-full xl:w-36 flex flex-col justify-center shadow-sm overflow-hidden group">
+                        <div class="relative bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-500/10 dark:to-emerald-400/5 backdrop-blur-sm p-4 md:p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 w-full xl:w-36 flex flex-col justify-center shadow-sm overflow-hidden group">
                             <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-emerald-200 dark:bg-emerald-800 rounded-full blur-xl opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
                             <span class="text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-1.5 uppercase tracking-wider relative z-10">รหัสครบ</span>
                             <span id="sumValid" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400 leading-none relative z-10">0</span>
@@ -593,14 +593,14 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                                 สรุปประเภทงาน
                             </span>
-                            <span class="text-[10px] bg-indigo-50 text-indigo-500 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-0.5 rounded-full font-semibold border border-indigo-100 dark:border-indigo-800/50 shadow-sm">คลิกเพื่อกรองข้อมูล</span>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-500 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-0.5 rounded-full font-semibold border border-indigo-100 dark:border-indigo-500/10/50 shadow-sm">คลิกเพื่อกรองข้อมูล</span>
                         </div>
                         <div id="sumCategories" class="flex flex-wrap gap-2 md:gap-2.5"></div>
                     </div>
                 </div>
 
                 <!-- ส่วนล่าง: ตั้งค่าคะแนน (โชว์เฉพาะโหมดแยกไฟล์) และ สรุปคะแนน (โชว์เมื่อมีการตั้งค่า) -->
-                <div id="scoreDashboardContainer" class="hidden border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 p-3 md:p-4 relative z-10">
+                <div id="scoreDashboardContainer" class="hidden border-t border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-slate-900/50 p-3 md:p-4 relative z-10">
                     <div class="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start lg:items-center">
                         
                         <!-- ฝั่งซ้าย: ตั้งค่าคะแนน (เห็นเฉพาะแยกใบงาน) -->
@@ -615,12 +615,12 @@
                             </div>
                             
                             <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-2 bg-white dark:bg-slate-800 p-1.5 pl-2 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 shrink-0">
-                                    <input type="number" id="baseScoreInput" oninput="saveBaseScore()" placeholder="0" min="0" step="0.5" class="w-16 px-2 py-1 border-none bg-slate-50 dark:bg-slate-900 rounded text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-bold text-center">
-                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300 pr-2">แต้ม</span>
+                                <div class="flex items-center gap-2 bg-white dark:bg-white/5 p-1.5 pl-2 rounded-lg shadow-sm border border-slate-200 dark:border-white/10 backdrop-blur-sm shrink-0">
+                                    <input type="number" id="baseScoreInput" oninput="saveBaseScore()" placeholder="0" min="0" step="0.5" class="w-16 px-2 py-1 border-none bg-slate-50 dark:bg-black/20 rounded text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-400 text-sm font-bold text-center">
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400 pr-2">แต้ม</span>
                                 </div>
                                 
-                                <button onclick="toggleCustomScorePanel()" class="shrink-0 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-800/50 hover:shadow-sm transition">
+                                <button onclick="toggleCustomScorePanel()" class="shrink-0 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-500/10/50 hover:shadow-sm transition">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     แยกระดับ
                                 </button>
@@ -628,7 +628,7 @@
                         </div>
 
                         <!-- ฝั่งขวา: สรุปคะแนน (โชว์เสมอถ้ามีคะแนน) -->
-                        <div id="scoreSummarySection" class="w-full lg:w-1/2 flex items-center justify-between border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 pt-4 lg:pt-0 lg:pl-6 relative">
+                        <div id="scoreSummarySection" class="w-full lg:w-1/2 flex items-center justify-between border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-white/10 pt-4 lg:pt-0 lg:pl-6 relative">
                             <div class="flex-1 flex flex-col justify-center">
                                 <h4 class="text-xs font-extrabold text-slate-800 dark:text-white flex items-center gap-1.5 mb-1">
                                     <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -637,7 +637,7 @@
                                 <div id="scoreCategoryBreakdown" class="flex flex-wrap gap-1.5 mt-1"></div>
                             </div>
                             
-                            <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-800 px-3 py-1.5 rounded-lg shadow-md shadow-indigo-500/20 text-center border border-indigo-400 dark:border-indigo-500 shrink-0 ml-4">
+                            <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-500 dark:to-indigo-600 px-3 py-1.5 rounded-lg shadow-md shadow-indigo-500/20 text-center border border-indigo-400 dark:border-indigo-500 shrink-0 ml-4">
                                 <span class="text-[9px] text-indigo-100 font-bold uppercase tracking-wider block leading-none mb-0.5">แต้มรวม</span>
                                 <span id="totalScoreSum" class="text-lg font-black text-white leading-none">0</span>
                             </div>
@@ -645,22 +645,22 @@
                         
                     </div>
                     
-                    <div id="customScorePanel" class="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50 grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
+                    <div id="customScorePanel" class="hidden mt-3 pt-3 border-t border-slate-200/50 dark:border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
                         <!-- โค้ดส่วนนี้จะถูกสร้างอัตโนมัติด้วย JavaScript -->
                     </div>
                 </div>
             </div>
 
             <!-- กล่องค้นหา และ เครื่องมือ -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-700 p-4 md:p-5 flex flex-col lg:flex-row justify-between items-center gap-5 transition-colors relative z-20">
+            <div class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-slate-200/50 dark:border-white/10 p-5 md:p-6 flex flex-col lg:flex-row justify-between items-center gap-5 transition-colors relative z-20">
                 <div class="relative w-full lg:w-2/5">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-indigo-400 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="ค้นหารหัส หรือ ชื่อ-นามสกุล..." class="block w-full pl-11 pr-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 text-sm font-semibold transition-all shadow-inner">
+                    <input type="text" id="searchInput" onkeyup="debounceRenderTable()" placeholder="ค้นหา รหัส, ชื่อ, ทีม, ประเภทงาน, คอมเมนต์..." class="block w-full pl-11 pr-4 py-3 border border-slate-200 dark:border-white/10 rounded-xl leading-5 bg-slate-50 dark:bg-black/20 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-white/5 text-sm font-semibold transition-all shadow-inner">
                 </div>
                 <div class="flex w-full lg:w-auto items-center gap-3">
-                    <button onclick="clearData()" class="flex-1 lg:flex-none justify-center bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 font-bold py-3 px-5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-sm whitespace-nowrap">
+                    <button onclick="clearData()" class="flex-1 lg:flex-none justify-center bg-white/50 dark:bg-white/5 border border-rose-200 dark:border-rose-500/20 backdrop-blur-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 font-bold py-3 px-5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-sm whitespace-nowrap">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         เริ่มใหม่
                     </button>
@@ -679,9 +679,9 @@
             </div>
 
             <!-- กล่องโหมดการทำงานและแสดงผล -->
-            <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-slate-200/50 dark:border-white/10 p-5 md:p-6 transition-colors mb-6">
+            <div class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-slate-200/50 dark:border-white/10 p-5 md:p-6 transition-colors mb-6">
                 <div class="flex flex-col gap-3 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
-                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">โหมดการทำงาน:</span>
+                    <span class="text-sm font-bold text-slate-600 dark:text-slate-400">โหมดการทำงาน:</span>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full p-1">
                         <!-- Review Mode Button -->
                         <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl shadow-[0_8px_30px_rgba(79,70,229,0.2)] dark:shadow-[0_8px_30px_rgba(79,70,229,0.4)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10">
@@ -696,13 +696,13 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                             <div class="relative z-10 pt-0.5 pr-6">
-                                <div id="titleWorkReview" class="font-bold text-indigo-700 dark:text-indigo-300 text-base mb-1 transition-colors">ตรวจสอบข้อมูล (Review)</div>
+                                <div id="titleWorkReview" class="font-bold text-indigo-700 dark:text-indigo-400 text-base mb-1 transition-colors">ตรวจสอบข้อมูล (Review)</div>
                                 <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้เหมาะสำหรับดูข้อมูลทั้งหมด หาคนซ้ำ หรือเช็คคะแนน โดยไม่สนใจเลขลำดับ</div>
                             </div>
                         </button>
                         
                         <!-- Sequence Mode Button -->
-                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md transition-all duration-500 text-left cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-lg transform hover:-translate-y-1 opacity-70 hover:opacity-100 group overflow-hidden z-0">
+                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md transition-all duration-500 text-left cursor-pointer hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-lg transform hover:-translate-y-1 opacity-70 hover:opacity-100 group overflow-hidden z-0">
                             <div class="absolute -right-4 -top-4 w-32 h-32 bg-teal-500/0 rounded-full blur-2xl group-hover:bg-teal-500/5 transition-all duration-500"></div>
                             
                             <!-- Checkmark Badge for Active State (Hidden Initially) -->
@@ -719,15 +719,15 @@
                             </div>
                         </button>
                     </div>
-                    <div id="sequenceStatsBar" class="hidden w-full p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl text-sm"></div>
-                    <div id="substitutionStatsBar" class="hidden w-full p-2 bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-400 dark:text-slate-500 italic"></div>
+                    <div id="sequenceStatsBar" class="hidden w-full p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/10/50 rounded-xl text-sm"></div>
+                    <div id="substitutionStatsBar" class="hidden w-full p-2 bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 rounded-lg text-xs text-slate-400 dark:text-slate-500 italic"></div>
                 </div>
                 <div class="flex flex-col xl:flex-row gap-5 xl:gap-8 xl:items-center justify-between">
 
                     <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start sm:items-center w-full xl:w-auto">
                         <!-- Mode Segmented Control -->
-                        <div class="inline-flex bg-slate-100/80 dark:bg-slate-800/60 p-1.5 rounded-xl shrink-0 w-full sm:w-auto shadow-inner border border-slate-200/50 dark:border-slate-800">
-                            <button id="btnSeparate" onclick="switchMode('separate')" class="flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-300 px-5 py-2 rounded-lg text-sm font-bold transition-all">แยกใบงาน</button>
+                        <div class="inline-flex bg-slate-100/80 dark:bg-black/20 p-1.5 rounded-xl shrink-0 w-full sm:w-auto shadow-inner border border-slate-200/50 dark:border-white/5">
+                            <button id="btnSeparate" onclick="switchMode('separate')" class="flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 px-5 py-2 rounded-lg text-sm font-bold transition-all">แยกใบงาน</button>
                             <button id="btnMerged" onclick="switchMode('merged')" class="flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-5 py-2 rounded-lg text-sm font-medium transition-all">รวมหน้าเดียว</button>
                         </div>
 
@@ -736,7 +736,7 @@
                             <span class="text-sm font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">เลือกไฟล์:</span>
                             <div class="flex items-center gap-1.5 w-full sm:flex-1">
                                 <div class="relative w-full">
-                                    <select id="fileSelectDropdown" onchange="switchFile()" class="w-full min-w-[240px] bg-slate-50 dark:bg-slate-900/50 border-0 ring-1 ring-slate-200 dark:ring-slate-700 rounded-xl px-4 py-2.5 text-slate-700 dark:text-slate-200 text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer appearance-none pr-10"></select>
+                                    <select id="fileSelectDropdown" onchange="switchFile()" class="w-full min-w-[240px] bg-slate-50 dark:bg-black/20 border-0 ring-1 ring-slate-200 dark:ring-slate-700 rounded-xl px-4 py-2.5 text-slate-700 dark:text-slate-200 text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer appearance-none pr-10"></select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
@@ -753,27 +753,26 @@
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3 mt-3 xl:mt-0">
                         <span class="text-sm font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
                         <div class="flex flex-wrap gap-2">
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_checked" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-emerald-600 dark:text-emerald-400">✓ ตรวจแล้ว</div></label>
-                            <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไฟล์ต้นทาง</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_checked" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-emerald-600 dark:text-emerald-400">✓ ตรวจแล้ว</div></label>
+                            <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไฟล์ต้นทาง</div></label>
                             
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_seq" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">ลำดับที่</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_team" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-fuchsia-600 dark:text-fuchsia-400">ทีม</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">รหัส</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ชื่อ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">นามสกุล</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">สถานะ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ประเภทงาน</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_score" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">คะแนน</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไลก์</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ข้อความต้นฉบับ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_seq" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">ลำดับที่</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_team" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-fuchsia-600 dark:text-fuchsia-400">ทีม</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">รหัส</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ชื่อ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">นามสกุล</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">สถานะ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ประเภทงาน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_score" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">คะแนน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไลก์</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ข้อความต้นฉบับ</div></label>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-4 md:mt-5 flex flex-col md:flex-row flex-wrap md:items-center gap-x-5 gap-y-2.5 text-[11px] md:text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700/60 pt-3.5">
                     <div class="flex items-center gap-1.5">
-                        <span class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded-md font-bold flex items-center gap-1"><span class="text-sm">💬</span> เม้นหลัก</span>
-                        <span class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded-md font-bold flex items-center gap-1">
+                        <span class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-md font-bold flex items-center gap-1.5 text-xs">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                             เม้นหลัก
                         </span>
@@ -781,41 +780,41 @@
                     </div>
                     <div class="hidden md:block w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></div>
                     <div class="flex items-center gap-1.5">
-                        <span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded-md font-bold flex items-center"><span class="text-sm">👁️</span></span>
-                        <span class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded-md font-bold flex items-center">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span class="bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md font-bold flex items-center gap-1.5 text-xs">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/></svg>
+                            ซ่อนแถว
                         </span>
-                        <span>= คลิกเพื่อซ่อนแถว (ไม่ลง Excel)</span>
+                        <span>= คลิกเพื่อซ่อน (ไม่ลง Excel)</span>
                     </div>
                     <div class="hidden md:block w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></div>
                     <div class="flex items-center gap-1.5">
-                        <span class="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded-md font-bold flex items-center"><span class="text-sm">✏️</span></span>
-                        <span class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded-md font-bold flex items-center">
+                        <span class="bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md font-bold flex items-center gap-1.5 text-xs">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            แก้ไข
                         </span>
-                        <span>= คลิกที่ข้อความเพื่อพิมพ์แก้ไขทันที</span>
+                        <span>= คลิกที่ข้อความเพื่อแก้ไขทันที</span>
                     </div>
                 </div>
             </div>
 
             <!-- กล่องตาราง -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden transition-colors">
                 
                 <!-- แบนเนอร์ย้อนกลับสำหรับโหมดกรอง/สายสนทนา -->
-                <div id="threadBackBanner" class="hidden bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-800 p-3 flex justify-between items-center transition-all">
+                <div id="threadBackBanner" class="hidden bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-500/10 p-3 flex justify-between items-center transition-all">
                     <div class="flex items-center gap-3">
                         <button type="button" onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
                         <button onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                             กลับสู่ตารางรวม
                         </button>
-                        <span id="threadBannerText" class="text-indigo-800 dark:text-indigo-300 font-bold text-sm">กำลังดูเฉพาะบางรายการ</span>
+                        <span id="threadBannerText" class="text-indigo-800 dark:text-indigo-400 font-bold text-sm">กำลังดูเฉพาะบางรายการ</span>
                     </div>
                 </div>
 
-                <div class="table-container overflow-x-auto max-h-[600px] rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl relative z-10 group custom-scrollbar">
+                <div class="table-container overflow-x-auto max-h-[600px] rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] bg-white/60 dark:bg-slate-800/40 backdrop-blur-xl relative z-10 group custom-scrollbar">
                     <table class="min-w-full text-sm text-left border-collapse">
-                        <thead id="tableHeader" class="bg-slate-50/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 uppercase font-black sticky top-0 z-20 shadow-sm text-[11px] tracking-wider backdrop-blur-md border-b border-slate-200/80 dark:border-white/5"></thead>
+                        <thead id="tableHeader" class="bg-slate-100/50 dark:bg-black/20 backdrop-blur-xl text-slate-600 dark:text-slate-400 uppercase font-black sticky top-0 z-20 shadow-sm text-[11px] tracking-wider backdrop-blur-md border-b border-slate-200/80 dark:border-white/5"></thead>
                         <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-white/5"></tbody>
                     </table>
                 </div>
@@ -845,21 +844,21 @@
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 uppercase tracking-wide">ตั้งชื่อใบงาน หรือ หมวดหมู่</label>
-                    <input type="text" id="newRoomNameInput" onkeyup="checkRoomNameDuplicate()" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm placeholder-slate-400 dark:placeholder-slate-500 font-medium" placeholder="เช่น ใบงานที่ 1 หรือ ใบงานเฉพาะกิจ...">
-                    <div id="roomNameWarning" class="text-xs text-rose-500 mt-2 hidden flex items-start gap-1.5 font-medium bg-rose-50/50 dark:bg-rose-900/20 p-2.5 rounded-lg border border-rose-100 dark:border-rose-800/50">
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">ตั้งชื่อใบงาน หรือ หมวดหมู่</label>
+                    <input type="text" id="newRoomNameInput" onkeyup="checkRoomNameDuplicate()" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm placeholder-slate-400 dark:placeholder-slate-500 font-medium" placeholder="เช่น ใบงานที่ 1 หรือ ใบงานเฉพาะกิจ...">
+                    <div id="roomNameWarning" class="text-xs text-rose-500 mt-2 hidden flex items-start gap-1.5 font-medium bg-rose-50/50 dark:bg-rose-900/20 p-2.5 rounded-lg border border-rose-100 dark:border-rose-500/10/50">
                         <span>⚠️</span> <span>ชื่อนี้ถูกใช้ไปแล้วครับ แต่กดสร้างได้เลย ระบบจะเติมตัวเลข (1), (2) ให้ด้านหลังอัตโนมัติ</span>
                     </div>
                 </div>
                 
-                <div class="bg-indigo-50/80 dark:bg-indigo-900/30 border border-indigo-200/50 dark:border-indigo-800/50 rounded-xl p-4 mt-5 flex gap-3 backdrop-blur-sm">
+                <div class="bg-indigo-50/80 dark:bg-indigo-900/30 border border-indigo-200/50 dark:border-indigo-500/10/50 rounded-xl p-4 mt-5 flex gap-3 backdrop-blur-sm">
                     <span class="text-indigo-500 text-lg flex-shrink-0">💡</span>
-                    <p class="text-[11px] md:text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed font-medium">
+                    <p class="text-[11px] md:text-xs text-indigo-700 dark:text-indigo-400 leading-relaxed font-medium">
                         <strong class="font-bold">ระบบอัตโนมัติ:</strong> ผมดึงเดือนและปีปัจจุบันมาตั้งเป็นชื่อเริ่มต้นให้แล้วครับ ถ้าขี้เกียจพิมพ์สามารถกด <b>"ยืนยันสร้างห้อง"</b> ได้เลย!
                     </p>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-5 border-t border-slate-100 dark:border-slate-800/50 mt-6">
+                <div class="flex justify-end gap-3 pt-5 border-t border-slate-100 dark:border-slate-500/10/50 mt-6">
                     <button onclick="closeCreateRoomModal()" class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">ยกเลิก</button>
                     <button onclick="confirmCreateRoom()" class="px-6 py-2.5 text-sm font-black bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
                         <span>✅</span> ยืนยันสร้างห้อง
@@ -876,7 +875,7 @@
 
     <!-- Modal คู่มือการใช้งาน (Guide) -->
     <div id="guideModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
             
             <!-- Header -->
             <div class="flex justify-between items-center p-6 md:p-8 bg-gradient-to-r from-indigo-50 to-white dark:from-slate-800 dark:to-slate-800 border-b border-indigo-100 dark:border-slate-700 relative overflow-hidden">
@@ -905,10 +904,10 @@
                         <div class="flex-grow space-y-4 pt-1">
                             <div>
                                 <h4 class="text-lg md:text-xl font-bold text-slate-800 dark:text-white">ติดตั้งส่วนเสริมบน Chrome</h4>
-                                <p class="text-sm md:text-base text-slate-600 dark:text-slate-400 mt-1">ติดตั้งเครื่องมือ <b>Comment Exporter for Facebook</b> เพื่อใช้ดึงข้อมูล <a href="https://chromewebstore.google.com/detail/comment-exporter-for-face/nlcnmpciiiaghfdpfamfkojnlbkpgdmo" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-bold text-sm bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-md transition-colors">(คลิกที่นี่เพื่อไปหน้าดาวน์โหลด)</a></p>
+                                <p class="text-sm md:text-base text-slate-600 dark:text-slate-400 mt-1">ติดตั้งเครื่องมือ <b>Comment Exporter for Facebook</b> เพื่อใช้ดึงข้อมูล <a href="https://chromewebstore.google.com/detail/comment-exporter-for-face/nlcnmpciiiaghfdpfamfkojnlbkpgdmo" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-bold text-sm bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-md transition-colors">(คลิกที่นี่เพื่อไปหน้าดาวน์โหลด)</a></p>
                             </div>
                             <div class="rounded-xl overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/10 bg-white dark:bg-slate-900 transition-transform hover:scale-[1.01] duration-300">
-                                <div class="bg-slate-100 dark:bg-slate-800 px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex gap-2">
+                                <div class="bg-slate-100 dark:bg-slate-800 px-4 py-2 border-b border-slate-200 dark:border-white/10 flex gap-2">
                                     <div class="w-3 h-3 rounded-full bg-rose-400"></div><div class="w-3 h-3 rounded-full bg-amber-400"></div><div class="w-3 h-3 rounded-full bg-emerald-400"></div>
                                 </div>
                                 <img src="asset/Pasted%20image.jpeg" alt="หน้าจอติดตั้งส่วนเสริม" class="w-full h-auto" onerror="this.onerror=null; this.src=''; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
@@ -934,7 +933,7 @@
                                 </ul>
                             </div>
                             <div class="rounded-xl overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/10 bg-white dark:bg-slate-900 transition-transform hover:scale-[1.01] duration-300">
-                                <div class="bg-slate-100 dark:bg-slate-800 px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex gap-2">
+                                <div class="bg-slate-100 dark:bg-slate-800 px-4 py-2 border-b border-slate-200 dark:border-white/10 flex gap-2">
                                     <div class="w-3 h-3 rounded-full bg-rose-400"></div><div class="w-3 h-3 rounded-full bg-amber-400"></div><div class="w-3 h-3 rounded-full bg-emerald-400"></div>
                                 </div>
                                 <img src="asset/qs7cjYqM.jpeg" alt="วิธีเปิดส่วนเสริมบนหน้าโพสต์" class="w-full h-auto" onerror="this.onerror=null; this.src=''; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
@@ -954,12 +953,12 @@
                                 <h4 class="text-lg md:text-xl font-bold text-slate-800 dark:text-white">กดเริ่มและดาวน์โหลด</h4>
                                 <ul class="text-sm md:text-base text-slate-600 dark:text-slate-400 mt-2 space-y-2 ml-4 list-disc marker:text-emerald-400">
                                     <li><b class="text-slate-700 dark:text-slate-200">ไม่ต้องตั้งค่าอะไรเพิ่มเติม</b> (ส่วนเสริมตั้งค่าทุกอย่างมาให้พร้อมใช้งานแล้ว)</li>
-                                    <li>กดปุ่ม <b class="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">Start</b> แล้วรอให้ระบบโหลดจนครบ 100%</li>
+                                    <li>กดปุ่ม <b class="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded">Start</b> แล้วรอให้ระบบโหลดจนครบ 100%</li>
                                     <li>กดปุ่ม <b class="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">Download</b> จะได้ไฟล์ <code>.csv</code> ให้นำมาอัปโหลดเข้าระบบของเราได้เลย!</li>
                                 </ul>
                             </div>
                             <div class="rounded-xl overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/10 bg-white dark:bg-slate-900 transition-transform hover:scale-[1.01] duration-300">
-                                <div class="bg-slate-100 dark:bg-slate-800 px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex gap-2">
+                                <div class="bg-slate-100 dark:bg-slate-800 px-4 py-2 border-b border-slate-200 dark:border-white/10 flex gap-2">
                                     <div class="w-3 h-3 rounded-full bg-rose-400"></div><div class="w-3 h-3 rounded-full bg-amber-400"></div><div class="w-3 h-3 rounded-full bg-emerald-400"></div>
                                 </div>
                                 <img src="asset/fwRX0ZzR.jpeg" alt="วิธีดาวน์โหลด" class="w-full h-auto" onerror="this.onerror=null; this.src=''; this.alt='กำลังโหลดภาพ หรือไม่พบไฟล์ภาพ';">
@@ -998,9 +997,9 @@
 
                 <form action="https://formspree.io/f/mzebogyz" method="POST" enctype="multipart/form-data" onsubmit="handleFeedbackSubmit(event)" class="space-y-5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 uppercase tracking-wide">ประเภท <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">ประเภท <span class="text-rose-500">*</span></label>
                         <div class="relative group/input">
-                            <select name="issueType" id="issueType" required onchange="toggleSeverityField()" class="w-full appearance-none border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm cursor-pointer">
+                            <select name="issueType" id="issueType" required onchange="toggleSeverityField()" class="w-full appearance-none border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm cursor-pointer">
                                 <option value="suggestion">💡 เสนอแนะ / พูดคุยทั่วไป</option>
                                 <option value="bug">🐛 แจ้งปัญหาการใช้งาน / บั๊ก</option>
                                 <option value="other">❓ อื่นๆ</option>
@@ -1012,9 +1011,9 @@
                     </div>
                     
                     <div id="severityContainer" class="hidden animate-in slide-in-from-top-2 fade-in duration-200">
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 uppercase tracking-wide">ระดับความรุนแรง <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">ระดับความรุนแรง <span class="text-rose-500">*</span></label>
                         <div class="relative group/input">
-                            <select name="severity" id="severity" class="w-full appearance-none border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 dark:focus:border-rose-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm cursor-pointer">
+                            <select name="severity" id="severity" class="w-full appearance-none border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 dark:focus:border-rose-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm cursor-pointer">
                                 <option value="" disabled selected>-- เลือกระดับความรุนแรง --</option>
                                 <option value="low">🟡 เล็กน้อย (หน้าตาเว็บเพี้ยน แต่ทำงานต่อได้)</option>
                                 <option value="medium">🟠 ปานกลาง (บางฟังก์ชันรวน / ค้าง)</option>
@@ -1027,32 +1026,32 @@
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 uppercase tracking-wide">รายละเอียด <span class="text-rose-500">*</span></label>
-                        <textarea name="message" required rows="3" placeholder="อธิบายสิ่งที่ต้องการเสนอแนะ หรือปัญหาที่พบเจอ..." class="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm placeholder-slate-400 dark:placeholder-slate-500 resize-none"></textarea>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">รายละเอียด <span class="text-rose-500">*</span></label>
+                        <textarea name="message" required rows="3" placeholder="อธิบายสิ่งที่ต้องการเสนอแนะ หรือปัญหาที่พบเจอ..." class="w-full border border-slate-200 dark:border-white/10 rounded-xl p-3.5 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm placeholder-slate-400 dark:placeholder-slate-500 resize-none"></textarea>
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 uppercase tracking-wide">แนบรูปภาพ / แคปหน้าจอ <span class="text-slate-400 dark:text-slate-500 font-medium normal-case">(ถ้ามี)</span></label>
-                        <input type="file" name="attachment" accept="image/*" class="block w-full text-sm text-slate-600 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-black file:uppercase file:tracking-wider file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/20 transition-all cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm shadow-sm"/>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">แนบรูปภาพ / แคปหน้าจอ <span class="text-slate-400 dark:text-slate-500 font-medium normal-case">(ถ้ามี)</span></label>
+                        <input type="file" name="attachment" accept="image/*" class="block w-full text-sm text-slate-600 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-black file:uppercase file:tracking-wider file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/20 transition-all cursor-pointer border border-slate-200 dark:border-white/10 rounded-xl bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm shadow-sm"/>
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 uppercase tracking-wide">อีเมลติดต่อกลับ <span class="text-slate-400 dark:text-slate-500 font-medium normal-case">(ไม่บังคับ)</span></label>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">อีเมลติดต่อกลับ <span class="text-slate-400 dark:text-slate-500 font-medium normal-case">(ไม่บังคับ)</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                             </div>
-                            <input type="email" name="email" placeholder="example@email.com" class="w-full pl-10 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm placeholder-slate-400 dark:placeholder-slate-500">
+                            <input type="email" name="email" placeholder="example@email.com" class="w-full pl-10 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm bg-slate-50/50 dark:bg-slate-950/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm placeholder-slate-400 dark:placeholder-slate-500">
                         </div>
                     </div>
 
-                    <div class="flex justify-end gap-3 pt-5 border-t border-slate-100 dark:border-slate-800/50 mt-6">
+                    <div class="flex justify-end gap-3 pt-5 border-t border-slate-100 dark:border-slate-500/10/50 mt-6">
                         <button type="button" onclick="closeFeedbackModal()" class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">ยกเลิก</button>
                         <button type="submit" id="submitFeedbackBtn" class="px-6 py-2.5 text-sm font-black bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-0.5 active:scale-95">ส่งข้อความ</button>
                     </div>
                 </form>
                 <div id="feedbackSuccessMsg" class="hidden text-center py-10 space-y-3 animate-in zoom-in duration-300">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 text-4xl shadow-inner border-4 border-white dark:border-slate-800">✅</div>
+                    <div class="w-20 h-20 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500 text-4xl shadow-inner border-4 border-white dark:border-slate-500/10">✅</div>
                     <h4 class="font-black text-slate-800 dark:text-white text-xl">ส่งข้อความสำเร็จแล้ว!</h4>
                     <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">ขอบคุณสำหรับคำติชม ข้อมูลได้ส่งตรงถึงผู้พัฒนาเรียบร้อยครับ</p>
                 </div>
@@ -1080,8 +1079,8 @@
 
     <!-- 📝 Modal ตั้งค่าสร้างใบรายชื่อ -->
     <div id="signSheetModal" class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 shrink-0">
+        <div class="bg-white/80 dark:bg-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/50 dark:border-white/10 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-200/50 dark:border-white/5 flex justify-between items-center bg-white/40 dark:bg-white/[0.02] shrink-0">
                 <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">📑 ระบบสร้างใบเซ็นชื่อ (Sign-in Sheet)</h3>
                 <button onclick="closeSignSheetModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold p-1">✕</button>
             </div>
@@ -1094,7 +1093,7 @@
                     <div class="flex items-center gap-4">
                         <div class="shrink-0">
                             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 text-center">โลโก้ (สี่เหลี่ยมจัตุรัส)</label>
-                            <div class="relative w-20 h-20 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-indigo-500 cursor-pointer overflow-hidden group bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center" onclick="document.getElementById('logoUpload').click()">
+                            <div class="relative w-20 h-20 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer overflow-hidden group bg-white/50 dark:bg-white/5 backdrop-blur-sm transition-all flex items-center justify-center" onclick="document.getElementById('logoUpload').click()">
                                 <img id="logoPreview" src="" class="w-full h-full object-contain hidden" alt="Logo">
                                 <span id="logoPlaceholder" class="text-2xl text-slate-400 group-hover:text-indigo-500">📷</span>
                                 <input type="file" id="logoUpload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
@@ -1105,20 +1104,20 @@
                             <!-- 🌟 เพิ่มช่องกรอกหัวกระดาษ -->
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">หัวกระดาษเอกสาร *</label>
-                                <input type="text" id="printDocTitle" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" value="รายชื่อนักศึกษาเข้าร่วม">
+                                <input type="text" id="printDocTitle" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm font-medium focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500/50 backdrop-blur-sm outline-none" value="รายชื่อนักศึกษาเข้าร่วม">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">ชื่อกิจกรรม / วิชา *</label>
-                                <input type="text" id="printEventName" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="เช่น กิจกรรมปลูกป่า...">
+                                <input type="text" id="printEventName" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm font-medium focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500/50 backdrop-blur-sm outline-none" placeholder="เช่น กิจกรรมปลูกป่า...">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">วัน/เดือน/ปี และ เวลา *</label>
-                                    <input type="text" id="printDateTime" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="เช่น 24 พ.ย. 69 เวลา 08:30 น.">
+                                    <input type="text" id="printDateTime" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm font-medium focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500/50 backdrop-blur-sm outline-none" placeholder="เช่น 24 พ.ย. 69 เวลา 08:30 น.">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">สถานที่ *</label>
-                                    <input type="text" id="printLocation" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="เช่น อาคารไทยบุรี">
+                                    <input type="text" id="printLocation" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm font-medium focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500/50 backdrop-blur-sm outline-none" placeholder="เช่น อาคารไทยบุรี">
                                 </div>
                             </div>
                         </div>
@@ -1129,28 +1128,41 @@
                 <div class="space-y-3">
                     <h4 class="font-bold text-indigo-600 dark:text-indigo-400 border-b border-indigo-100 dark:border-indigo-900/50 pb-2">2. เลือกแหล่งรายชื่อนักศึกษา</h4>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <label class="relative flex cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm focus:outline-none has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/20">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label class="relative flex cursor-pointer rounded-xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 p-4 shadow-sm focus:outline-none backdrop-blur-sm has-[:checked]:border-indigo-500 dark:has-[:checked]:border-indigo-400 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 dark:has-[:checked]:ring-indigo-400 has-[:checked]:bg-indigo-50/50 dark:has-[:checked]:bg-indigo-500/10 transition-all">
                             <input type="radio" name="dataSource" value="active" class="sr-only" checked onchange="toggleUploadField()">
                             <div class="flex w-full items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <span class="text-2xl">📋</span>
                                     <div class="text-sm">
-                                        <p class="font-bold text-slate-900 dark:text-white">ดึงจากใบงานปัจจุบัน</p>
-                                        <div class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">ใช้รายชื่อจากหน้าตารางที่เปิดอยู่ตอนนี้</div>
+                                        <p class="font-bold text-slate-900 dark:text-white">ใบงานปัจจุบัน</p>
+                                        <div class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">รายชื่อตารางหน้าเว็บ</div>
                                     </div>
                                 </div>
                             </div>
                         </label>
 
-                        <label class="relative flex cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm focus:outline-none has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/20">
+                        <label class="relative flex cursor-pointer rounded-xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 p-4 shadow-sm focus:outline-none backdrop-blur-sm has-[:checked]:border-indigo-500 dark:has-[:checked]:border-indigo-400 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 dark:has-[:checked]:ring-indigo-400 has-[:checked]:bg-indigo-50/50 dark:has-[:checked]:bg-indigo-500/10 transition-all">
                             <input type="radio" name="dataSource" value="upload" class="sr-only" onchange="toggleUploadField()">
                             <div class="flex w-full items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <span class="text-2xl">📁</span>
                                     <div class="text-sm">
-                                        <p class="font-bold text-slate-900 dark:text-white">อัปโหลดไฟล์ (CSV/Excel)</p>
-                                        <div class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">ใช้ไฟล์ที่ดาวน์โหลดจากระบบเรามาทำใหม่</div>
+                                        <p class="font-bold text-slate-900 dark:text-white">อัปโหลดไฟล์</p>
+                                        <div class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">ไฟล์ CSV/Excel</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="relative flex cursor-pointer rounded-xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 p-4 shadow-sm focus:outline-none backdrop-blur-sm has-[:checked]:border-indigo-500 dark:has-[:checked]:border-indigo-400 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 dark:has-[:checked]:ring-indigo-400 has-[:checked]:bg-indigo-50/50 dark:has-[:checked]:bg-indigo-500/10 transition-all">
+                            <input type="radio" name="dataSource" value="blank" class="sr-only" onchange="toggleUploadField()">
+                            <div class="flex w-full items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">📝</span>
+                                    <div class="text-sm">
+                                        <p class="font-bold text-slate-900 dark:text-white">สร้างใบเปล่า</p>
+                                        <div class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">ตารางเปล่าไม่มีชื่อ</div>
                                     </div>
                                 </div>
                             </div>
@@ -1158,20 +1170,25 @@
                     </div>
 
                     <!-- 🌟 อัปเกรดให้รองรับ .xlsx ด้วย -->
-                    <div id="printUploadArea" class="hidden mt-2 p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition" onclick="document.getElementById('printFileInput').click()">
+                    <div id="printUploadArea" class="hidden mt-2 p-4 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-lg text-center cursor-pointer bg-white/30 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10 backdrop-blur-sm transition-all" onclick="document.getElementById('printFileInput').click()">
                         <input type="file" id="printFileInput" accept=".csv, .xlsx, .xls" class="hidden" onchange="handlePrintFileUpload(event)">
                         <span class="text-2xl mb-1 block text-slate-400">📄</span>
-                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">คลิกเพื่ออัปโหลดไฟล์ Excel (.xlsx) หรือ CSV</p>
+                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-400">คลิกเพื่ออัปโหลดไฟล์ Excel (.xlsx) หรือ CSV</p>
                         <p id="printFileNameDisplay" class="text-xs text-indigo-500 mt-1 font-medium"></p>
+                    </div>
+
+                    <div id="printBlankRowsArea" class="hidden mt-2">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">จำนวนแถวที่ต้องการ (ระบุตัวเลข) *</label>
+                        <input type="number" id="printBlankRowsCount" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm font-medium focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500/50 backdrop-blur-sm outline-none" placeholder="เช่น 50" value="30" min="1" max="200">
                     </div>
                 </div>
             </div>
 
-            <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 shrink-0">
+            <div class="p-5 border-t border-slate-200/50 dark:border-white/5 flex justify-between items-center bg-white/40 dark:bg-white/[0.02] shrink-0 backdrop-blur-md">
                 <span class="text-xs text-slate-500 font-medium">💡 กดสร้างแล้ว ระบบจะให้คุณ Save เป็น PDF ผ่านหน้าต่าง Print</span>
                 <div class="flex gap-2">
-                    <button onclick="closeSignSheetModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition">ยกเลิก</button>
-                    <button onclick="generateSignSheet()" class="px-5 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition transform hover:scale-105 flex items-center gap-2">
+                    <button onclick="closeSignSheetModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg transition">ยกเลิก</button>
+                    <button onclick="generateSignSheet()" class="px-5 py-2 text-sm font-bold bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg shadow-lg shadow-indigo-500/30 dark:shadow-indigo-500/20 border border-indigo-400/50 transition transform hover:scale-105 flex items-center gap-2">
                         <span>🖨️</span> จัดหน้าและพิมพ์ PDF
                     </button>
                 </div>
@@ -1286,10 +1303,17 @@
         function toggleUploadField() {
             const source = document.querySelector('input[name="dataSource"]:checked').value;
             const uploadArea = document.getElementById('printUploadArea');
+            const blankArea = document.getElementById('printBlankRowsArea');
+            
             if (source === 'upload') {
                 uploadArea.classList.remove('hidden');
+                blankArea.classList.add('hidden');
+            } else if (source === 'blank') {
+                uploadArea.classList.add('hidden');
+                blankArea.classList.remove('hidden');
             } else {
                 uploadArea.classList.add('hidden');
+                blankArea.classList.add('hidden');
             }
         }
 
@@ -1421,12 +1445,19 @@
                     });
                 });
                 studentList = studentList.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
-            } else {
+            } else if (source === 'upload') {
                 if (externalPrintData.length === 0) {
                     alert("⚠️ กรุณาอัปโหลดไฟล์ (CSV/Excel) และรอให้ระบบอ่านข้อมูลเสร็จก่อนครับ");
                     return;
                 }
                 studentList = [...externalPrintData];
+            } else if (source === 'blank') {
+                let blankCount = parseInt(document.getElementById('printBlankRowsCount').value);
+                if (isNaN(blankCount) || blankCount < 1) blankCount = 30;
+                for (let i = 0; i < blankCount; i++) {
+                    // ใช้ null เพื่อให้เรนเดอร์เป็นช่องว่าง แต่ยังมีเลขลำดับ
+                    studentList.push(null); 
+                }
             }
 
             // 2. ล็อกจำนวน 25 แถวต่อหน้า
@@ -1434,17 +1465,18 @@
             let totalRows = studentList.length;
             let targetRows = Math.ceil(totalRows / ROWS_PER_PAGE) * ROWS_PER_PAGE;
             
-            if (targetRows === totalRows && totalRows > 0) {
-                targetRows += ROWS_PER_PAGE;
-            } else {
-                targetRows += ROWS_PER_PAGE;
+            if (source !== 'blank') {
+                if (targetRows === totalRows && totalRows > 0) {
+                    targetRows += ROWS_PER_PAGE;
+                } else {
+                    targetRows += ROWS_PER_PAGE;
+                }
+                for (let i = totalRows; i < targetRows; i++) {
+                    studentList.push(null);
+                }
             }
 
-            for (let i = totalRows; i < targetRows; i++) {
-                studentList.push(null);
-            }
-
-            let totalPages = studentList.length / ROWS_PER_PAGE;
+            let totalPages = Math.ceil(studentList.length / ROWS_PER_PAGE);
             let counter = 1;
 
             // 3. สร้าง HTML
@@ -1496,8 +1528,21 @@
 
                 for (let r = 0; r < ROWS_PER_PAGE; r++) {
                     const student = studentList[(p * ROWS_PER_PAGE) + r];
+                    
+                    // 🌟 ในโหมดสร้างใบเปล่า ถ้าถึงลำดับที่ต้องการแล้ว ให้หยุดสร้างแถวเลย
+                    if (source === 'blank' && student === undefined) {
+                        break;
+                    }
+
                     printHtml += "<tr>\n";
-                    printHtml += "<td class=\"tc\">" + counter + "</td>\n";
+                    
+                    if (student !== undefined) {
+                        printHtml += "<td class=\"tc\">" + counter + "</td>\n";
+                        counter++;
+                    } else {
+                        printHtml += "<td></td>\n";
+                    }
+
                     if (student) {
                         printHtml += "<td class=\"tc\">" + student.id + "</td>\n";
                         printHtml += "<td>" + student.name + "</td>\n";
@@ -1510,7 +1555,6 @@
                     }
                     printHtml += "<td></td><td></td>\n";
                     printHtml += "</tr>\n";
-                    counter++;
                 }
 
                 printHtml += "</tbody>\n</table>\n";
@@ -1882,15 +1926,15 @@
 
         // --- ฐานข้อมูลสีสำหรับหมวดหมู่งาน (สีปุ่ม และ สี Dropdown) ---
         const CATEGORY_COLORS = { 
-            "ภาวะผู้นำ": "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800", 
-            "ใจอาสา": "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-900/40 dark:text-fuchsia-300 dark:border-fuchsia-800", 
-            "ชั่วโมงทุน": "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-800", 
-            "กตัญญู": "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-800",
-            "วินัย": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800", 
-            "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800", 
-            "แก้ความประพฤติ": "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:border-orange-800", 
-            "รักชาติ": "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-300 dark:border-cyan-800", 
-            "ไม่ได้ระบุ": "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/40 dark:text-rose-400 dark:border-rose-800" 
+            "ภาวะผู้นำ": "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/10", 
+            "ใจอาสา": "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/10 dark:text-fuchsia-400 dark:border-fuchsia-500/10", 
+            "ชั่วโมงทุน": "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/10", 
+            "กตัญญู": "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/10",
+            "วินัย": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/10", 
+            "แก้คะแนนรู้วินัย": "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/10", 
+            "แก้ความประพฤติ": "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/10", 
+            "รักชาติ": "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/10", 
+            "ไม่ได้ระบุ": "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/10" 
         };
 
         // --- ฐานข้อมูลสีตัวอักษร สำหรับตัวเลือกใน Dropdown ---
@@ -2320,68 +2364,58 @@
             }
         }
 
-        function updateWorkModeUI() {
-            const btnReview = document.getElementById('btnWorkReview');
-            const btnSequence = document.getElementById('btnWorkSequence');
-            const iconReview = document.getElementById('iconWorkReview');
-            const titleReview = document.getElementById('titleWorkReview');
-            const badgeReview = document.getElementById('badgeWorkReview');
-            
-            const iconSequence = document.getElementById('iconWorkSequence');
-            const titleSequence = document.getElementById('titleWorkSequence');
-            const badgeSequence = document.getElementById('badgeWorkSequence');
-            
-            if (!btnReview || !btnSequence) return;
-            
-            const inactiveCard = "relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md transition-all duration-500 text-left cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-lg transform hover:-translate-y-1 opacity-70 hover:opacity-100 group overflow-hidden z-0";
-            const inactiveIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-slate-600 dark:group-hover:text-slate-300 relative z-10";
-            const inactiveTitle = "font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300";
-            const inactiveBadge = "absolute top-3 right-3 text-slate-400 bg-slate-100/50 dark:bg-slate-800/50 rounded-full p-1 shadow-sm transition-all duration-500 opacity-0 scale-50";
+function updateWorkModeUI() {
+    const btnReview = document.getElementById('btnWorkReview');
+    const btnSequence = document.getElementById('btnWorkSequence');
+    const iconReview = document.getElementById('iconWorkReview');
+    const titleReview = document.getElementById('titleWorkReview');
+    const badgeReview = document.getElementById('badgeWorkReview');
+    
+    const iconSequence = document.getElementById('iconWorkSequence');
+    const titleSequence = document.getElementById('titleWorkSequence');
+    const badgeSequence = document.getElementById('badgeWorkSequence');
+    
+    if (!btnReview || !btnSequence) return;
+    
+    const inactiveCard = "relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] backdrop-blur-md transition-all duration-500 text-left cursor-pointer hover:bg-white/80 dark:hover:bg-white/[0.05] hover:shadow-lg transform hover:-translate-y-1 opacity-60 hover:opacity-100 group overflow-hidden z-0";
+    const inactiveIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-slate-200/80 dark:bg-white/5 backdrop-blur-sm text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-white dark:group-hover:bg-white/10 group-hover:text-slate-600 dark:group-hover:text-white relative z-10";
+    const inactiveTitle = "font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-white";
+    const inactiveBadge = "absolute top-3 right-3 text-slate-400 bg-slate-100/50 dark:bg-white/5 rounded-full p-1 shadow-sm transition-all duration-500 opacity-0 scale-50";
 
-            // Review Active Classes (Indigo)
-            const activeReviewCard = "relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border-2 border-indigo-500 bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl transition-all duration-500 text-left cursor-pointer shadow-[0_8px_30px_rgba(79,70,229,0.2)] dark:shadow-[0_8px_30px_rgba(79,70,229,0.4)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
-            const activeReviewIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/40 transition-all duration-500 relative z-10 group-hover:scale-110";
-            const activeReviewTitle = "font-bold text-indigo-700 dark:text-indigo-300 text-base mb-1 transition-colors";
-            const activeReviewBadge = "absolute top-3 right-3 text-indigo-500 bg-indigo-100 dark:bg-indigo-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100";
+    // Review Active Classes (Indigo/Purple Glow)
+    const activeReviewCard = "relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-indigo-400/50 dark:border-indigo-400/50 bg-gradient-to-br from-white/90 to-indigo-50/90 dark:from-indigo-900/40 dark:to-indigo-600/20 backdrop-blur-2xl transition-all duration-500 text-left cursor-pointer shadow-[0_8px_30px_rgba(79,70,229,0.3)] dark:shadow-[0_0_40px_rgba(99,102,241,0.2)] transform scale-[1.03] -translate-y-1 group overflow-hidden z-10 ring-1 ring-white/50 dark:ring-white/10";
+    const activeReviewIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/50 transition-all duration-500 relative z-10 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-indigo-400/60";
+    const activeReviewTitle = "font-black text-indigo-700 dark:text-indigo-300 text-base mb-1 transition-colors drop-shadow-sm";
+    const activeReviewBadge = "absolute top-3 right-3 text-indigo-500 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-500/30 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100 ring-1 ring-indigo-500/20";
 
-            // Sequence Active Classes (Teal)
-            const activeSeqCard = "relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border-2 border-teal-500 bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl transition-all duration-500 text-left cursor-pointer shadow-[0_8px_30px_rgba(20,184,166,0.2)] dark:shadow-[0_8px_30px_rgba(20,184,166,0.4)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10";
-            const activeSeqIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 text-white flex items-center justify-center shadow-lg shadow-teal-500/40 transition-all duration-500 relative z-10 group-hover:scale-110";
-            const activeSeqTitle = "font-bold text-teal-700 dark:text-teal-400 text-base mb-1 transition-colors";
-            const activeSeqBadge = "absolute top-3 right-3 text-teal-500 bg-teal-100 dark:bg-teal-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100";
+    // Sequence Active Classes (Teal/Emerald Glow)
+    const activeSeqCard = "relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-teal-400/50 dark:border-teal-400/50 bg-gradient-to-br from-white/90 to-teal-50/90 dark:from-teal-900/40 dark:to-teal-600/20 backdrop-blur-2xl transition-all duration-500 text-left cursor-pointer shadow-[0_8px_30px_rgba(20,184,166,0.3)] dark:shadow-[0_0_40px_rgba(20,184,166,0.2)] transform scale-[1.03] -translate-y-1 group overflow-hidden z-10 ring-1 ring-white/50 dark:ring-white/10";
+    const activeSeqIcon = "flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 via-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/50 transition-all duration-500 relative z-10 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-teal-400/60";
+    const activeSeqTitle = "font-black text-teal-700 dark:text-teal-300 text-base mb-1 transition-colors drop-shadow-sm";
+    const activeSeqBadge = "absolute top-3 right-3 text-teal-600 dark:text-teal-200 bg-teal-100 dark:bg-teal-500/30 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100 ring-1 ring-teal-500/20";
 
-            if (workMode === 'review') {
-                btnReview.className = activeReviewCard;
-                if (iconReview) iconReview.className = activeReviewIcon;
-                if (titleReview) titleReview.className = activeReviewTitle;
-                if (badgeReview) badgeReview.className = activeReviewBadge;
-                
-                btnSequence.className = inactiveCard;
-                if (iconSequence) iconSequence.className = inactiveIcon;
-                if (titleSequence) titleSequence.className = inactiveTitle;
-                if (badgeSequence) badgeSequence.className = inactiveBadge;
-            } else {
-                btnSequence.className = activeSeqCard;
-                if (iconSequence) iconSequence.className = activeSeqIcon;
-                if (titleSequence) titleSequence.className = activeSeqTitle;
-                if (badgeSequence) badgeSequence.className = activeSeqBadge;
-                
-                btnReview.className = inactiveCard;
-                if (iconReview) iconReview.className = inactiveIcon;
-                if (titleReview) titleReview.className = inactiveTitle;
-                if (badgeReview) badgeReview.className = inactiveBadge;
-            }
-            const subBar = document.getElementById('substitutionStatsBar');
-            if (subBar) {
-                if (workMode === 'sequence') {
-                    subBar.classList.remove('hidden');
-                    subBar.textContent = 'เร็วๆ นี้: สรุปรายชื่อว่าใครมาแทนใคร (จะแสดงในส่วนนี้)';
-                } else {
-                    subBar.classList.add('hidden');
-                }
-            }
-        }
-
+    if (workMode === 'review') {
+        btnReview.className = activeReviewCard;
+        if (iconReview) iconReview.className = activeReviewIcon;
+        if (titleReview) titleReview.className = activeReviewTitle;
+        if (badgeReview) badgeReview.className = activeReviewBadge;
+        
+        btnSequence.className = inactiveCard;
+        if (iconSequence) iconSequence.className = inactiveIcon;
+        if (titleSequence) titleSequence.className = inactiveTitle;
+        if (badgeSequence) badgeSequence.className = inactiveBadge;
+    } else {
+        btnSequence.className = activeSeqCard;
+        if (iconSequence) iconSequence.className = activeSeqIcon;
+        if (titleSequence) titleSequence.className = activeSeqTitle;
+        if (badgeSequence) badgeSequence.className = activeSeqBadge;
+        
+        btnReview.className = inactiveCard;
+        if (iconReview) iconReview.className = inactiveIcon;
+        if (titleReview) titleReview.className = inactiveTitle;
+        if (badgeReview) badgeReview.className = inactiveBadge;
+    }
+}
         function updateSequenceStats(data) {
             let statsContainer = document.getElementById('sequenceStatsBar');
             if (!statsContainer) return;
@@ -2428,11 +2462,11 @@
                         <div class="flex items-start gap-2">
                             <span class="text-xl">⚠️</span>
                             <div>
-                                <div class="font-bold text-amber-800 dark:text-amber-300">สรุปลำดับ 1 ถึง ${maxNum} — ขาด ${missing.length} ลำดับ</div>
+                                <div class="font-bold text-amber-800 dark:text-amber-400">สรุปลำดับ 1 ถึง ${maxNum} — ขาด ${missing.length} ลำดับ</div>
                                 <div class="text-xs text-amber-700 dark:text-amber-400/90 mt-0.5">เลขที่ตกหล่น: ${clickableLinks}</div>
                             </div>
                         </div>
-                        <button onclick="alert('ลำดับที่ตกหล่นทั้งหมด (${missing.length} ลำดับ):\\n${missing.join(', ')}')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition text-xs font-bold text-amber-700 dark:text-amber-300 shadow-sm">ดูทั้งหมด</button>
+                        <button onclick="alert('ลำดับที่ตกหล่นทั้งหมด (${missing.length} ลำดับ):\\n${missing.join(', ')}')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition text-xs font-bold text-amber-700 dark:text-amber-400 shadow-sm">ดูทั้งหมด</button>
                     </div>
                 `;
             } else {
@@ -2518,7 +2552,7 @@
                 let html = `
                 <div class="flex flex-col gap-1.5">
                     <label class="text-xs font-bold text-slate-600 dark:text-slate-400 truncate" title="${cat}">${cat}</label>
-                    <input type="number" oninput="saveCustomScore('${fileName}', '${cat}', this.value)" value="${val}" placeholder="ค่าหลัก" min="0" step="0.5" class="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 font-bold">
+                    <input type="number" oninput="saveCustomScore('${fileName}', '${cat}', this.value)" value="${val}" placeholder="ค่าหลัก" min="0" step="0.5" class="w-full px-3.5 py-2 border border-slate-300 dark:border-white/10 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 font-bold">
                 </div>`;
                 panel.innerHTML += html;
             });
@@ -2749,11 +2783,11 @@
             
             let allClass = activeCategoryFilters.length === 0 
                 ? "bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-300 dark:ring-indigo-500" 
-                : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-600";
+                : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600 dark:hover:bg-slate-600";
             catHtml += `<button onclick="setFilter(null)" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all ${allClass}">ทั้งหมด</button>`;
 
             if (bonusCount > 0) {
-                let baseBonusClass = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800";
+                let baseBonusClass = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/10";
                 let activeBonusClass = activeCategoryFilters.includes('bonus') ? "ring-2 ring-offset-1 ring-emerald-500 shadow-sm opacity-100 border-emerald-400 dark:border-emerald-500" : "opacity-100 hover:bg-emerald-100 dark:hover:bg-emerald-900/50";
                 catHtml += `<button onclick="setFilter('bonus')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${baseBonusClass} ${activeBonusClass}">✨ ได้โบนัส (${bonusCount})</button>`;
             }
@@ -2761,22 +2795,22 @@
             if (duplicates > 0) {
                 let dupClass = activeCategoryFilters.includes('duplicate') 
                     ? "bg-rose-600 text-white border-rose-600 shadow-md ring-2 ring-rose-300 dark:ring-rose-500" 
-                    : "bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-400 dark:border-rose-800 dark:hover:bg-rose-900/60";
+                    : "bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/10 dark:hover:bg-rose-900/60";
                 catHtml += `<button onclick="setFilter('duplicate')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${dupClass}">⚠️ ส่งซ้ำ (${duplicates})</button>`;
             }
 
             let replyClass = activeCategoryFilters.includes('reply') 
                 ? "bg-slate-700 text-white border-slate-700 shadow-md ring-2 ring-slate-400 dark:bg-slate-600 dark:border-slate-500 dark:ring-slate-400" 
-                : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700";
+                : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700";
             catHtml += `<button onclick="setFilter('reply')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${replyClass}">↪️ เม้นย่อย (${replyCount})</button>`;
 
             let fadedClass = activeCategoryFilters.includes('faded') 
                 ? "bg-slate-700 text-white border-slate-700 shadow-md ring-2 ring-slate-400 dark:bg-slate-600 dark:border-slate-500 dark:ring-slate-400" 
-                : "bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-500 dark:border-slate-700 dark:hover:bg-slate-700";
+                : "bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-500 dark:border-white/10 dark:hover:bg-white/10";
             catHtml += `<button onclick="setFilter('faded')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${fadedClass}">👁️ ซ่อนไว้ (${fadedCount})</button>`;
 
             Object.keys(counts).forEach(cat => {
-                let baseClass = CATEGORY_COLORS[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
+                let baseClass = CATEGORY_COLORS[cat] || "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-600";
                 let activeClass = activeCategoryFilters.includes(cat) ? "ring-2 ring-offset-1 ring-current shadow-sm opacity-100" : (activeCategoryFilters.length > 0 ? "opacity-50 hover:opacity-80" : "opacity-100");
                 catHtml += `<button onclick="setFilter('${cat}')" class="px-2.5 py-1 border rounded-lg text-xs font-semibold transition-all ${baseClass} ${activeClass}">${cat} (${counts[cat]})</button>`;
             });
@@ -2909,6 +2943,14 @@
 
         // ฟังก์ชัน appendSequenceGapRow ถูกยกเลิกการใช้งานแล้ว
 
+        let searchTimeout;
+        function debounceRenderTable() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                renderTable();
+            }, 300);
+        }
+
         function renderTable() {
             const tableContainer = document.querySelector('.table-container');
             const scrollPos = tableContainer ? tableContainer.scrollTop : 0;
@@ -2923,24 +2965,26 @@
             tbody.innerHTML = ""; 
 
             const cols = getSelectedColumns();
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            // 🌟 Smart Search: แยกคำค้นหาหลายคำ (คั่นด้วยช่องว่าง) — ทุกคำต้อง match จึงจะแสดง
+            const searchTerms = searchQuery.split(/\s+/).filter(t => t.length > 0);
 
             let headerHtml = `<tr>`;
             let isFirstCol = true;
-            function getThClass(baseClass) { let cls = baseClass.replace(/border-slate-200 dark:border-slate-700/g, 'border-transparent'); if (isFirstCol) { cls += ' pl-8'; isFirstCol = false; } return cls; }
+            function getThClass(baseClass) { let cls = baseClass; if (isFirstCol) { cls += ' pl-10'; isFirstCol = false; } return cls; }
 
-            if (cols.checked) headerHtml += `<th class="${getThClass('px-5 py-4 text-center whitespace-nowrap border-b w-16')}">✓</th>`;
-            if (currentMode === 'merged' && cols.file) headerHtml += `<th class="${getThClass('px-5 py-4 whitespace-nowrap border-b')}">ไฟล์ต้นทาง</th>`;
-            if (cols.seq) headerHtml += `<th class="${getThClass('px-5 py-4 text-center whitespace-nowrap border-b')}">ลำดับที่</th>`;
-            if (cols.team) headerHtml += `<th class="${getThClass('px-5 py-4 text-center whitespace-nowrap border-b')}">ทีม</th>`;
-            if (cols.id) headerHtml += `<th class="${getThClass('px-5 py-4 whitespace-nowrap border-b')}">รหัสนักศึกษา</th>`;
-            if (cols.name) headerHtml += `<th class="${getThClass('px-5 py-4 min-w-[140px] whitespace-nowrap border-b')}">ชื่อ</th>`;
-            if (cols.surname) headerHtml += `<th class="${getThClass('px-5 py-4 min-w-[140px] whitespace-nowrap border-b')}">นามสกุล</th>`;
-            if (cols.status) headerHtml += `<th class="${getThClass('px-5 py-4 text-center whitespace-nowrap border-b')}">สถานะ</th>`;
-            if (cols.type) headerHtml += `<th class="${getThClass('px-5 py-4 whitespace-nowrap border-b')}">ประเภทงาน</th>`;
-            if (cols.score) headerHtml += `<th class="${getThClass('px-5 py-4 text-center whitespace-nowrap border-b')}">คะแนน</th>`;
-            if (cols.likes) headerHtml += `<th class="${getThClass('px-5 py-4 text-center whitespace-nowrap border-b')}">ไลก์</th>`;
-            if (cols.original) headerHtml += `<th class="${getThClass('px-5 py-4 min-w-[250px] max-w-[400px] border-b')}">คอมเมนต์ต้นฉบับ</th>`;
+            if (cols.checked) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-transparent w-16')}">✓</th>`;
+            if (currentMode === 'merged' && cols.file) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-transparent')}">ไฟล์ต้นทาง</th>`;
+            if (cols.seq) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-transparent')}">ลำดับที่</th>`;
+            if (cols.team) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-transparent')}">ทีม</th>`;
+            if (cols.id) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-transparent')}">รหัสนักศึกษา</th>`;
+            if (cols.name) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-transparent')}">ชื่อ</th>`;
+            if (cols.surname) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[140px] whitespace-nowrap border-b border-transparent')}">นามสกุล</th>`;
+            if (cols.status) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-transparent')}">สถานะ</th>`;
+            if (cols.type) headerHtml += `<th class="${getThClass('px-4 py-4 whitespace-nowrap border-b border-transparent')}">ประเภทงาน</th>`;
+            if (cols.score) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-transparent')}">คะแนน</th>`;
+            if (cols.likes) headerHtml += `<th class="${getThClass('px-4 py-4 text-center whitespace-nowrap border-b border-transparent')}">ไลก์</th>`;
+            if (cols.original) headerHtml += `<th class="${getThClass('px-4 py-4 min-w-[250px] max-w-[400px] border-b border-transparent')}">คอมเมนต์ต้นฉบับ</th>`;
             headerHtml += `</tr>`;
             thead.innerHTML = headerHtml;
 
@@ -2983,7 +3027,7 @@
                     };
                     let filterNames = activeCategoryFilters.map(f => labels[f] || f);
                     document.getElementById('threadBannerText').innerText = `กำลังดูเฉพาะกลุ่ม: ${filterNames.join(', ')}`;
-                } else if (searchQuery.trim() !== "") {
+                } else if (searchTerms.length > 0) {
                     banner.classList.remove('hidden');
                     document.getElementById('threadBannerText').innerText = `ผลการค้นหา: "${searchQuery}"`;
                 } else {
@@ -2991,11 +3035,71 @@
                 }
             }
 
-            if (searchQuery.trim() !== "") {
-                displayData = displayData.filter(item => 
-                    item["รหัสนักศึกษา"].toLowerCase().includes(searchQuery) || item["ชื่อ"].toLowerCase().includes(searchQuery) ||
-                    item["นามสกุล"].toLowerCase().includes(searchQuery) || item["ประเภทงาน"].toLowerCase().includes(searchQuery)
-                );
+            if (searchTerms.length > 0) {
+                // 🌟 Google-like Smart Search Engine
+                // Step 1: ดึง "keyword + ตัวเลข" pattern จาก query ดิบ (เช่น "ทีมที่4", "ลำดับ5", "คะแนน2")
+                const fieldFilters = [];
+                let leftover = searchQuery;
+
+                const keywordPatterns = [
+                    // รองรับ "ทีม", "ทีน", "ทิม", "ทึม", "กลุ่ม", "กลุม", "กลุ่ม"
+                    { regex: /(?:ท[ีิึ][มน](?:ที่)?|กลุ[่]?[มน](?:ที่)?|team|group)\s*(\d+)/gi, field: 'team' },
+                    // รองรับ "ลำดับ", "ลาดับ"
+                    { regex: /(?:ล[ำา]ดับ(?:ที่)?|seq(?:uence)?)\s*(\d+)/gi, field: 'seq' },
+                    { regex: /(?:คะแนน|แต้ม|score)\s*(\d+)/gi, field: 'score' },
+                    // รองรับ "ไลก์", "ไลค์", "ไลค", "ไลก"
+                    { regex: /(?:ไล[ก-ฮ][์]?|like[s]?)\s*(\d+)/gi, field: 'likes' },
+                    // รองรับ "สาย"
+                    { regex: /(?:สาย(?:ที่)?|thread)\s*(\d+)/gi, field: 'thread' },
+                ];
+
+                for (const kp of keywordPatterns) {
+                    kp.regex.lastIndex = 0;
+                    let match;
+                    while ((match = kp.regex.exec(searchQuery)) !== null) {
+                        fieldFilters.push({ field: kp.field, value: match[1] });
+                        leftover = leftover.replace(match[0], ' ');
+                    }
+                }
+
+                // Step 2: คำที่เหลือ (ไม่ใช่ keyword pattern) จะค้นหาแบบ full-text
+                const freeTerms = leftover.trim().split(/\s+/).filter(t => t.length > 0);
+
+                displayData = displayData.filter(item => {
+                    // ตรวจ field filters (keyword + ค่า) — ต้อง match ทุกอัน
+                    for (const ff of fieldFilters) {
+                        let fieldVal = '';
+                        if (ff.field === 'team') fieldVal = item["ทีม"] !== undefined ? String(item["ทีม"]).trim() : "";
+                        else if (ff.field === 'seq') fieldVal = item["ลำดับที่"] !== undefined ? String(item["ลำดับที่"]).trim() : "";
+                        else if (ff.field === 'score') fieldVal = item["คะแนน"] !== undefined ? String(item["คะแนน"]).trim() : "";
+                        else if (ff.field === 'likes') fieldVal = item["ไลก์"] !== undefined ? String(item["ไลก์"]).trim() : "";
+                        else if (ff.field === 'thread') fieldVal = (item["สายสนทนา"] || "").trim();
+                        if (fieldVal !== ff.value) return false;
+                    }
+
+                    // ถ้าไม่มี free terms เหลือ (แปลว่า keyword pattern จับหมดแล้ว) → ผ่าน
+                    if (freeTerms.length === 0) return true;
+
+                    // Full-text search: รวมทุกฟิลด์เป็นก้อนเดียว
+                    const fullText = [
+                        item["รหัสนักศึกษา"] || "",
+                        item["ชื่อ"] || "",
+                        item["นามสกุล"] || "",
+                        (item["ชื่อ"] || "") + " " + (item["นามสกุล"] || ""),
+                        (item["ชื่อ"] || "") + (item["นามสกุล"] || ""),
+                        item["ประเภทงาน"] || "",
+                        item["สถานะ"] || "",
+                        item["สายสนทนา"] || "",
+                        item["คอมเมนต์เต็มต้นฉบับ"] || "",
+                        item["ทีม"] !== undefined ? String(item["ทีม"]) : "",
+                        item["ลำดับที่"] !== undefined ? String(item["ลำดับที่"]) : "",
+                        item["คะแนน"] !== undefined ? String(item["คะแนน"]) : "",
+                        item["ไลก์"] !== undefined ? String(item["ไลก์"]) : "",
+                        item.fileName || ""
+                    ].join(" ").toLowerCase();
+
+                    return freeTerms.every(term => fullText.includes(term));
+                });
             }
 
             // 🌟 ให้รายการซ้ำแสดงบนจอเสมอ (แต่อยู่ในสถานะปิดตา/faded ตามค่าเริ่มต้น)
@@ -3097,7 +3201,7 @@
                         if (currentSeq !== null && currentSeq > lastRenderedSeq + 1) {
                             for (let missingSeq = lastRenderedSeq + 1; missingSeq < currentSeq; missingSeq++) {
                                 const gapTr = document.createElement('tr');
-                                gapTr.className = "data-row bg-amber-50/70 dark:bg-amber-900/20 border-b border-amber-200/50 dark:border-amber-700/50";
+                                gapTr.className = "data-row bg-amber-50/70 dark:bg-amber-500/10 border-b border-amber-200/50 dark:border-amber-500/20";
                                 gapTr.setAttribute('data-seq', missingSeq);
                                 gapTr.innerHTML = `<td colspan="15" class="px-4 py-3 text-center text-amber-600 dark:text-amber-400 text-sm font-bold">
                                     <span class="flex items-center justify-center gap-2">
@@ -3114,22 +3218,22 @@
                     }
 
                     const tr = document.createElement('tr');
-                    const rowBgColor = index % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-800/50";
+                    const rowBgColor = index % 2 === 0 ? "bg-white/40 dark:bg-white/[0.02]" : "bg-slate-50/40 dark:bg-transparent";
                     
                     // 🌟 ตรวจสอบว่ามีข้อมูลกรอกครบหรือยัง (รหัส, ชื่อ, นามสกุล, ประเภทงาน)
                     const isIncomplete = (!item["รหัสนักศึกษา"]?.trim() || !item["ชื่อ"]?.trim() || !item["นามสกุล"]?.trim() || item["ประเภทงาน"] === "ไม่ได้ระบุ" || !item["ประเภทงาน"]?.trim());
                     
                     let activeBg = rowBgColor;
                     if (item.isDuplicateInstance) {
-                        activeBg = "bg-rose-50/90 dark:bg-rose-900/30";
+                        activeBg = "bg-rose-50/90 dark:bg-rose-500/20";
                     } else if (isIncomplete && !item.isFaded && workMode === 'sequence') {
-                        activeBg = "bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 shadow-[inset_0_0_8px_rgba(251,191,36,0.3)]"; // สีแถวแบบเด่นชัด
+                        activeBg = "bg-amber-100 dark:bg-amber-500/10 border-l-4 border-amber-500 shadow-[inset_0_0_8px_rgba(251,191,36,0.3)]"; // สีแถวแบบเด่นชัด
                     }
 
                     const fadeClass = item.isFaded ? (item.isDuplicateInstance ? " duplicate-faded" : " row-faded") : "";
                     const seqHideClass = isSequenceModeHidden(item) ? " sequence-mode-hidden" : "";
 
-                    tr.className = `data-row ${fadeClass}${seqHideClass} ${activeBg} hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-300 relative group border-b border-slate-200/50 dark:border-white/5 hover:shadow-lg hover:-translate-y-[1px] hover:z-10`;
+                    tr.className = `data-row ${fadeClass}${seqHideClass} ${activeBg} hover:bg-indigo-50/80 dark:hover:bg-slate-700/80 transition relative group border-b border-transparent/50`;
                     tr.setAttribute('data-thread', item["สายสนทนา"] || "-"); 
                     tr.setAttribute('data-filename', item.fileName); 
                     tr.setAttribute('data-recordindex', item.recordIndex); 
@@ -3156,18 +3260,18 @@
                         }
                     }
 
-                    let seqSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ลำดับที่', this.innerText);" class="text-slate-700 dark:text-slate-300 font-bold text-center w-full block min-w-[30px] outline-none rounded focus:bg-yellow-100 dark:focus:bg-yellow-900 transition-colors ${focusClassSeq}" style="${focusStyleSeq}">${item["ลำดับที่"] || ""}</span>`;
+                    let seqSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ลำดับที่')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ลำดับที่', this.innerText);" class="text-slate-700 dark:text-slate-400 font-bold text-center w-full block min-w-[30px] outline-none rounded focus:bg-yellow-100 dark:focus:bg-yellow-900 transition-colors ${focusClassSeq}" style="${focusStyleSeq}">${item["ลำดับที่"] || ""}</span>`;
                     let idSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'รหัสนักศึกษา', this.innerText);" class="editable-cell text-indigo-700 dark:text-indigo-400 font-semibold ${focusClassId}" style="${focusStyleId}">${item["รหัสนักศึกษา"]}</span>`;
-                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusClassName}" style="${focusStyleName}">${item["ชื่อ"]}</span>`;
-                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-300 ${focusClassSurname}" style="${focusStyleSurname}">${item["นามสกุล"]}</span>`;
+                    let nameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ชื่อ')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ชื่อ', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-400 ${focusClassName}" style="${focusStyleName}">${item["ชื่อ"]}</span>`;
+                    let surnameSpan = `<span contenteditable="${!item._mergedSources}" spellcheck="false" ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'นามสกุล')" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'นามสกุล', this.innerText);" class="editable-cell text-slate-700 dark:text-slate-400 ${focusClassSurname}" style="${focusStyleSurname}">${item["นามสกุล"]}</span>`;
                     
                     let typeHtml = "";
                     if (item._mergedSources) {
-                        let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600";
+                        let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600";
                         typeHtml = `<span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold border shadow-sm ${catColor}">${item["ประเภทงาน"]}</span>`;
                     } else {
                         const jobCategories = ["ไม่ได้ระบุ", "ใจอาสา", "ชั่วโมงทุน", "วินัย", "ภาวะผู้นำ", "กตัญญู", "รักชาติ", "แก้ความประพฤติ", "แก้คะแนนรู้วินัย"];
-                        let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600";
+                        let catColor = CATEGORY_COLORS[item["ประเภทงาน"]] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600";
                         typeHtml = `<select ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน')" onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน')" onblur="clearFocus()" onclick="event.stopPropagation()" onchange="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ประเภทงาน', this.value)" class="text-xs font-bold border rounded-lg px-2.5 py-1 w-full max-w-[130px] outline-none cursor-pointer hover:opacity-80 transition-opacity appearance-none text-center shadow-sm ${catColor}">`;
                         jobCategories.forEach(cat => {
                             let selected = (item["ประเภทงาน"] === cat) ? "selected" : "";
@@ -3181,7 +3285,7 @@
                     if (item._mergedScoreMap) {
                          let totalPoints = Object.values(item._mergedScoreMap).reduce((sum, s) => sum + s, 0);
                          let hasBonus = item._mergedSources.some(src => getBonusScore(src) > 0 && src.manualScore === undefined);
-                         let badgeClass = hasBonus ? "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-500 border-2" : "bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/50";
+                         let badgeClass = hasBonus ? "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-400 dark:border-emerald-500 border-2" : "bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500/10/50";
                          if (totalPoints > 0) scoreBadge = `<div class="row-content font-black text-sm px-2 py-0.5 rounded inline-block border ${badgeClass}">${totalPoints}${hasBonus ? ' ✨' : ''}</div>`;
                     } else {
                          let score = calculateItemScore(item);
@@ -3193,10 +3297,10 @@
                          let tooltipText = 'คลิกเพื่อพิมพ์แก้คะแนน';
                          
                          if (hasManual) {
-                             inputClass += 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700 border ';
+                             inputClass += 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-700 border ';
                              tooltipText = 'แก้ไขด้วยมือ (ลบค่าทิ้งเพื่อใช้ระบบอัตโนมัติ)';
                          } else if (isBonus) {
-                             inputClass += 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-500 border-2 shadow-sm ';
+                             inputClass += 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-900/60 dark:text-emerald-400 dark:border-emerald-500 border-2 shadow-sm ';
                              tooltipText = `ได้โบนัส +${bonusAmt}`;
                          } else {
                              inputClass += 'text-indigo-700 dark:text-indigo-400 ';
@@ -3210,12 +3314,12 @@
                     
                     let statusBadge;
                     if (item._mergedSources && item._mergedSources.length > 1) {
-                         statusBadge = `<div class="inline-block bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 px-2 py-1 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800">📌 ทำมา ${item._mergedSources.length} ใบงาน</div>`;
+                         statusBadge = `<div class="inline-block bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 px-2 py-1 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-500/10">📌 ทำมา ${item._mergedSources.length} ใบงาน</div>`;
                     } else {
                          let isMain = item["สถานะ"] === "เม้นหลัก";
                          statusBadge = isMain ? 
-                            `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
-                            `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
+                            `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-700 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">💬 เม้นหลัก (สาย ${item["สายสนทนา"]})</button>` : 
+                            `<button type="button" onclick="handleToggleThreadClick(event, '${item["สายสนทนา"]}', '${item.fileName}', this)" class="cursor-pointer hover:scale-105 active:scale-95 hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-500 hover:shadow-md transition-all px-2.5 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600 whitespace-nowrap shadow-sm" title="👆 คลิกเพื่อดูเฉพาะสายสนทนานี้">↪️ เม้นย่อย (สาย ${item["สายสนทนา"]})</button>`;
                     }
 
                     let fadeBtn = item._mergedSources ? "" : `<button type="button" onclick="toggleRowFade('${item.fileName}', ${item.recordIndex}, event)" class="row-fade-action p-1.5 rounded-md bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition z-10" title="${item.isFaded ? 'คลิกเพื่อแสดงแถวนี้ปกติ' : 'คลิกเพื่อซ่อน/ทำให้จางลง (จะไม่ถูกดาวน์โหลดไป Excel)'}">
@@ -3227,18 +3331,18 @@
                     let rowCells = [];
                     if (cols.checked) {
                         let isChecked = item._uiChecked ? 'checked' : '';
-                        let checkboxHtml = `<div class="row-content flex justify-center"><label class="cursor-pointer"><input type="checkbox" ${isChecked} onclick="event.stopPropagation(); toggleRowChecked('${item.fileName}', ${item.recordIndex}, this.checked);" class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500 dark:focus:ring-offset-slate-800 cursor-pointer accent-emerald-600"></label></div>`;
+                        let checkboxHtml = `<div class="row-content flex justify-center"><label class="cursor-pointer"><input type="checkbox" ${isChecked} onclick="event.stopPropagation(); toggleRowChecked('${item.fileName}', ${item.recordIndex}, this.checked);" class="w-4 h-4 rounded border-slate-300 dark:border-white/10 text-emerald-600 focus:ring-emerald-500 dark:focus:ring-offset-slate-800 cursor-pointer accent-emerald-600"></label></div>`;
                         rowCells.push({ content: checkboxHtml, type: 'center', colname: '✓' });
                     }
                     if (currentMode === 'merged' && cols.file) {
-                        let fileHtml = item._mergedSources && item._mergedSources.length > 1 ? `<span class="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-800" title="พบจากหลายไฟล์">รวม ${item._mergedSources.length} ไฟล์</span>` : `<span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium" title="${item.fileName}">${item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName}</span>`;
+                        let fileHtml = item._mergedSources && item._mergedSources.length > 1 ? `<span class="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold border border-indigo-200 dark:border-indigo-500/10" title="พบจากหลายไฟล์">รวม ${item._mergedSources.length} ไฟล์</span>` : `<span class="inline-block px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-xs font-medium" title="${item.fileName}">${item.fileName.length > 18 ? item.fileName.substring(0, 15) + "..." : item.fileName}</span>`;
                         rowCells.push({ content: `<div class="row-content">${fileHtml}</div>`, type: 'normal', colname: 'ไฟล์ต้นทาง' });
                     }
                     
                     if (cols.seq) {
                         if (item._mergedSources) {
                             let seqs = [...new Set(item._mergedSources.map(s => s["ลำดับที่"]).filter(Boolean))].join(", ");
-                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-300 flex justify-center">${seqs}</div>`, type: 'center', colname: 'ลำดับที่' });
+                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-400 flex justify-center">${seqs}</div>`, type: 'center', colname: 'ลำดับที่' });
                         } else {
                             rowCells.push({ content: `<div class="row-content flex justify-center">${seqSpan}</div>`, type: 'center', colname: 'ลำดับที่' });
                         }
@@ -3247,10 +3351,10 @@
                     if (cols.team) {
                         if (item._mergedSources) {
                             let teams = [...new Set(item._mergedSources.map(s => s["ทีม"]).filter(Boolean))].join(", ");
-                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-300 flex justify-center">${teams}</div>`, type: 'center', colname: 'ทีม' });
+                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-400 flex justify-center">${teams}</div>`, type: 'center', colname: 'ทีม' });
                         } else {
                             let teamVal = item["ทีม"] || "";
-                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-300 flex justify-center">${teamVal}</div>`, type: 'center', colname: 'ทีม' });
+                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-400 flex justify-center">${teamVal}</div>`, type: 'center', colname: 'ทีม' });
                         }
                     }
 
@@ -3264,7 +3368,7 @@
                         if (item.isDuplicateInstance || (item._mergedSources && item._mergedSources.length > 1)) {
                              let btnTitle = item.isDuplicateInstance ? "คลิกเพื่อดูข้อมูลรหัสนี้ทั้งหมด (กดอีกครั้งเพื่อกลับไปหน้าเดิม)" : "คลิกเพื่อกางดูรายละเอียดแยกตามใบงาน";
                              let btnText = item.isDuplicateInstance ? "ซ้ำ" : "กางดูรายละเอียด";
-                             let btnClass = item.isDuplicateInstance ? "bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-400 border-rose-300 dark:border-rose-700" : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800";
+                             let btnClass = item.isDuplicateInstance ? "bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-400 border-rose-300 dark:border-rose-700" : "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/10";
                              idContent = `<div class="flex items-center">${idContent}<button type="button" onclick="filterByStudentId(event, '${item["รหัสนักศึกษา"]}')" class="ml-1.5 cursor-pointer hover:scale-105 active:scale-95 px-1.5 py-0.5 rounded text-[10px] font-bold border shadow-sm transition-transform ${btnClass}" title="${btnTitle}">${btnText}</button></div>`;
                         } else { idContent = `<div class="flex items-center">${idContent}</div>`; }
                         rowCells.push({ content: idContent, type: 'mono', colname: 'รหัสนักศึกษา' });
@@ -3564,7 +3668,7 @@
                             <div class="h-[180px] flex flex-col items-center justify-center text-slate-400 dark:text-[#B0B3B8]">
                                 <span class="text-3xl mb-2">🖼️</span>
                                 <span class="text-xs font-semibold">ระบบคาดว่ามีรูปภาพแนบมาด้วย</span>
-                                <span class="text-[10px] mt-2 bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-[#4599FF] px-3 py-1 rounded-full font-bold">👉 คลิกเพื่อตรวจสอบบน Facebook</span>
+                                <span class="text-[10px] mt-2 bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-[#4599FF] px-3 py-1 rounded-full font-bold">👉 คลิกเพื่อตรวจสอบบน Facebook</span>
                             </div>
                         </div>`;
                 }
@@ -3938,13 +4042,13 @@
             const colFileContainer = document.getElementById('col_file_container'); 
             
             if (currentMode === 'separate') {
-                btnSep.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-300 px-5 py-2 rounded-lg text-sm font-bold transition-all";
-                btnMer.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-5 py-2 rounded-lg text-sm font-medium transition-all";
+                btnSep.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-400 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
+                btnMer.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
                 fileSelector.classList.remove('hidden');
                 if(colFileContainer) colFileContainer.classList.add('hidden'); 
             } else {
-                btnMer.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-300 px-5 py-2 rounded-lg text-sm font-bold transition-all";
-                btnSep.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-5 py-2 rounded-lg text-sm font-medium transition-all";
+                btnMer.className = "flex-1 sm:flex-none bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-400 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
+                btnSep.className = "flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-4 py-2 md:py-1.5 rounded-md text-sm font-semibold transition";
                 fileSelector.classList.add('hidden');
                 if(colFileContainer) colFileContainer.classList.remove('hidden'); 
             }
@@ -4025,10 +4129,33 @@
             if (!files.length) return;
             let fileNamesStr = `เลือกแล้ว ${files.length} ไฟล์: `;
             let loadedCount = 0;
+            let errorFiles = [];
             allFilesData = {}; activeThread = null; activeCategoryFilters = [];
 
             // 🌟 เพิ่มข้อความแจ้งเตือนให้อุ่นใจว่ากำลังอัปโหลด
             document.getElementById('fileNames').innerText = "⏳ กำลังอ่านไฟล์และบันทึกขึ้นคลาวด์ โปรดรอสักครู่...";
+
+            function onFileComplete(fileName, success) {
+                loadedCount++;
+                if (success) {
+                    fileNamesStr += fileName + (loadedCount < files.length ? ", " : "");
+                } else {
+                    errorFiles.push(fileName);
+                }
+                if (loadedCount === files.length) {
+                    if (errorFiles.length > 0) {
+                        document.getElementById('fileNames').innerText = fileNamesStr;
+                        alert("⚠️ ไม่สามารถอ่านไฟล์ได้: " + errorFiles.join(", ") + "\n\nลองวิธีแก้:\n1. เปิดไฟล์ใน Excel แล้ว Save As เป็น CSV UTF-8\n2. หรือลอง Save As เป็น .xlsx แล้วอัปโหลดใหม่");
+                    } else {
+                        document.getElementById('fileNames').innerText = fileNamesStr;
+                    }
+                    if (Object.keys(allFilesData).length > 0) {
+                        initUIAfterLoad();
+                        saveState();
+                        if (currentRoomId) { syncAllData(); triggerRoomUpdate(); }
+                    }
+                }
+            }
 
             Array.from(files).forEach(file => {
                 const ext = file.name.split('.').pop().toLowerCase();
@@ -4036,36 +4163,57 @@
                 if (ext === 'xlsx' || ext === 'xls') {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const csvStr = XLSX.utils.sheet_to_csv(sheet);
-                        
-                        parseCSVData(file.name, csvStr);
-                        loadedCount++;
-                        fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
-                        
-                        if (loadedCount === files.length) { 
-                            document.getElementById('fileNames').innerText = fileNamesStr;
-                            initUIAfterLoad(); 
-                            saveState(); 
-                            if (currentRoomId) { syncAllData(); triggerRoomUpdate(); }
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, {type: 'array'});
+                            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                            const csvStr = XLSX.utils.sheet_to_csv(sheet);
+                            parseCSVData(file.name, csvStr);
+                            onFileComplete(file.name, true);
+                        } catch(err) {
+                            console.error("❌ Error reading Excel file:", file.name, err);
+                            onFileComplete(file.name, false);
                         }
+                    };
+                    reader.onerror = function() {
+                        console.error("❌ FileReader error for:", file.name);
+                        onFileComplete(file.name, false);
                     };
                     reader.readAsArrayBuffer(file);
                 } else {
+                    // 🌟 ลองอ่าน UTF-8 ก่อน ถ้ามีอักขระเพี้ยนจะ fallback ไปใช้ encoding อื่น
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        parseCSVData(file.name, e.target.result);
-                        loadedCount++;
-                        fileNamesStr += file.name + (loadedCount < files.length ? ", " : "");
-                        
-                        if (loadedCount === files.length) { 
-                            document.getElementById('fileNames').innerText = fileNamesStr;
-                            initUIAfterLoad(); 
-                            saveState(); 
-                            if (currentRoomId) { syncAllData(); triggerRoomUpdate(); }
+                        try {
+                            let text = e.target.result;
+                            // ตรวจสอบว่าข้อความภาษาไทยอ่านออกหรือเปล่า (ถ้ามี replacement char แสดงว่า encoding ผิด)
+                            if (text.includes('\uFFFD') || (text.length > 100 && !/[\u0E00-\u0E7F]/.test(text) && /[^\x00-\x7F]/.test(text))) {
+                                console.log("⚠️ ตรวจพบ encoding ผิดพลาด สำหรับ:", file.name, "- ลอง TIS-620...");
+                                // Fallback: ลองอ่านด้วย TIS-620 (Thai encoding)
+                                const reader2 = new FileReader();
+                                reader2.onload = function(e2) {
+                                    try {
+                                        parseCSVData(file.name, e2.target.result);
+                                        onFileComplete(file.name, true);
+                                    } catch(err2) {
+                                        console.error("❌ Error parsing with TIS-620:", file.name, err2);
+                                        onFileComplete(file.name, false);
+                                    }
+                                };
+                                reader2.onerror = function() { onFileComplete(file.name, false); };
+                                reader2.readAsText(file, 'TIS-620');
+                            } else {
+                                parseCSVData(file.name, text);
+                                onFileComplete(file.name, true);
+                            }
+                        } catch(err) {
+                            console.error("❌ Error parsing CSV:", file.name, err);
+                            onFileComplete(file.name, false);
                         }
+                    };
+                    reader.onerror = function() {
+                        console.error("❌ FileReader error for:", file.name);
+                        onFileComplete(file.name, false);
                     };
                     reader.readAsText(file, 'UTF-8');
                 }
@@ -4625,7 +4773,7 @@
                 const filterDropdown = document.getElementById('hubMonthFilter');
                 if(filterDropdown) {
                     const currentVal = filterDropdown.value;
-                    filterDropdown.innerHTML = '<option value="all">ทุกเดือน</option>';
+                    filterDropdown.innerHTML = '<option value="all">📅 ทุกเดือน</option>';
                     Array.from(monthSet).forEach(my => {
                         filterDropdown.innerHTML += `<option value="${my}">${my}</option>`;
                     });
@@ -5065,7 +5213,7 @@
                 const filterDropdown = document.getElementById('hubMonthFilter');
                 if(filterDropdown) {
                     const currentVal = filterDropdown.value;
-                    filterDropdown.innerHTML = '<option value="all">ทุกเดือน</option>';
+                    filterDropdown.innerHTML = '<option value="all">📅 ทุกเดือน</option>';
                     Array.from(monthSet).forEach(my => {
                         filterDropdown.innerHTML += `<option value="${my}">${my}</option>`;
                     });
@@ -5109,18 +5257,15 @@
 
                 if(isArchived) {
                     archiveGrid.innerHTML += `
-                        <div class="bg-gradient-to-br from-white to-rose-50/50 dark:from-slate-800 dark:to-rose-950/20 p-5 md:p-6 rounded-3xl shadow-sm border border-rose-100 dark:border-rose-900/50 hover:shadow-xl hover:shadow-rose-500/10 dark:hover:shadow-rose-900/20 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 dark:bg-rose-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none transition-transform group-hover:scale-150 duration-500"></div>
-                            
-                            <div class="flex justify-between items-start mb-4 relative z-10">
-                                <span class="text-[10px] md:text-xs font-extrabold text-rose-700 dark:text-rose-400 bg-rose-100/80 dark:bg-rose-900/40 px-3 py-1.5 rounded-xl border border-rose-200/50 dark:border-rose-800/50 tracking-wide">รหัส: ${room.id}</span>
-                                <span class="text-xs text-rose-500 dark:text-rose-400 font-bold flex items-center gap-1 bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded-lg backdrop-blur-sm">🗑️ ถังขยะ</span>
+                        <div class="bg-gradient-to-br from-white via-white to-rose-50/40 dark:from-slate-800 dark:via-slate-800 dark:to-rose-950/30 p-5 rounded-2xl shadow-sm border border-rose-200/70 dark:border-rose-900/50 hover:border-rose-300 dark:hover:border-rose-800 transition-all flex flex-col h-full group">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2.5 py-1 rounded-lg tracking-wider border border-rose-100 dark:border-rose-900/60">รหัส: ${room.id}</span>
+                                <span class="text-xs text-rose-500 font-medium flex items-center gap-1">🗑️ ในถังขยะ</span>
                             </div>
-                            <h4 class="font-extrabold text-lg md:text-xl text-slate-800 dark:text-white mb-6 line-clamp-2 leading-snug relative z-10 group-hover:text-rose-700 dark:group-hover:text-rose-400 transition-colors">${room.name || "ใบงานไม่ระบุชื่อ"}</h4>
-                            
-                            <div class="mt-auto pt-2 relative z-10">
-                                <button onclick="restoreRoom(event, '${room.id}')" class="w-full bg-white dark:bg-slate-900 hover:bg-rose-500 dark:hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white border border-rose-200 dark:border-rose-800/60 text-sm font-bold py-3 px-4 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2 group/btn">
-                                    <span class="group-hover/btn:rotate-180 transition-transform duration-500">♻️</span> เอากลับมาใช้งาน
+                            <h4 class="font-bold text-base text-slate-800 dark:text-white mb-4 line-clamp-2 leading-snug">${room.name || "ใบงานไม่ระบุชื่อ"}</h4>
+                            <div class="mt-auto pt-2">
+                                <button onclick="restoreRoom(event, '${room.id}')" class="w-full bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/10/60 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+                                    <span>♻️</span> เอากลับมาใช้งาน
                                 </button>
                             </div>
                         </div>
@@ -5129,22 +5274,15 @@
                 }
                 else {
                     activeGrid.innerHTML += `
-                        <div class="bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-800 dark:to-slate-800/80 p-5 md:p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-2xl hover:shadow-indigo-500/10 dark:hover:shadow-indigo-500/20 hover:border-indigo-300 dark:hover:border-indigo-500 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col h-full group relative overflow-hidden" onclick="joinSpecificRoom('${room.id}', '${room.name}')">
-                            <div class="absolute top-0 right-0 w-40 h-40 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none transition-transform group-hover:scale-150 duration-700"></div>
-                            
-                            <div class="flex justify-between items-start mb-4 relative z-10">
-                                <span class="text-[10px] md:text-xs font-extrabold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-600/50 tracking-wide group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:border-indigo-200 dark:group-hover:border-indigo-700/50 transition-colors">รหัส: ${room.id}</span>
-                                <div class="bg-emerald-50 dark:bg-emerald-900/30 p-1.5 rounded-full border border-emerald-100 dark:border-emerald-800/50" title="ออนไลน์ปกติ">
-                                    <span class="flex h-3 w-3 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-sm shadow-emerald-500/50"></span></span>
-                                </div>
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-all cursor-pointer flex flex-col h-full group" onclick="joinSpecificRoom('${room.id}', '${room.name}')">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md tracking-wider">รหัส: ${room.id}</span>
+                                <span class="flex h-2.5 w-2.5 relative" title="ออนไลน์ปกติ"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
                             </div>
-                            
-                            <h4 class="font-extrabold text-lg md:text-xl text-slate-800 dark:text-white mb-2 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight relative z-10">${room.name || "ใบงานไม่ระบุชื่อ"}</h4>
-                            
-                            <div class="mt-auto pt-6 flex justify-between items-center relative z-10">
-                                <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> แก้ไข: ${timeAgo}</span>
-                                
-                                <span class="text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1 -translate-x-4 group-hover:translate-x-0 bg-indigo-600 px-3 py-1.5 rounded-xl shadow-md shadow-indigo-200 dark:shadow-none">เข้าห้อง <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg></span>
+                            <h4 class="font-black text-lg text-slate-800 dark:text-white mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">${room.name || "ใบงานไม่ระบุชื่อ"}</h4>
+                            <div class="mt-auto pt-5 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-400 font-medium flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> แก้ไข: ${timeAgo}</span>
+                                <span class="text-indigo-600 dark:text-indigo-400 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 -translate-x-2 group-hover:translate-x-0">เข้าห้อง <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg></span>
                             </div>
                         </div>
                     `;
@@ -5213,6 +5351,6 @@
             }
         }
 
-    </script>
+        </script>
 </body>
 </html>
