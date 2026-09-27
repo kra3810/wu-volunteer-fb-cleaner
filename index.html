@@ -2467,7 +2467,7 @@ function updateWorkModeUI() {
                 html += `<div class="flex items-start gap-2 ${substitutes.length > 0 ? "pt-4 border-t border-slate-200 dark:border-slate-700/50" : ""}">
                     <div class="mt-0.5 p-1.5 flex-shrink-0 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg></div>
                     <div class="flex-1 w-full overflow-hidden">
-                        <div class="font-bold text-rose-800 dark:text-rose-400 mb-2">รายการที่อาจจะหาย/ตกหล่น</div>
+                        <div class="font-bold text-rose-800 dark:text-rose-400 mb-2">รายการรายชื่อหาย/ตกหล่น</div>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full">`;
                 missings.forEach(item => {
                     let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
@@ -2554,6 +2554,12 @@ function updateWorkModeUI() {
                         </div>
                     `);
                     alertMessages.push(`ลำดับที่ตกหล่นทั้งหมด (${missing.length} ลำดับ):\\n${missing.join(', ')}`);
+                } else {
+                    htmlParts.push(`
+                        <div class="mb-1">
+                            <div class="font-bold text-emerald-700 dark:text-emerald-400">✅ สรุปลำดับ 1 ถึง ${maxNum} — ครบถ้วน ไม่มีตกหล่น</div>
+                        </div>
+                    `);
                 }
                 
                 if (duplicates.length > 0) {
@@ -2562,7 +2568,7 @@ function updateWorkModeUI() {
                     if (duplicates.length > 12) dupLinks += '...';
                     
                     htmlParts.push(`
-                        <div class="${missing.length > 0 ? 'mt-2 pt-2 border-t border-amber-200/50 dark:border-amber-700/50' : ''}">
+                        <div class="mt-2 pt-2 border-t border-amber-200/50 dark:border-amber-700/50">
                             <div class="font-bold text-rose-700 dark:text-rose-400">พบการแจ้งลำดับซ้ำกัน (${duplicates.length} ลำดับ)</div>
                             <div class="text-xs text-rose-600 dark:text-rose-400/90 mt-0.5">เลขที่ซ้ำ: ${dupLinks}</div>
                         </div>
