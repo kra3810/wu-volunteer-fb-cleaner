@@ -2401,9 +2401,9 @@ function updateWorkModeUI() {
         function updateSubstitutionStats(data) {
             let statsContainer = document.getElementById('substitutionStatsBar');
             if (!statsContainer) return;
-            const searchQuery = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim() : "";
-            const isFilteringActive = searchQuery !== "" || (typeof activeCategoryFilters !== 'undefined' && activeCategoryFilters.length > 0);
-            if (isFilteringActive || data.length === 0) {
+            
+            // We removed the search filter hiding logic so it shows up always
+            if (data.length === 0) {
                 statsContainer.classList.add('hidden');
                 return;
             }
@@ -2423,13 +2423,33 @@ function updateWorkModeUI() {
                 return;
             }
             statsContainer.classList.remove('hidden');
-            statsContainer.className = "w-full p-4 bg-gradient-to-br from-indigo-50/80 to-blue-50/80 dark:from-indigo-900/20 dark:to-blue-900/20 border border-indigo-200/60 dark:border-indigo-500/30 rounded-xl text-sm mb-4 mt-2 shadow-sm transition-all";
-            let html = `<div class="flex flex-col gap-4">`;
+            statsContainer.className = "w-full mb-4 mt-2 transition-all";
+            
+            let summaryText = "";
+            if (substitutes.length > 0 && missings.length > 0) summaryText = `พบการทำแทน (${substitutes.length}) และ ตกหล่น (${missings.length})`;
+            else if (substitutes.length > 0) summaryText = `พบการแจ้งทำแทน/ส่งแทน (${substitutes.length})`;
+            else summaryText = `พบการแจ้งรายชื่อหาย/ตกหล่น (${missings.length})`;
+
+            let html = `
+            <details class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-sm [&_summary::-webkit-details-marker]:hidden group transition-all">
+                <summary class="flex items-center justify-between p-3 cursor-pointer list-none select-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">ข้อสังเกตเพิ่มเติม: ${summaryText}</span>
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium">
+                        <span class="group-open:hidden">คลิกดูรายละเอียด ▼</span>
+                        <span class="hidden group-open:inline">ซ่อนรายละเอียด ▲</span>
+                    </div>
+                </summary>
+                <div class="p-4 pt-0 border-t border-slate-200 dark:border-slate-700/50 mt-1">
+                    <div class="flex flex-col gap-4 mt-4">`;
+                    
             if (substitutes.length > 0) {
                 html += `<div class="flex items-start gap-2">
-                    <span class="text-xl mt-0.5">🔄</span>
+                    <div class="mt-0.5 p-1.5 flex-shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg></div>
                     <div class="flex-1 w-full overflow-hidden">
-                        <div class="font-bold text-indigo-800 dark:text-indigo-400 mb-2">พบการแจ้งทำแทน/ส่งแทน (${substitutes.length} รายการ)</div>
+                        <div class="font-bold text-indigo-800 dark:text-indigo-400 mb-2">รายการทำแทน/ส่งแทน</div>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full">`;
                 substitutes.forEach(item => {
                     let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
@@ -2444,10 +2464,10 @@ function updateWorkModeUI() {
                 html += `</div></div></div>`;
             }
             if (missings.length > 0) {
-                html += `<div class="flex items-start gap-2 ${substitutes.length > 0 ? "pt-4 border-t border-indigo-200/60 dark:border-indigo-500/20" : ""}">
-                    <span class="text-xl mt-0.5">🔎</span>
+                html += `<div class="flex items-start gap-2 ${substitutes.length > 0 ? "pt-4 border-t border-slate-200 dark:border-slate-700/50" : ""}">
+                    <div class="mt-0.5 p-1.5 flex-shrink-0 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg></div>
                     <div class="flex-1 w-full overflow-hidden">
-                        <div class="font-bold text-rose-800 dark:text-rose-400 mb-2">พบการแจ้งรายชื่อหาย/ตกหล่น (${missings.length} รายการ)</div>
+                        <div class="font-bold text-rose-800 dark:text-rose-400 mb-2">รายการรายชื่อหาย/ตกหล่น</div>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full">`;
                 missings.forEach(item => {
                     let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
@@ -2461,7 +2481,7 @@ function updateWorkModeUI() {
                 });
                 html += `</div></div></div>`;
             }
-            html += `</div>`;
+            html += `</div></div></details>`;
             statsContainer.innerHTML = html;
         }
 
@@ -2484,11 +2504,14 @@ function updateWorkModeUI() {
 
             let allSeqs = new Set();
             let completedSeqs = new Set();
+            let seqCounts = {};
+            
             data.forEach(item => {
                 if (isSequenceModeHidden(item) || item.isDuplicateInstance) return;
                 let num = getItemSeq(item);
                 if (num !== null) {
                     allSeqs.add(num);
+                    seqCounts[num] = (seqCounts[num] || 0) + 1;
                     const isIncomplete = (!item["รหัสนักศึกษา"]?.trim() || !item["ชื่อ"]?.trim() || !item["นามสกุล"]?.trim() || item["ประเภทงาน"] === "ไม่ได้ระบุ" || !item["ประเภทงาน"]?.trim());
                     if (!isIncomplete) {
                         completedSeqs.add(num);
@@ -2508,29 +2531,61 @@ function updateWorkModeUI() {
             for (let i = 1; i <= maxNum; i++) {
                 if (!completedSeqs.has(i)) missing.push(i);
             }
+            
+            let duplicates = [];
+            for (const [seq, count] of Object.entries(seqCounts)) {
+                if (count > 1) duplicates.push(parseInt(seq));
+            }
+            duplicates.sort((a, b) => a - b);
 
-            if (missing.length > 0) {
-                let shortList = missing.length > 12 ? missing.slice(0, 12) : missing;
-                let clickableLinks = shortList.map(num => `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="underline decoration-amber-400 hover:text-amber-900 dark:hover:text-amber-100 transition-colors cursor-pointer px-0.5" title="คลิกเพื่อเลื่อนไปยังลำดับที่ ${num}">${num}</a>`).join(', ');
-                if (missing.length > 12) clickableLinks += '...';
+            if (missing.length > 0 || duplicates.length > 0) {
+                let htmlParts = [];
+                let alertMessages = [];
+                
+                if (missing.length > 0) {
+                    let shortList = missing.length > 12 ? missing.slice(0, 12) : missing;
+                    let clickableLinks = shortList.map(num => `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="underline decoration-amber-400 hover:text-amber-900 dark:hover:text-amber-100 transition-colors cursor-pointer px-0.5" title="คลิกเพื่อเลื่อนไปยังลำดับที่ ${num}">${num}</a>`).join(', ');
+                    if (missing.length > 12) clickableLinks += '...';
+                    
+                    htmlParts.push(`
+                        <div class="mb-1">
+                            <div class="font-bold text-amber-800 dark:text-amber-400">สรุปลำดับ 1 ถึง ${maxNum} — ขาด ${missing.length} ลำดับ</div>
+                            <div class="text-xs text-amber-700 dark:text-amber-400/90 mt-0.5">เลขที่ตกหล่น: ${clickableLinks}</div>
+                        </div>
+                    `);
+                    alertMessages.push(`ลำดับที่ตกหล่นทั้งหมด (${missing.length} ลำดับ):\\n${missing.join(', ')}`);
+                }
+                
+                if (duplicates.length > 0) {
+                    let dupShort = duplicates.length > 12 ? duplicates.slice(0, 12) : duplicates;
+                    let dupLinks = dupShort.map(num => `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="underline decoration-rose-400 hover:text-rose-900 dark:hover:text-rose-100 transition-colors cursor-pointer px-0.5" title="คลิกเพื่อเลื่อนไปยังลำดับที่ ${num}">${num}</a>`).join(', ');
+                    if (duplicates.length > 12) dupLinks += '...';
+                    
+                    htmlParts.push(`
+                        <div class="${missing.length > 0 ? 'mt-2 pt-2 border-t border-amber-200/50 dark:border-amber-700/50' : ''}">
+                            <div class="font-bold text-rose-700 dark:text-rose-400">พบการแจ้งลำดับซ้ำกัน (${duplicates.length} ลำดับ)</div>
+                            <div class="text-xs text-rose-600 dark:text-rose-400/90 mt-0.5">เลขที่ซ้ำ: ${dupLinks}</div>
+                        </div>
+                    `);
+                    alertMessages.push(`ลำดับที่ซ้ำกันทั้งหมด (${duplicates.length} ลำดับ):\\n${duplicates.join(', ')}`);
+                }
                 
                 statsContainer.innerHTML = `
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 w-full">
                         <div class="flex items-start gap-2">
-                            <span class="text-xl">⚠️</span>
-                            <div>
-                                <div class="font-bold text-amber-800 dark:text-amber-400">สรุปลำดับ 1 ถึง ${maxNum} — ขาด ${missing.length} ลำดับ</div>
-                                <div class="text-xs text-amber-700 dark:text-amber-400/90 mt-0.5">เลขที่ตกหล่น: ${clickableLinks}</div>
+                            <div class="p-1 flex-shrink-0 text-amber-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>
+                            <div class="flex-1 w-full flex flex-col justify-center">
+                                ${htmlParts.join('')}
                             </div>
                         </div>
-                        <button onclick="alert('ลำดับที่ตกหล่นทั้งหมด (${missing.length} ลำดับ):\\n${missing.join(', ')}')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition text-xs font-bold text-amber-700 dark:text-amber-400 shadow-sm">ดูทั้งหมด</button>
+                        <button onclick="alert('${alertMessages.join('\\n\\n')}')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition text-xs font-bold text-amber-700 dark:text-amber-400 shadow-sm self-start sm:self-center">ดูทั้งหมด</button>
                     </div>
                 `;
             } else {
                 statsContainer.innerHTML = `
                     <div class="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-400">
                         <span>✅</span>
-                        <span>ลำดับที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น</span>
+                        <span>ลำดับที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น หรือซ้ำกัน</span>
                     </div>
                 `;
             }
@@ -4432,9 +4487,10 @@ function updateWorkModeUI() {
                     if (t.startsWith('เทอม') || t.startsWith('คะแนน') || t.startsWith('มาแทน') || t.startsWith('ทั้ง') || 
                         t.startsWith('สำนัก') || t.startsWith('คณะ') || t.startsWith('สาขา') || t.startsWith('หลักสูตร') || t.startsWith('วิทยาลัย') ||
                         t.startsWith('ไทยพุทธ') || t.startsWith('พุทธ') || t.startsWith('อิสลาม') || t.startsWith('มุสลิม') || t.startsWith('คริสต์') ||
-                        t.match(/[0-9]{7,9}/)) break;
+                        t.match(/[0-9]{7,9}/) || t.length > 25 || t.match(/(รายชื่อ|ลำดับ|วันที่|แทน|ขอบคุณ)/)) break;
                     if (!t || noiseWords.has(t) || t.match(/^[0-9]+$/) || t.length <= 1) continue;
                     nameTokens.push(t);
+                    if (nameTokens.length >= 3) break; // ไม่ควรมีชื่อ-นามสกุลเกิน 3 ท่อน
                 }
 
                 if (nameTokens.length > maxTokens) {
