@@ -722,7 +722,7 @@
                     <div id="sequenceStatsBar" class="hidden w-full p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/10/50 rounded-xl text-sm"></div>
                     <div id="substitutionStatsBar" class="hidden w-full p-2 bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 rounded-lg text-xs text-slate-400 dark:text-slate-500 italic"></div>
                 </div>
-                <div class="flex flex-col xl:flex-row gap-5 xl:gap-8 xl:items-center justify-between">
+                <div class="flex flex-col xl:flex-row xl:flex-wrap gap-5 xl:gap-8 xl:items-center justify-between">
 
                     <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start sm:items-center w-full xl:w-auto">
                         <!-- Mode Segmented Control -->
@@ -736,7 +736,7 @@
                             <span class="text-sm font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">เลือกไฟล์:</span>
                             <div class="flex items-center gap-1.5 w-full sm:flex-1">
                                 <div class="relative w-full">
-                                    <select id="fileSelectDropdown" onchange="switchFile()" class="w-full min-w-[240px] bg-slate-50 dark:bg-black/20 border-0 ring-1 ring-slate-200 dark:ring-slate-700 rounded-xl px-4 py-2.5 text-slate-700 dark:text-slate-200 text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer appearance-none pr-10"></select>
+                                    <select id="fileSelectDropdown" onchange="switchFile()" class="w-full min-w-[150px] max-w-[200px] md:max-w-[300px] xl:max-w-[350px] bg-slate-50 dark:bg-black/20 border-0 ring-1 ring-slate-200 dark:ring-slate-700 rounded-xl px-4 py-2.5 text-slate-700 dark:text-slate-200 text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer appearance-none pr-10"></select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
@@ -1895,14 +1895,9 @@
                 if (snapshot.exists()) {
                     allFilesData = decodeAllFilesData(snapshot.val()); 
                     
-                    // 🌟 ซ่อมข้อมูลเก่าจาก Firebase
-                    Object.values(allFilesData).forEach(records => {
-                        records.forEach(r => {
-                            if (r["สถานะ"] === "เม้นย่อย") {
-                                r.isFaded = (workMode === 'sequence');
-                            }
-                        });
-                    });
+                    // 🌟 ซ่อมข้อมูลเก่าจาก Firebase — แต่ต้องเคารพสถานะ isFaded ที่ Firebase ส่งมา
+                    // ไม่ overwrite isFaded ที่ผู้ใช้ตั้งเองอีกต่อไป
+                    // (isFaded ถูกบันทึกลง Firebase โดย toggleRowFade อยู่แล้ว)
 
                     if (isEditing) pendingFirebaseUpdate = true; else renderTable();
                 }
@@ -2322,20 +2317,7 @@
             threadPrevSearch = "";
             document.getElementById('searchInput').value = "";
             
-            // 🌟 ปรับค่าเริ่มต้นของเม้นย่อยตามโหมด และเซฟลง Firebase เพื่อให้คงค่าเริ่มต้นนั้นไว้
-            let changed = false;
-            Object.values(allFilesData).forEach(records => {
-                records.forEach(r => {
-                    if (r["สถานะ"] === "เม้นย่อย" && r.isFaded !== (mode === 'sequence')) {
-                        r.isFaded = (mode === 'sequence');
-                        changed = true;
-                    }
-                });
-            });
-            if (changed && currentRoomId) {
-                syncAllData();
-                triggerRoomUpdate();
-            }
+
 
             applyWorkModeColumnDefaults();
             updateWorkModeUI();
@@ -2416,11 +2398,86 @@ function updateWorkModeUI() {
         if (badgeReview) badgeReview.className = inactiveBadge;
     }
 }
+        function updateSubstitutionStats(data) {
+            let statsContainer = document.getElementById('substitutionStatsBar');
+            if (!statsContainer) return;
+            const searchQuery = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim() : "";
+            const isFilteringActive = searchQuery !== "" || (typeof activeCategoryFilters !== 'undefined' && activeCategoryFilters.length > 0);
+            if (isFilteringActive || data.length === 0) {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+            let substitutes = [];
+            let missings = [];
+            data.forEach(item => {
+                if (item.isDuplicateInstance || item._ignoreSameThreadSub) return;
+                let text = (item["คอมเมนต์เต็มต้นฉบับ"] || "").replace(/\s+/g, ' ');
+                if (!text) return;
+                let isSub = /(มาแทน|แทน\s*\d{8}|แทน\s*[ก-ฮa-zA-Z])/i.test(text) && !text.includes('ตัวแทน');
+                let isMissing = /(รายชื่อหาย|ชื่อหาย|ไม่มีชื่อ|ตกหล่น|รายชื่อตกหล่น|ไม่ได้ลงชื่อ|ชื่อหนูหาย|ชื่อผมหาย)/i.test(text);
+                if (isSub) substitutes.push(item);
+                if (isMissing && !isSub) missings.push(item);
+            });
+            if (substitutes.length === 0 && missings.length === 0) {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+            statsContainer.classList.remove('hidden');
+            statsContainer.className = "w-full p-4 bg-gradient-to-br from-indigo-50/80 to-blue-50/80 dark:from-indigo-900/20 dark:to-blue-900/20 border border-indigo-200/60 dark:border-indigo-500/30 rounded-xl text-sm mb-4 mt-2 shadow-sm transition-all";
+            let html = `<div class="flex flex-col gap-4">`;
+            if (substitutes.length > 0) {
+                html += `<div class="flex items-start gap-2">
+                    <span class="text-xl mt-0.5">🔄</span>
+                    <div class="flex-1 w-full overflow-hidden">
+                        <div class="font-bold text-indigo-800 dark:text-indigo-400 mb-2">พบการแจ้งทำแทน/ส่งแทน (${substitutes.length} รายการ)</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full">`;
+                substitutes.forEach(item => {
+                    let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
+                    let name = [item["ชื่อ"], item["นามสกุล"]].filter(Boolean).join(' ') || "ไม่ทราบชื่อ";
+                    let text = item["คอมเมนต์เต็มต้นฉบับ"] || "";
+                    if (text.length > 150) text = text.substring(0, 150) + "...";
+                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="block w-full text-left bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-500/30 px-3 py-2.5 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-indigo-400 transition-all cursor-pointer">
+                        <div class="font-bold text-slate-800 dark:text-slate-200 text-[13px]">${id} ${name}</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 italic text-wrap break-words line-clamp-2 leading-relaxed">💬 "${text}"</div>
+                    </a>`;
+                });
+                html += `</div></div></div>`;
+            }
+            if (missings.length > 0) {
+                html += `<div class="flex items-start gap-2 ${substitutes.length > 0 ? "pt-4 border-t border-indigo-200/60 dark:border-indigo-500/20" : ""}">
+                    <span class="text-xl mt-0.5">🔎</span>
+                    <div class="flex-1 w-full overflow-hidden">
+                        <div class="font-bold text-rose-800 dark:text-rose-400 mb-2">พบการแจ้งรายชื่อหาย/ตกหล่น (${missings.length} รายการ)</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full">`;
+                missings.forEach(item => {
+                    let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
+                    let name = [item["ชื่อ"], item["นามสกุล"]].filter(Boolean).join(' ') || "ไม่ทราบชื่อ";
+                    let text = item["คอมเมนต์เต็มต้นฉบับ"] || "";
+                    if (text.length > 150) text = text.substring(0, 150) + "...";
+                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="block w-full text-left bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 px-3 py-2.5 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-rose-400 transition-all cursor-pointer">
+                        <div class="font-bold text-slate-800 dark:text-slate-200 text-[13px]">${id} ${name}</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 italic text-wrap break-words line-clamp-2 leading-relaxed">💬 "${text}"</div>
+                    </a>`;
+                });
+                html += `</div></div></div>`;
+            }
+            html += `</div>`;
+            statsContainer.innerHTML = html;
+        }
+
         function updateSequenceStats(data) {
             let statsContainer = document.getElementById('sequenceStatsBar');
             if (!statsContainer) return;
 
             if (workMode !== 'sequence') {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+
+            // 🌟 ซ่อนแจ้งเตือนถ้ากำลังค้นหา หรือใช้ตัวกรองอยู่
+            const searchQuery = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim() : "";
+            const isFilteringActive = searchQuery !== "" || (typeof activeCategoryFilters !== 'undefined' && activeCategoryFilters.length > 0);
+            if (isFilteringActive) {
                 statsContainer.classList.add('hidden');
                 return;
             }
@@ -2822,25 +2879,25 @@ function updateWorkModeUI() {
         function evaluateDuplicates(fileName) {
             if (!allFilesData[fileName]) return;
             let idGroups = {};
+            
             allFilesData[fileName].forEach(item => {
                 let id = item["รหัสนักศึกษา"];
-                if (id && item["สถานะ"] === "เม้นหลัก") {
+                if (id) {
                     if (!idGroups[id]) idGroups[id] = [];
                     idGroups[id].push(item);
                 } else {
                     item.isDuplicateInstance = false;
                 }
+                item._ignoreSameThreadSub = false; // รีเซ็ตก่อน
             });
 
             Object.values(idGroups).forEach(group => {
                 if (group.length > 1) {
                     group.sort((a, b) => {
-                        // 🌟 กฎที่ 1 (ใหม่): ใครมีเลขลำดับ ถือเป็นตัวจริงชนะทันที!
                         let aSeq = (a["ลำดับที่"] && a["ลำดับที่"].trim() !== "") ? 1 : 0;
                         let bSeq = (b["ลำดับที่"] && b["ลำดับที่"].trim() !== "") ? 1 : 0;
                         if (aSeq !== bSeq) return bSeq - aSeq;
 
-                        // กฎที่ 2: ถ้ามีทั้งคู่ หรือไม่มีทั้งคู่ ให้เม้นหลักชนะ
                         let aMain = a["สถานะ"] === "เม้นหลัก" ? 1 : 0;
                         let bMain = b["สถานะ"] === "เม้นหลัก" ? 1 : 0;
                         if (aMain !== bMain) return bMain - aMain; 
@@ -2852,17 +2909,25 @@ function updateWorkModeUI() {
                         return a.recordIndex - b.recordIndex; 
                     });
 
-                    group.forEach((item, idx) => {
-                        if (idx === 0) {
+                    let winner = group[0];
+                    winner.isDuplicateInstance = false;
+
+                    for (let i = 1; i < group.length; i++) {
+                        let item = group[i];
+                        
+                        // 🌟 ลบเฉพาะคอมเมนต์ที่ซ้ำในสายเดียวกัน (ซ่อนจากตารางไปเลย)
+                        // ไม่ต้องสนใจว่าใครเป็นเม้นหลัก/ย่อย ขอแค่อยู่ในสายเดียวกันให้ซ่อนตัวที่แพ้
+                        if (winner["สายสนทนา"] && item["สายสนทนา"] === winner["สายสนทนา"]) {
+                            item._ignoreSameThreadSub = true;
                             item.isDuplicateInstance = false;
                         } else {
+                            // อันที่ซ้ำสายอื่น ให้ดึงมาแสดงเป็นรายการซ้ำ
                             if (!item.isDuplicateInstance) { 
-                                // คนที่แพ้ จะกลายเป็นเม้นซ้ำ (⚠️) และโดนซ่อนตาทันที
                                 item.isDuplicateInstance = true;
                                 item.isFaded = true; 
                             }
                         }
-                    });
+                    }
                 } else {
                     group[0].isDuplicateInstance = false;
                 }
@@ -2995,6 +3060,9 @@ function updateWorkModeUI() {
             } else {
                 Object.values(allFilesData).forEach(fileRecords => { baseData = baseData.concat(fileRecords); });
             }
+
+            // 🌟 ซ่อนเม้นย่อยที่ซ้ำกับเม้นหลักในสายเดียวกันออกไปจากตาราง
+            baseData = baseData.filter(item => !item._ignoreSameThreadSub);
 
             currentlyDisplayedData = baseData; 
             updateSummary(baseData); 
@@ -3187,6 +3255,7 @@ function updateWorkModeUI() {
             }
 
             updateSequenceStats(finalRenderData);
+            updateSubstitutionStats(currentlyDisplayedData);
 
             if (finalRenderData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">ไม่พบข้อมูลที่ตรงกับการค้นหา หรือ ตัวกรอง</td></tr>`;
@@ -3195,8 +3264,11 @@ function updateWorkModeUI() {
                 let lastRenderedSeq = 0;
 
                 finalRenderData.forEach((item, index) => {
+                    // 🌟 ถ้ากำลังค้นหา หรือกดตัวกรองอยู่ ไม่ต้องแสดงแถวแจ้งเตือนตกหล่น เพราะเดี๋ยวมันโผล่มารก
+                    const isFilteringActive = searchQuery !== "" || activeCategoryFilters.length > 0;
+
                     // 🌟 สร้างแถวแจ้งเตือนลำดับตกหล่น (เฉพาะบนหน้าจอ ไม่ลงฐานข้อมูล)
-                    if (workMode === 'sequence' && !isSequenceModeHidden(item) && !item.isDuplicateInstance) {
+                    if (workMode === 'sequence' && !isSequenceModeHidden(item) && !item.isDuplicateInstance && !isFilteringActive) {
                         let currentSeq = getItemSeq(item);
                         if (currentSeq !== null && currentSeq > lastRenderedSeq + 1) {
                             for (let missingSeq = lastRenderedSeq + 1; missingSeq < currentSeq; missingSeq++) {
@@ -3431,6 +3503,9 @@ function updateWorkModeUI() {
 
         function downloadExcel() {
             function isItemMatchFilters(item) {
+                // ข้ามเม้นย่อยในสายสนทนาเดิมที่โดนซ่อนไปแล้ว
+                if (item._ignoreSameThreadSub) return false;
+
                 if (activeCategoryFilters.length === 0) return true;
                 if (activeCategoryFilters.includes('duplicate') && item.isDuplicateInstance) return true;
                 if (activeCategoryFilters.includes('bonus') && getBonusScore(item) > 0) return true;
@@ -3442,6 +3517,55 @@ function updateWorkModeUI() {
                 if (activeCategoryFilters.includes(item["ประเภทงาน"])) return true;
                 return false;
             }
+
+            // 🌟 ให้ Excel เคารพ search query ที่กรอกในช่องค้นหาด้วย — ส่งออกเฉพาะข้อมูลที่แสดงบนจอ
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchTerms = searchQuery.split(/\s+/).filter(t => t.length > 0);
+
+            function isItemMatchSearch(item) {
+                if (searchTerms.length === 0) return true;
+
+                // ใช้ keyword patterns เดียวกับ renderTable
+                const keywordPatterns = [
+                    { regex: /(?:ท[ีิึ][มน](?:ที่)?|กลุ[่]?[มน](?:ที่)?|team|group)\s*(\d+)/gi, field: 'team' },
+                    { regex: /(?:ล[ำา]ดับ(?:ที่)?|seq(?:uence)?)\s*(\d+)/gi, field: 'seq' },
+                    { regex: /(?:คะแนน|แต้ม|score)\s*(\d+)/gi, field: 'score' },
+                    { regex: /(?:ไล[ก-ฮ][์]?|like[s]?)\s*(\d+)/gi, field: 'likes' },
+                    { regex: /(?:สาย(?:ที่)?|thread)\s*(\d+)/gi, field: 'thread' },
+                ];
+                let fieldFilters = [];
+                let leftover = searchQuery;
+                for (const kp of keywordPatterns) {
+                    kp.regex.lastIndex = 0;
+                    let match;
+                    while ((match = kp.regex.exec(searchQuery)) !== null) {
+                        fieldFilters.push({ field: kp.field, value: match[1] });
+                        leftover = leftover.replace(match[0], ' ');
+                    }
+                }
+                const freeTerms = leftover.trim().split(/\s+/).filter(t => t.length > 0);
+
+                for (const ff of fieldFilters) {
+                    let fieldVal = '';
+                    if (ff.field === 'team') fieldVal = item["ทีม"] !== undefined ? String(item["ทีม"]).trim() : "";
+                    else if (ff.field === 'seq') fieldVal = item["ลำดับที่"] !== undefined ? String(item["ลำดับที่"]).trim() : "";
+                    else if (ff.field === 'score') fieldVal = item["คะแนน"] !== undefined ? String(item["คะแนน"]).trim() : "";
+                    else if (ff.field === 'likes') fieldVal = item["ไลก์"] !== undefined ? String(item["ไลก์"]).trim() : "";
+                    else if (ff.field === 'thread') fieldVal = (item["สายสนทนา"] || "").trim();
+                    if (fieldVal !== ff.value) return false;
+                }
+                if (freeTerms.length === 0) return true;
+                const fullText = [
+                    item["รหัสนักศึกษา"] || "", item["ชื่อ"] || "", item["นามสกุล"] || "",
+                    (item["ชื่อ"] || "") + " " + (item["นามสกุล"] || ""),
+                    item["ประเภทงาน"] || "", item["สถานะ"] || "", item["สายสนทนา"] || "",
+                    item["คอมเมนต์เต็มต้นฉบับ"] || "",
+                    item["ทีม"] !== undefined ? String(item["ทีม"]) : "",
+                    item.fileName || ""
+                ].join(" ").toLowerCase();
+                return freeTerms.every(term => fullText.includes(term));
+            }
+
             const cols = getSelectedColumns(); const workbook = XLSX.utils.book_new();
 
             function prepareRow(item, includeFileName = false) {
@@ -3485,6 +3609,7 @@ function updateWorkModeUI() {
                     const activeRecords = allFilesData[fileName].filter(item => {
                         // 🌟 ถ้าซ่อนอยู่ และ ไม่ได้กดกรองซ่อน ให้ข้าม
                         if (item.isFaded && !activeCategoryFilters.includes('faded')) return false;
+                        if (!isItemMatchSearch(item)) return false;
                         return isItemMatchFilters(item);
                     });
                     const cleanRecords = activeRecords.map(item => prepareRow(item, false));
@@ -3505,6 +3630,7 @@ function updateWorkModeUI() {
                         // 🌟 ดักให้ตัวซ่อนผ่านเข้ามาได้ ถ้าผู้ใช้จงใจกรอง
                         if (item.isFaded && !activeCategoryFilters.includes('faded')) return;
                         if (item.isDuplicateInstance && !activeCategoryFilters.includes('duplicate')) return;
+                        if (!isItemMatchSearch(item)) return;
                         if (!isItemMatchFilters(item)) return;
                         
                         let id = item["รหัสนักศึกษา"];
@@ -3562,20 +3688,51 @@ function updateWorkModeUI() {
             }, false);
         });
 
-        uploadArea.addEventListener('drop', (e) => {
+        // 🌟 รองรับการลากไฟล์มาวางที่ใดก็ได้บนหน้าจอ (ลากจากแถบดาวน์โหลด หรือ โฟลเดอร์ ก็ได้)
+        function handleGlobalDrop(e) {
             const dt = e.dataTransfer;
-            const files = dt.files;
+            // บางครั้งการลากจากแถบดาวน์โหลดในเบราว์เซอร์ dt.items จะมีข้อมูลมากกว่า dt.files
+            let files = dt.files;
+            if (!files || files.length === 0) {
+                 if (dt.items && dt.items.length > 0) {
+                     let extractedFiles = [];
+                     for (let i = 0; i < dt.items.length; i++) {
+                         if (dt.items[i].kind === 'file') {
+                             extractedFiles.push(dt.items[i].getAsFile());
+                         }
+                     }
+                     files = extractedFiles;
+                 }
+            }
+            
             if (files && files.length > 0) {
                 const validFiles = Array.from(files).filter(file => {
-                    const name = file.name.toLowerCase();
+                    const name = (file.name || "").toLowerCase();
                     return name.endsWith('.csv') || name.endsWith('.xlsx') || name.endsWith('.xls');
                 });
                 if (validFiles.length > 0) {
-                    handleFiles({ target: { files: validFiles } });
+                    const printModal = document.getElementById('signSheetModal');
+                    if (printModal && !printModal.classList.contains('hidden')) {
+                        // ถ้าเปิด Modal ใบรายชื่ออยู่ ให้ส่งไปที่ใบรายชื่อ
+                        const dataTransfer = new DataTransfer();
+                        validFiles.forEach(file => dataTransfer.items.add(file));
+                        document.getElementById('printFileInput').files = dataTransfer.files;
+                        handlePrintFileUpload({ target: document.getElementById('printFileInput') });
+                    } else {
+                        // ถ้าอยู่หน้าแรก ให้ส่งไปที่ตารางหลัก
+                        handleFiles({ target: { files: validFiles } });
+                    }
                 } else {
                     alert("⚠️ กรุณาอัปโหลดเฉพาะไฟล์นามสกุล .csv หรือ .xlsx หรือ .xls เท่านั้นครับ");
                 }
             }
+        }
+
+        uploadArea.addEventListener('drop', handleGlobalDrop, false);
+        document.body.addEventListener('drop', (e) => {
+            // ป้องกันการทำงานซ้ำซ้อนถ้า drop ลงบน uploadArea ตรงๆ
+            if (e.target.closest('#uploadArea')) return; 
+            handleGlobalDrop(e);
         }, false);
 
         function openFbPopup(fileName, threadNo, highlightId = null, isDuplicate = false) {
@@ -3786,17 +3943,7 @@ function updateWorkModeUI() {
                     if (Object.keys(parsed).length > 0) {
                         allFilesData = parsed;
                         
-                        // 🌟 ซ่อมข้อมูลเก่า: ให้เม้นย่อยเปิด/ปิดตาตามโหมดปัจจุบันเสมอตอนโหลดหน้าเว็บ
-                        let needsFix = false;
-                        Object.values(allFilesData).forEach(records => {
-                            records.forEach(r => {
-                                if (r["สถานะ"] === "เม้นย่อย" && r.isFaded !== (workMode === 'sequence')) {
-                                    r.isFaded = (workMode === 'sequence');
-                                    needsFix = true;
-                                }
-                            });
-                        });
-                        if (needsFix) saveState();
+                        // 🌟 ข้อมูล isFaded ถูกบันทึกไว้ใน sessionStorage/Firebase แล้ว ไม่ต้อง overwrite
 
                         const savedMode = sessionStorage.getItem('currentMode');
                         if (savedMode) currentMode = savedMode;
@@ -4059,6 +4206,19 @@ function updateWorkModeUI() {
             if (tableContainer) { tableContainer.scrollTop = 0; }
         }
 
+        function scrollToRecord(fileName, recordIndex) {
+            let targetRow = document.querySelector(`tr[data-filename="${fileName}"][data-recordindex="${recordIndex}"]`);
+            if (targetRow) {
+                targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+                targetRow.classList.add("ring-4", "ring-indigo-400", "bg-indigo-50", "dark:bg-indigo-900/40", "transition-all", "duration-500");
+                setTimeout(() => {
+                    targetRow.classList.remove("ring-4", "ring-indigo-400", "bg-indigo-50", "dark:bg-indigo-900/40");
+                }, 2500);
+            } else {
+                alert("ไม่พบข้อมูลนี้ในตารางปัจจุบัน (อาจถูกซ่อนโดยตัวกรอง หรืออยู่คนละหน้าไฟล์)");
+            }
+        }
+
         function scrollToSequence(seqNum) {
             let targetRow = document.querySelector(`tr[data-seq="${seqNum}"]`);
             
@@ -4130,7 +4290,7 @@ function updateWorkModeUI() {
             let fileNamesStr = `เลือกแล้ว ${files.length} ไฟล์: `;
             let loadedCount = 0;
             let errorFiles = [];
-            allFilesData = {}; activeThread = null; activeCategoryFilters = [];
+            activeThread = null; activeCategoryFilters = []; // 🌟 ไม่ลบ allFilesData ของเก่าแล้ว!
 
             // 🌟 เพิ่มข้อความแจ้งเตือนให้อุ่นใจว่ากำลังอัปโหลด
             document.getElementById('fileNames').innerText = "⏳ กำลังอ่านไฟล์และบันทึกขึ้นคลาวด์ โปรดรอสักครู่...";
@@ -4144,10 +4304,10 @@ function updateWorkModeUI() {
                 }
                 if (loadedCount === files.length) {
                     if (errorFiles.length > 0) {
-                        document.getElementById('fileNames').innerText = fileNamesStr;
+                        document.getElementById('fileNames').innerText = `เพิ่ม/อัปเดตไฟล์ (รวม ${Object.keys(allFilesData).length} ไฟล์) - ผิดพลาด ${errorFiles.length} ไฟล์`;
                         alert("⚠️ ไม่สามารถอ่านไฟล์ได้: " + errorFiles.join(", ") + "\n\nลองวิธีแก้:\n1. เปิดไฟล์ใน Excel แล้ว Save As เป็น CSV UTF-8\n2. หรือลอง Save As เป็น .xlsx แล้วอัปโหลดใหม่");
                     } else {
-                        document.getElementById('fileNames').innerText = fileNamesStr;
+                        document.getElementById('fileNames').innerText = `อัปโหลดสำเร็จ (รวมทั้งหมด ${Object.keys(allFilesData).length} ไฟล์)`;
                     }
                     if (Object.keys(allFilesData).length > 0) {
                         initUIAfterLoad();
@@ -4425,7 +4585,7 @@ function updateWorkModeUI() {
                         teamGroups[teamNum].push(...threads[threadNo].main);
                         
                         threads[threadNo].reply.forEach(r => {
-                            r.isFaded = (workMode === 'sequence'); 
+                            r.isFaded = true; 
                             r["ลำดับที่"] = "";
                         });
                     } else {
@@ -4434,7 +4594,7 @@ function updateWorkModeUI() {
                             r.isFaded = true; 
                         });
                         threads[threadNo].reply.forEach(r => {
-                            r.isFaded = (workMode === 'sequence'); 
+                            r.isFaded = true; 
                             r["ลำดับที่"] = "";
                         });
                     }
@@ -4515,7 +4675,7 @@ function updateWorkModeUI() {
                     }
 
                     threads[threadNo].reply.forEach(r => {
-                        r.isFaded = (workMode === 'sequence'); 
+                        r.isFaded = true; 
                         r["ลำดับที่"] = "";
                     });
                 }
