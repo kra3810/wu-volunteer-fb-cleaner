@@ -400,7 +400,7 @@
                             <h4 class="font-bold text-slate-800 dark:text-white text-sm md:text-base">ส่งออก Excel</h4>
                         </div>
                         <p class="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium relative z-10 pl-11">
-                            เมื่อตรวจเสร็จ กดปุ่มโหลด Excel เพื่อนำไฟล์สรุปคะแนนออกไปใช้งานต่อได้ทันที
+                            เมื่อตรวจเสร็จ กดปุ่มโหลด CSV เพื่อนำไฟล์สรุปคะแนนออกไปใช้งานต่อได้ทันที
                         </p>
                     </div>
                 </div>
@@ -673,7 +673,7 @@
 
                     <button onclick="downloadExcel()" class="flex-1 lg:flex-none justify-center bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 text-sm whitespace-nowrap border border-emerald-400/50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        โหลด Excel
+                        โหลด CSV
                     </button>
                 </div>
             </div>
@@ -683,44 +683,48 @@
                 <div class="flex flex-col gap-3 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                     <span class="text-sm font-bold text-slate-600 dark:text-slate-400">โหมดการทำงาน:</span>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full p-1">
-                        <!-- Review Mode Button -->
-                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border-2 transition-all duration-500 text-left cursor-pointer border-indigo-500 bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl shadow-[0_8px_30px_rgba(79,70,229,0.2)] dark:shadow-[0_8px_30px_rgba(79,70,229,0.4)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10">
-                            <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+                        <!-- Sequence Mode Button (ย้ายมาอยู่ซ้าย) -->
+                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border-2 transition-all duration-500 text-left cursor-pointer border-teal-500 bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl shadow-[0_8px_30px_rgba(20,184,166,0.2)] dark:shadow-[0_8px_30px_rgba(20,184,166,0.4)] transform scale-[1.02] -translate-y-1 group overflow-hidden z-10">
+                            <div class="absolute -right-4 -top-4 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl group-hover:bg-teal-500/20 transition-all duration-500"></div>
                             
                             <!-- Checkmark Badge for Active State -->
-                            <div id="badgeWorkReview" class="absolute top-3 right-3 text-indigo-500 bg-indigo-100 dark:bg-indigo-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100">
+                            <div id="badgeWorkSequence" class="absolute top-3 right-3 text-teal-500 bg-teal-100 dark:bg-teal-900/60 rounded-full p-1 shadow-sm transition-all duration-500 opacity-100 scale-100">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
                             </div>
 
-                            <div id="iconWorkReview" class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/40 transition-all duration-500 relative z-10 group-hover:scale-110">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div class="relative z-10 pt-0.5 pr-6">
-                                <div id="titleWorkReview" class="font-bold text-indigo-700 dark:text-indigo-400 text-base mb-1 transition-colors">ตรวจสอบข้อมูล (Review)</div>
-                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้เหมาะสำหรับดูข้อมูลทั้งหมด หาคนซ้ำ หรือเช็คคะแนน โดยไม่สนใจเลขลำดับ</div>
-                            </div>
-                        </button>
-                        
-                        <!-- Sequence Mode Button -->
-                        <button id="btnWorkSequence" onclick="switchWorkMode('sequence')" class="relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md transition-all duration-500 text-left cursor-pointer hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-lg transform hover:-translate-y-1 opacity-70 hover:opacity-100 group overflow-hidden z-0">
-                            <div class="absolute -right-4 -top-4 w-32 h-32 bg-teal-500/0 rounded-full blur-2xl group-hover:bg-teal-500/5 transition-all duration-500"></div>
-                            
-                            <!-- Checkmark Badge for Active State (Hidden Initially) -->
-                            <div id="badgeWorkSequence" class="absolute top-3 right-3 text-slate-400 bg-slate-100/50 dark:bg-slate-800/50 rounded-full p-1 shadow-sm transition-all duration-500 opacity-0 scale-50">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                            </div>
-
-                            <div id="iconWorkSequence" class="flex-shrink-0 w-12 h-12 rounded-full bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-slate-600 dark:group-hover:text-slate-300 relative z-10">
+                            <div id="iconWorkSequence" class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/40 transition-all duration-500 relative z-10 group-hover:scale-110">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
                             </div>
                             <div class="relative z-10 pt-0.5 pr-6">
-                                <div id="titleWorkSequence" class="font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300">เรียงเลขลำดับ (Sequence)</div>
+                                <div id="titleWorkSequence" class="font-bold text-teal-700 dark:text-teal-400 text-base mb-1 transition-colors">เรียงเลขลำดับ (Sequence)</div>
                                 <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้ใช้เวลาเขียนใบเซ็นชื่อ จะเรียงตามลำดับเป๊ะๆ และซ่อนคนที่กรอกลำดับผิด</div>
                             </div>
                         </button>
+                        
+                        <!-- Review Mode Button (ย้ายมาอยู่ขวา) -->
+                        <button id="btnWorkReview" onclick="switchWorkMode('review')" class="relative flex items-start gap-3.5 p-5 rounded-[1.5rem] border border-slate-200/50 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md transition-all duration-500 text-left cursor-pointer hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-lg transform hover:-translate-y-1 opacity-70 hover:opacity-100 group overflow-hidden z-0">
+                            <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-500/0 rounded-full blur-2xl group-hover:bg-indigo-500/5 transition-all duration-500"></div>
+                            
+                            <!-- Checkmark Badge for Active State (Hidden Initially) -->
+                            <div id="badgeWorkReview" class="absolute top-3 right-3 text-slate-400 bg-slate-100/50 dark:bg-slate-800/50 rounded-full p-1 shadow-sm transition-all duration-500 opacity-0 scale-50">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            </div>
+
+                            <div id="iconWorkReview" class="flex-shrink-0 w-12 h-12 rounded-full bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-500 dark:text-slate-400 flex items-center justify-center shadow-sm transition-all duration-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-slate-600 dark:group-hover:text-slate-300 relative z-10">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div class="relative z-10 pt-0.5 pr-6">
+                                <div id="titleWorkReview" class="font-bold text-slate-500 dark:text-slate-400 text-base mb-1 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300">ตรวจสอบข้อมูล (Review)</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">โหมดนี้เหมาะสำหรับดูข้อมูลทั้งหมด หาคนซ้ำ หรือเช็คคะแนน โดยไม่สนใจเลขลำดับ</div>
+                            </div>
+                        </button>
                     </div>
-                    <div id="sequenceStatsBar" class="hidden w-full p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/10/50 rounded-xl text-sm"></div>
+                    <div class="flex flex-col xl:flex-row gap-3 w-full">
+                        <div id="sequenceStatsBar" class="hidden w-full xl:flex-1 transition-all"></div>
+                        <div id="teamStatsBar" class="hidden w-full xl:flex-1 transition-all"></div>
+                    </div>
                     <div id="substitutionStatsBar" class="hidden w-full p-2 bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 rounded-lg text-xs text-slate-400 dark:text-slate-500 italic"></div>
+                    
                 </div>
                 <div class="flex flex-col xl:flex-row xl:flex-wrap gap-5 xl:gap-8 xl:items-center justify-between">
 
@@ -753,19 +757,19 @@
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3 mt-3 xl:mt-0">
                         <span class="text-sm font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">แสดงผล:</span>
                         <div class="flex flex-wrap gap-2">
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_checked" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-emerald-600 dark:text-emerald-400">✓ ตรวจแล้ว</div></label>
-                            <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไฟล์ต้นทาง</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_checked" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-emerald-600 dark:text-emerald-400">✓ ตรวจแล้ว</div></label>
+                            <label id="col_file_container" class="checkbox-container cursor-pointer relative group hidden"><input type="checkbox" id="col_file" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไฟล์ต้นทาง</div></label>
                             
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_seq" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">ลำดับที่</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_team" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-fuchsia-600 dark:text-fuchsia-400">ทีม</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">รหัส</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ชื่อ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">นามสกุล</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">สถานะ</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ประเภทงาน</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_score" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">คะแนน</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไลก์</div></label>
-                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable()"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ข้อความต้นฉบับ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_seq" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">ลำดับที่</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_team" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-fuchsia-600 dark:text-fuchsia-400">ทีม</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_id" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">รหัส</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_name" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ชื่อ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_surname" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">นามสกุล</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_status" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">สถานะ</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_type" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ประเภทงาน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_score" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none text-indigo-600 dark:text-indigo-400">คะแนน</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_likes" checked class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ไลก์</div></label>
+                            <label class="checkbox-container cursor-pointer relative group"><input type="checkbox" id="col_original" class="hidden" onchange="renderTable(); saveState();"><div class="px-3 py-1.5 text-xs md:text-sm border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-slate-400 font-semibold group-hover:bg-slate-50 dark:group-hover:bg-slate-800 transition-all shadow-sm select-none">ข้อความต้นฉบับ</div></label>
                         </div>
                     </div>
                 </div>
@@ -804,7 +808,6 @@
                 <div id="threadBackBanner" class="hidden bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-500/10 p-3 flex justify-between items-center transition-all">
                     <div class="flex items-center gap-3">
                         <button type="button" onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
-                        <button onclick="exitThreadView()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-bold transition flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                             กลับสู่ตารางรวม
                         </button>
@@ -1203,16 +1206,133 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span class="text-xl font-bold text-slate-700 dark:text-white mb-1">กำลังเข้าสู่ห้อง...</span>
-            <span class="text-sm text-slate-500 dark:text-slate-400 text-center">โปรดรอสักครู่ ระบบกำลังดึงข้อมูลและประมวลผล</span>
+            <span id="loaderTitle" class="text-xl font-bold text-slate-700 dark:text-white mb-1">กำลังเข้าสู่ห้อง...</span>
+            <span id="loaderSubtitle" class="text-sm text-slate-500 dark:text-slate-400 text-center">โปรดรอสักครู่ ระบบกำลังดึงข้อมูลและประมวลผล</span>
+        </div>
+    </div>
+
+    <!-- 🌟 ระบบ Custom Alert & Confirm สวยงาม -->
+    <div id="customDialogOverlay" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity opacity-0 px-4">
+        <div id="customDialogCard" class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-slate-700 flex flex-col max-w-sm w-full mx-auto transform transition-all duration-300 scale-95">
+            <div id="customDialogIcon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+                <!-- Icon will be injected here -->
+            </div>
+            <h3 id="customDialogTitle" class="text-xl font-black text-slate-800 dark:text-white text-center mb-2"></h3>
+            <p id="customDialogMessage" class="text-sm text-slate-500 dark:text-slate-400 text-center mb-7 whitespace-pre-wrap leading-relaxed"></p>
+            <div id="customDialogActions" class="flex flex-col sm:flex-row gap-3 w-full">
+                <!-- Buttons will be injected here -->
+            </div>
         </div>
     </div>
 
     <!-- Script ควบคุมการทำงาน -->
     <script>
-        function showFullScreenLoader() {
+        // 🌟 Custom Dialog System (Alert & Confirm)
+        function showCustomDialog(options) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('customDialogOverlay');
+                const card = document.getElementById('customDialogCard');
+                const iconDiv = document.getElementById('customDialogIcon');
+                const titleEl = document.getElementById('customDialogTitle');
+                const msgEl = document.getElementById('customDialogMessage');
+                const actionsEl = document.getElementById('customDialogActions');
+
+                // กำหนดประเภทและสี
+                let iconHtml = '';
+                let typeStr = options.type || 'info';
+                
+                // ถอด Emoji ออกจากข้อความเพื่อมาแสดงเป็น Icon ยักษ์ถ้ามี
+                let rawMsg = options.message || '';
+                let rawTitle = options.title || '';
+                
+                if (typeStr === 'success' || rawMsg.startsWith('✅') || rawTitle.startsWith('✅')) {
+                    rawMsg = rawMsg.replace('✅', '').trim();
+                    rawTitle = rawTitle.replace('✅', '').trim() || 'สำเร็จ!';
+                    iconDiv.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner bg-emerald-100 text-emerald-500 dark:bg-emerald-500/20";
+                    iconHtml = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                } else if (typeStr === 'error' || typeStr === 'danger' || rawMsg.startsWith('❌') || rawTitle.startsWith('❌')) {
+                    rawMsg = rawMsg.replace('❌', '').trim();
+                    rawTitle = rawTitle.replace('❌', '').trim() || 'เกิดข้อผิดพลาด';
+                    iconDiv.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner bg-rose-100 text-rose-500 dark:bg-rose-500/20";
+                    iconHtml = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                } else if (typeStr === 'warning' || rawMsg.startsWith('⚠️') || rawTitle.startsWith('⚠️')) {
+                    rawMsg = rawMsg.replace('⚠️', '').trim();
+                    rawTitle = rawTitle.replace('⚠️', '').trim() || 'แจ้งเตือน';
+                    iconDiv.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner bg-amber-100 text-amber-500 dark:bg-amber-500/20";
+                    iconHtml = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+                } else {
+                    rawTitle = rawTitle || 'ข้อมูล';
+                    iconDiv.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner bg-indigo-100 text-indigo-500 dark:bg-indigo-500/20";
+                    iconHtml = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                }
+
+                // จัดการข้อความ
+                if (options.confirmOnly) {
+                    // ถ้ามาจากการ override confirm() ให้แยก title กับ message ชัดเจน
+                    let lines = rawMsg.split('\\n');
+                    if(lines.length > 1) {
+                        rawTitle = lines[0];
+                        rawMsg = lines.slice(1).join('\\n').trim();
+                    }
+                }
+                
+                iconDiv.innerHTML = iconHtml;
+                titleEl.innerText = rawTitle;
+                msgEl.innerText = rawMsg;
+
+                actionsEl.innerHTML = '';
+                
+                const closeDialog = () => {
+                    overlay.classList.add('opacity-0');
+                    card.classList.remove('scale-100');
+                    card.classList.add('scale-95');
+                    setTimeout(() => overlay.classList.add('hidden'), 300);
+                };
+
+                if (options.isConfirm) {
+                    let confirmBtn = document.createElement('button');
+                    confirmBtn.className = "flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-md whitespace-nowrap";
+                    if (typeStr === 'danger' || rawTitle.includes('เด็ดขาด') || rawTitle.includes('คำเตือน') || rawMsg.includes('ลบ')) {
+                        confirmBtn.className = "flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md whitespace-nowrap";
+                    }
+                    confirmBtn.innerText = options.confirmText || 'ตกลง';
+                    confirmBtn.onclick = () => { closeDialog(); resolve(true); };
+
+                    let cancelBtn = document.createElement('button');
+                    cancelBtn.className = "flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition whitespace-nowrap";
+                    cancelBtn.innerText = options.cancelText || 'ยกเลิก';
+                    cancelBtn.onclick = () => { closeDialog(); resolve(false); };
+
+                    actionsEl.appendChild(cancelBtn);
+                    actionsEl.appendChild(confirmBtn);
+                } else {
+                    let okBtn = document.createElement('button');
+                    okBtn.className = "w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-md";
+                    okBtn.innerText = 'ตกลง';
+                    okBtn.onclick = () => { closeDialog(); resolve(true); };
+                    actionsEl.appendChild(okBtn);
+                }
+
+                overlay.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    overlay.classList.remove('opacity-0');
+                    card.classList.remove('scale-95');
+                    card.classList.add('scale-100');
+                });
+            });
+        }
+
+        // Override native alert (จะไม่หยุดโค้ดแบบ alert ธรรมดา แต่ UI จะสวยขึ้นมาก)
+        window.originalAlert = window.alert;
+        window.alert = function(message) {
+            showCustomDialog({ message: message, isConfirm: false });
+        };
+
+        function showFullScreenLoader(title = "กำลังเข้าสู่ห้อง...", subtitle = "โปรดรอสักครู่ ระบบกำลังดึงข้อมูลและประมวลผล") {
             const loader = document.getElementById('fullScreenLoader');
             const card = document.getElementById('fullScreenLoaderCard');
+            document.getElementById('loaderTitle').innerText = title;
+            document.getElementById('loaderSubtitle').innerText = subtitle;
             loader.classList.remove('hidden');
             // Allow display: block to apply before animating opacity
             requestAnimationFrame(() => {
@@ -1235,7 +1355,7 @@
 
         let allFilesData = {}; 
         let currentMode = 'separate';
-        let workMode = 'review'; // 'review' = ตรวจสอบคะแนน/รายชื่อ | 'sequence' = ทำลำดับรายชื่อ
+        let workMode = 'sequence'; // 'review' = ตรวจสอบคะแนน/รายชื่อ | 'sequence' = ทำลำดับรายชื่อ (เริ่มต้นเป็น sequence)
         let activeThread = null; 
         let activeCategoryFilters = []; 
 
@@ -2328,6 +2448,18 @@
         }
 
         function applyWorkModeColumnDefaults() {
+            const savedColState = sessionStorage.getItem(`colState_${workMode}`);
+            if (savedColState) {
+                try {
+                    const colState = JSON.parse(savedColState);
+                    Object.keys(colState).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.checked = colState[id];
+                    });
+                    return;
+                } catch(e) {}
+            }
+
             const colChecked = document.getElementById('col_checked');
             const colSeq = document.getElementById('col_seq');
             const colTeam = document.getElementById('col_team');
@@ -2398,103 +2530,348 @@ function updateWorkModeUI() {
         if (badgeReview) badgeReview.className = inactiveBadge;
     }
 }
+        
+        function updateTeamStats(data) {
+            let statsContainer = document.getElementById('teamStatsBar');
+            if (!statsContainer) return;
+            
+            if (workMode !== 'sequence') {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+
+            const searchQuery = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim() : "";
+            const isFilteringActive = searchQuery !== "" || (typeof activeCategoryFilters !== 'undefined' && activeCategoryFilters.length > 0);
+            if (isFilteringActive) {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+
+            let allSeqs = new Set();
+            let completedSeqs = new Set();
+            data.forEach(item => {
+                if (item.isDuplicateInstance) return;
+                let num = parseInt(item["ทีม"]);
+                if (!isNaN(num)) {
+                    allSeqs.add(num);
+                    const isIncomplete = (!item["รหัสนักศึกษา"]?.trim() || !item["ชื่อ"]?.trim() || !item["นามสกุล"]?.trim() || item["ประเภทงาน"] === "ไม่ได้ระบุ" || !item["ประเภทงาน"]?.trim());
+                    if (!isIncomplete) completedSeqs.add(num);
+                }
+            });
+
+            if (allSeqs.size === 0) {
+                statsContainer.classList.add('hidden');
+                return;
+            }
+            
+            statsContainer.classList.remove('hidden');
+            statsContainer.className = "w-full xl:flex-1 transition-all";
+
+            let missing = [];
+            let maxNum = Math.max(...allSeqs);
+            for (let i = 1; i <= maxNum; i++) {
+                if (!completedSeqs.has(i)) missing.push(i);
+            }
+
+            if (missing.length > 0) {
+                let html = `
+                <details class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-sm [&_summary::-webkit-details-marker]:hidden group transition-all">
+                    <summary class="flex items-center justify-between p-3 cursor-pointer list-none select-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 rounded-full bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            </div>
+                            <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">ตรวจสอบทีม: <span class="font-medium text-slate-500 dark:text-slate-400 ml-1">ขาด ${missing.length} ทีม (จากทั้งหมด ${maxNum} ทีม)</span></span>
+                        </div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium bg-white dark:bg-slate-700/50 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                            <span class="group-open:hidden">คลิกดูรายละเอียด ▼</span>
+                            <span class="hidden group-open:inline">ซ่อนรายละเอียด ▲</span>
+                        </div>
+                    </summary>
+                    <div class="p-4 pt-0 border-t border-slate-200 dark:border-slate-700/50 mt-1">
+                        <div class="flex flex-col gap-3 mt-3">
+                            <div class="font-bold text-sky-800 dark:text-sky-400 text-sm">ทีมที่ยังไม่ครบถ้วน หรือตกหล่น:</div>
+                            <div class="flex flex-wrap gap-2 w-full max-h-48 overflow-y-auto pr-2 custom-scrollbar">`;
+                
+                missing.forEach(num => {
+                    html += `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="inline-flex items-center justify-center min-w-[3rem] px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-500/30 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-sky-400 transition-all cursor-pointer font-bold text-sky-700 dark:text-sky-400 text-sm">${num}</a>`;
+                });
+                
+                html += `       </div>
+                        </div>
+                    </div>
+                </details>`;
+                statsContainer.innerHTML = html;
+            } else {
+                statsContainer.innerHTML = `
+                <div class="w-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl shadow-sm p-3">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="font-bold text-emerald-800 dark:text-emerald-400 text-sm">ทีมที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น</span>
+                    </div>
+                </div>`;
+            }
+        }
+
         function updateSubstitutionStats(data) {
             let statsContainer = document.getElementById('substitutionStatsBar');
             if (!statsContainer) return;
             
-            // We removed the search filter hiding logic so it shows up always
             if (data.length === 0) {
                 statsContainer.classList.add('hidden');
                 return;
             }
             let substitutes = [];
             let missings = [];
+            let withoutImage = [];
+            let multiCategories = [];
+            
+            const categoriesCheck = [
+                { name: "ภาวะผู้นำ", keywords: ["ภาวะผู้นำ", "ผู้นำ"] },
+                { name: "รักชาติ", keywords: ["รักชาติ"] },
+                { name: "ชั่วโมงทุน", keywords: ["ชั่วโมงทุน", "ชม.ทุน"] },
+                { name: "แก้คะแนนรู้วินัย", keywords: ["แก้คะแนนรู้วินัย", "แก้รู้วินัย"] },
+                { name: "แก้ความประพฤติ", keywords: ["แก้ความประพฤติ", "แก้คะแนน", "คะแนนความประพฤติ", "ประพฤติ"] },
+                { name: "วินัย", keywords: ["รู้วินัย", "คะแนนวินัย", "วินัย"] },
+                { name: "กตัญญู", keywords: ["กตัญญู"] },
+                { name: "ใจอาสา", keywords: ["ใจอาสา", "คะแนนความดี", "ความดี", "จิตอาสา"] }
+            ];
+            
             data.forEach(item => {
                 if (item.isDuplicateInstance || item._ignoreSameThreadSub) return;
-                let text = (item["คอมเมนต์เต็มต้นฉบับ"] || "").replace(/\s+/g, ' ');
-                if (!text) return;
+                
+                let text = (item["คอมเมนต์เต็มต้นฉบับ"] || "").replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
                 let isSub = /(มาแทน|แทน\s*\d{8}|แทน\s*[ก-ฮa-zA-Z])/i.test(text) && !text.includes('ตัวแทน');
                 let isMissing = /(รายชื่อหาย|ชื่อหาย|ไม่มีชื่อ|ตกหล่น|รายชื่อตกหล่น|ไม่ได้ลงชื่อ|ชื่อหนูหาย|ชื่อผมหาย)/i.test(text);
+                
+                let textForCats = text;
+                let studentId = item["รหัสนักศึกษา"];
+                if (studentId) {
+                    let startIndex = text.indexOf(studentId);
+                    if (startIndex !== -1) {
+                        let nextIdMatch = text.substring(startIndex + studentId.length).match(/\d{7,9}/);
+                        if (nextIdMatch) {
+                            textForCats = text.substring(startIndex, startIndex + studentId.length + nextIdMatch.index);
+                        } else {
+                            textForCats = text.substring(startIndex);
+                        }
+                    }
+                }
+                
+                let textToCheck = textForCats.replace(/(คะแนน)?(ความดี|จิตอาสา|ใจอาสา)[^\\d]{0,20}?(?=รักชาติ|กตัญญู|ภาวะผู้นำ|วินัย|แก้|ชั่วโมง|รู้วินัย|ความประพฤติ)/g, '');
+                let foundCatMap = new Map();
+                for (let cat of categoriesCheck) {
+                    for (let kw of cat.keywords) {
+                        if (textToCheck.includes(kw)) {
+                            let pts = "";
+                            let safeKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            let m1 = textForCats.match(new RegExp(safeKw + "\\s*(?:คะแนน)?\\s*[:=]?\\s*(\\d{1,3})", "i"));
+                            if (m1 && parseInt(m1[1]) > 0 && parseInt(m1[1]) <= 100) pts = m1[1];
+                            else {
+                                let m2 = textForCats.match(new RegExp("(\\d{1,3})\\s*(?:คะแนน)?\\s*" + safeKw, "i"));
+                                if (m2 && parseInt(m2[1]) > 0 && parseInt(m2[1]) <= 100) pts = m2[1];
+                            }
+                            foundCatMap.set(cat.name, pts ? `${cat.name} ${pts}` : cat.name);
+                            break;
+                        }
+                    }
+                }
+                if (foundCatMap.size > 1) {
+                    item._detectedMultiCats = Array.from(foundCatMap.values()).join(', ');
+                    multiCategories.push(item);
+                }
+                
                 if (isSub) substitutes.push(item);
                 if (isMissing && !isSub) missings.push(item);
+                
+                // เช็คว่าไม่ส่งรูปภาพ (เฉพาะเม้นหลักที่ไม่ถูกซ่อน)
+                if (!item.isReply && item["สถานะ"] !== "เม้นย่อย" && !item.isFaded) {
+                    let threadHasImage = item.hasImage;
+                    if (!threadHasImage && typeof rawThreadsData !== 'undefined' && rawThreadsData[item.fileName]) {
+                        let rawThread = rawThreadsData[item.fileName][item["สายสนทนา"]];
+                        
+                        if (rawThread) {
+                            // ถ้าสายสนทนานี้เป็นบักเก็ต (คนเยอะเกินไป) ให้เช็คเฉพาะคอมเมนต์ของคนๆ นี้
+                            if (rawThread.length > 15) {
+                                let authorName = item.author;
+                                if (!authorName) {
+                                    const matchC = rawThread.find(c => (c.text || "").trim() === (item["คอมเมนต์เต็มต้นฉบับ"] || "").trim());
+                                    if (matchC) authorName = matchC.author;
+                                }
+                                if (authorName && authorName !== "ผู้ใช้งาน") {
+                                    rawThread = rawThread.filter(c => c.author === authorName);
+                                } else {
+                                    rawThread = rawThread.filter(c => (c.text || "").trim() === (item["คอมเมนต์เต็มต้นฉบับ"] || "").trim());
+                                }
+                            }
+                            
+                            const imgKw = ["รายงานตัว", "ลงทะเบียน", "ส่งงาน", "ส่งรูป", "รูป", "ภาพ", "วิดีโอ", "video", "คลิป", "clip", "ก่อน", "ระหว่าง", "รหว่าง", "ขณะ", "กำลัง", "กะลัง", "เสร็จ", "เสร็ด", "เส็ด", "เสด", "เรียบร้อย", "จบ", "แร้ว", "หลังทำ", "หลังปฏิบัติ", "หลังปฎิบัติ", "ปฎิบัติ", "ค่าบ", "ค้าบ", "ค๊าบ", "คัฟ", "งับ", "ครัช", "ค้ะ", "คร่ะ", "คร่า", "จ้า", "จร้า", "เก็บ", "อุปกรณ์", "เล่ม", "http", "scontent", ".jpg", ".png", ".jpeg", "[image]", "[รูปภาพ]"];
+                            
+                            const authors = [...new Set(rawThread.map(c => c.author).filter(Boolean))];
+                            
+                            threadHasImage = rawThread.some(c => {
+                                if (c.hasImage === true) return true;
+                                let txt = (c.text || "").trim();
+                                if (txt === "") return true;
+                                
+                                // ถ้านี่คือคอมเมนต์ย่อย (isReply) และมีการพิมพ์รหัสนักศึกษาลงไป ถือว่าเป็นการแนบรูปของคนๆ นั้นชัวร์ๆ
+                                if (c.isReply && txt.match(/\d{7,9}/)) return true;
+                                
+                                // ดักจับกรณีพิมพ์แค่ "แท็กชื่อคนในสายสนทนา" แล้วแนบรูป
+                                let textWithoutTags = txt;
+                                authors.forEach(author => {
+                                     const safeAuthor = author.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                     const regex = new RegExp(`(${safeAuthor})`, 'gi');
+                                     textWithoutTags = textWithoutTags.replace(regex, '');
+                                });
+                                textWithoutTags = textWithoutTags.replace(/[@\s\u200B-\u200D\uFEFF]/g, '').trim();
+                                if (textWithoutTags === "") return true;
+                                
+                                let cleanTxt = txt.replace(/@[^\s]+/g, '').replace(/\[[^\]]+\]/g, '').replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+                                if (cleanTxt === "") return true;
+                                
+                                if (imgKw.some(kw => cleanTxt.includes(kw))) return true;
+                                return false;
+                            });
+                        }
+                    }
+                    if (!threadHasImage) {
+                        withoutImage.push(item);
+                    }
+                }
             });
-            if (substitutes.length === 0 && missings.length === 0) {
+            
+            if (substitutes.length === 0 && missings.length === 0 && withoutImage.length === 0 && multiCategories.length === 0) {
                 statsContainer.classList.add('hidden');
                 return;
             }
+            
             statsContainer.classList.remove('hidden');
             statsContainer.className = "w-full mb-4 mt-2 transition-all";
             
-            let summaryText = "";
-            if (substitutes.length > 0 && missings.length > 0) summaryText = `พบการทำแทน (${substitutes.length}) และ ตกหล่น (${missings.length})`;
-            else if (substitutes.length > 0) summaryText = `พบการแจ้งทำแทน/ส่งแทน (${substitutes.length})`;
-            else summaryText = `พบการแจ้งรายชื่อหาย/ตกหล่น (${missings.length})`;
+            let summaryParts = [];
+            if (substitutes.length > 0) summaryParts.push(`ทำแทน/ส่งแทน ${substitutes.length} รายการ`);
+            if (missings.length > 0) summaryParts.push(`แจ้งรายชื่อตกหล่น ${missings.length} รายการ`);
+            if (multiCategories.length > 0) summaryParts.push(`ขอคะแนนหลายด้าน ${multiCategories.length} รายการ`);
+            if (withoutImage.length > 0) summaryParts.push(`คาดว่ายังไม่ส่งรูปภาพแนบมา (${withoutImage.length} คน)`);
+            let summaryText = summaryParts.join(' • ');
 
             let html = `
             <details class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-sm [&_summary::-webkit-details-marker]:hidden group transition-all">
                 <summary class="flex items-center justify-between p-3 cursor-pointer list-none select-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">ข้อสังเกตเพิ่มเติม: ${summaryText}</span>
+                        <div class="p-1.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        </div>
+                        <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">ข้อสังเกตเพิ่มเติม: <span class="font-medium text-slate-500 dark:text-slate-400 ml-1">${summaryText}</span></span>
                     </div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium">
+                    <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium bg-white dark:bg-slate-700/50 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600">
                         <span class="group-open:hidden">คลิกดูรายละเอียด ▼</span>
                         <span class="hidden group-open:inline">ซ่อนรายละเอียด ▲</span>
                     </div>
                 </summary>
                 <div class="p-4 pt-0 border-t border-slate-200 dark:border-slate-700/50 mt-1">
-                    <div class="flex flex-col gap-4 mt-4">`;
+                    <div class="flex flex-col gap-5 mt-4">`;
                     
             if (substitutes.length > 0) {
-                html += `<div class="flex items-start gap-2">
-                    <div class="mt-0.5 p-1.5 flex-shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg></div>
+                html += `<div class="flex items-start gap-3">
+                    <div class="mt-0.5 p-2 flex-shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg></div>
                     <div class="flex-1 w-full overflow-hidden">
                         <div class="font-bold text-indigo-800 dark:text-indigo-400 mb-2">รายการทำแทน/ส่งแทน</div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full">`;
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full max-h-48 overflow-y-auto pr-2 custom-scrollbar">`;
                 substitutes.forEach(item => {
                     let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
                     let name = [item["ชื่อ"], item["นามสกุล"]].filter(Boolean).join(' ') || "ไม่ทราบชื่อ";
                     let text = item["คอมเมนต์เต็มต้นฉบับ"] || "";
                     if (text.length > 150) text = text.substring(0, 150) + "...";
-                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="block w-full text-left bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-500/30 px-3 py-2.5 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-indigo-400 transition-all cursor-pointer">
+                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="block w-full text-left bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-500/30 px-3 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:ring-2 hover:ring-indigo-400 transition-all cursor-pointer">
                         <div class="font-bold text-slate-800 dark:text-slate-200 text-[13px]">${id} ${name}</div>
                         <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 italic text-wrap break-words line-clamp-2 leading-relaxed">💬 "${text}"</div>
                     </a>`;
                 });
                 html += `</div></div></div>`;
             }
+            
             if (missings.length > 0) {
-                html += `<div class="flex items-start gap-2 ${substitutes.length > 0 ? "pt-4 border-t border-slate-200 dark:border-slate-700/50" : ""}">
-                    <div class="mt-0.5 p-1.5 flex-shrink-0 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg></div>
+                html += `<div class="flex items-start gap-3 ${substitutes.length > 0 ? "pt-5 border-t border-slate-200 dark:border-slate-700/50" : ""}">
+                    <div class="mt-0.5 p-2 flex-shrink-0 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg></div>
                     <div class="flex-1 w-full overflow-hidden">
-                        <div class="font-bold text-rose-800 dark:text-rose-400 mb-2">รายการรายชื่อหาย/ตกหล่น</div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full">`;
+                        <div class="font-bold text-rose-800 dark:text-rose-400 mb-2">รายการแจ้งรายชื่อหาย/ตกหล่น</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full max-h-48 overflow-y-auto pr-2 custom-scrollbar">`;
                 missings.forEach(item => {
                     let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
                     let name = [item["ชื่อ"], item["นามสกุล"]].filter(Boolean).join(' ') || "ไม่ทราบชื่อ";
                     let text = item["คอมเมนต์เต็มต้นฉบับ"] || "";
                     if (text.length > 150) text = text.substring(0, 150) + "...";
-                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="block w-full text-left bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 px-3 py-2.5 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-rose-400 transition-all cursor-pointer">
+                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="block w-full text-left bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 px-3 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:ring-2 hover:ring-rose-400 transition-all cursor-pointer">
                         <div class="font-bold text-slate-800 dark:text-slate-200 text-[13px]">${id} ${name}</div>
                         <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 italic text-wrap break-words line-clamp-2 leading-relaxed">💬 "${text}"</div>
                     </a>`;
                 });
                 html += `</div></div></div>`;
             }
+            
+            if (multiCategories.length > 0) {
+                html += `<div class="flex items-start gap-3 ${(substitutes.length > 0 || missings.length > 0) ? "pt-5 border-t border-slate-200 dark:border-slate-700/50" : ""}">
+                    <div class="mt-0.5 p-2 flex-shrink-0 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+                    <div class="flex-1 w-full overflow-hidden">
+                        <div class="font-bold text-emerald-800 dark:text-emerald-400 mb-2">รายการที่อาจขอคะแนนหลายด้าน</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full max-h-48 overflow-y-auto pr-2 custom-scrollbar">`;
+                multiCategories.forEach(item => {
+                    let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
+                    let name = [item["ชื่อ"], item["นามสกุล"]].filter(Boolean).join(' ') || "ไม่ทราบชื่อ";
+                    let text = item["คอมเมนต์เต็มต้นฉบับ"] || "";
+                    if (text.length > 150) text = text.substring(0, 150) + "...";
+                    let cats = item._detectedMultiCats || "";
+                    let catsArray = cats.split(',').map(c => c.trim()).filter(Boolean);
+                    let badgesHtml = catsArray.map(c => `<span class="inline-flex items-center px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded text-[10px] font-bold border border-emerald-200 dark:border-emerald-500/30 leading-none whitespace-nowrap">${c}</span>`).join('');
+                    
+                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="flex flex-col gap-1.5 w-full text-left bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-500/30 px-3 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:ring-2 hover:ring-emerald-400 transition-all cursor-pointer">
+                        <div class="font-bold text-slate-800 dark:text-slate-200 text-[13px] line-clamp-1">${id} ${name}</div>
+                        <div class="flex flex-wrap gap-1">
+                            ${badgesHtml}
+                        </div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 italic text-wrap break-words line-clamp-2 leading-relaxed">💬 "${text}"</div>
+                    </a>`;
+                });
+                html += `</div></div></div>`;
+            }
+            
+            if (withoutImage.length > 0) {
+                html += `<div class="flex items-start gap-3 ${(substitutes.length > 0 || missings.length > 0 || multiCategories.length > 0) ? "pt-5 border-t border-slate-200 dark:border-slate-700/50" : ""}">
+                    <div class="mt-0.5 p-2 flex-shrink-0 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
+                    <div class="flex-1 w-full overflow-hidden">
+                        <div class="font-bold text-violet-800 dark:text-violet-400 mb-2">คาดว่ายังไม่ส่งรูปภาพแนบมา (${withoutImage.length} คน)</div>
+                        <div class="flex flex-wrap gap-2 w-full max-h-48 overflow-y-auto pr-2 custom-scrollbar">`;
+                withoutImage.forEach(item => {
+                    let id = item["รหัสนักศึกษา"] || "ไม่มีรหัส";
+                    let name = [item["ชื่อ"], item["นามสกุล"]].filter(Boolean).join(' ') || "ไม่ทราบชื่อ";
+                    let seq = item["ลำดับที่"] ? `เลขที่ ${item["ลำดับที่"]}` : "";
+                    
+                    html += `<a href="javascript:void(0)" onclick="scrollToRecord('${item.fileName}', ${item.recordIndex})" class="inline-flex items-center gap-1.5 bg-white dark:bg-slate-800 border border-violet-200 dark:border-violet-500/30 px-2.5 py-1.5 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-violet-400 transition-all cursor-pointer">
+                        ${seq ? `<span class="text-[10px] font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 px-1.5 py-0.5 rounded">${seq}</span>` : ""}
+                        <span class="font-semibold text-slate-700 dark:text-slate-300 text-xs">${id} ${name}</span>
+                    </a>`;
+                });
+                html += `</div></div></div>`;
+            }
+            
             html += `</div></div></details>`;
             statsContainer.innerHTML = html;
         }
 
         function updateSequenceStats(data) {
+
             let statsContainer = document.getElementById('sequenceStatsBar');
             if (!statsContainer) return;
-
+            
             if (workMode !== 'sequence') {
                 statsContainer.classList.add('hidden');
                 return;
             }
 
-            // 🌟 ซ่อนแจ้งเตือนถ้ากำลังค้นหา หรือใช้ตัวกรองอยู่
             const searchQuery = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim() : "";
             const isFilteringActive = searchQuery !== "" || (typeof activeCategoryFilters !== 'undefined' && activeCategoryFilters.length > 0);
             if (isFilteringActive) {
@@ -2513,9 +2890,7 @@ function updateWorkModeUI() {
                     allSeqs.add(num);
                     seqCounts[num] = (seqCounts[num] || 0) + 1;
                     const isIncomplete = (!item["รหัสนักศึกษา"]?.trim() || !item["ชื่อ"]?.trim() || !item["นามสกุล"]?.trim() || item["ประเภทงาน"] === "ไม่ได้ระบุ" || !item["ประเภทงาน"]?.trim());
-                    if (!isIncomplete) {
-                        completedSeqs.add(num);
-                    }
+                    if (!isIncomplete) completedSeqs.add(num);
                 }
             });
 
@@ -2523,8 +2898,9 @@ function updateWorkModeUI() {
                 statsContainer.classList.add('hidden');
                 return;
             }
-
+            
             statsContainer.classList.remove('hidden');
+            statsContainer.className = "w-full xl:flex-1 transition-all";
 
             let missing = [];
             let maxNum = Math.max(...allSeqs);
@@ -2539,61 +2915,66 @@ function updateWorkModeUI() {
             duplicates.sort((a, b) => a - b);
 
             if (missing.length > 0 || duplicates.length > 0) {
-                let htmlParts = [];
-                let alertMessages = [];
+                let summaryParts = [];
+                if (missing.length > 0) summaryParts.push(`ขาด ${missing.length} ลำดับ`);
+                if (duplicates.length > 0) summaryParts.push(`ซ้ำ ${duplicates.length} ลำดับ`);
+                
+                let html = `
+                <details class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-sm [&_summary::-webkit-details-marker]:hidden group transition-all">
+                    <summary class="flex items-center justify-between p-3 cursor-pointer list-none select-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">ตรวจสอบลำดับ: <span class="font-medium text-slate-500 dark:text-slate-400 ml-1">${summaryParts.join(' และ ')} (จาก ${maxNum} ลำดับ)</span></span>
+                        </div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium bg-white dark:bg-slate-700/50 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                            <span class="group-open:hidden">คลิกดูรายละเอียด ▼</span>
+                            <span class="hidden group-open:inline">ซ่อนรายละเอียด ▲</span>
+                        </div>
+                    </summary>
+                    <div class="p-4 pt-0 border-t border-slate-200 dark:border-slate-700/50 mt-1">
+                        <div class="flex flex-col gap-5 mt-3">`;
                 
                 if (missing.length > 0) {
-                    let shortList = missing.length > 12 ? missing.slice(0, 12) : missing;
-                    let clickableLinks = shortList.map(num => `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="underline decoration-amber-400 hover:text-amber-900 dark:hover:text-amber-100 transition-colors cursor-pointer px-0.5" title="คลิกเพื่อเลื่อนไปยังลำดับที่ ${num}">${num}</a>`).join(', ');
-                    if (missing.length > 12) clickableLinks += '...';
-                    
-                    htmlParts.push(`
-                        <div class="mb-1">
-                            <div class="font-bold text-amber-800 dark:text-amber-400">สรุปลำดับ 1 ถึง ${maxNum} — ขาด ${missing.length} ลำดับ</div>
-                            <div class="text-xs text-amber-700 dark:text-amber-400/90 mt-0.5">เลขที่ตกหล่น: ${clickableLinks}</div>
-                        </div>
-                    `);
-                    alertMessages.push(`ลำดับที่ตกหล่นทั้งหมด (${missing.length} ลำดับ):\\n${missing.join(', ')}`);
-                } else {
-                    htmlParts.push(`
-                        <div class="mb-1">
-                            <div class="font-bold text-emerald-700 dark:text-emerald-400">✅ สรุปลำดับ 1 ถึง ${maxNum} — ครบถ้วน ไม่มีตกหล่น</div>
-                        </div>
-                    `);
+                    html += `
+                            <div class="flex flex-col gap-2">
+                                <div class="font-bold text-amber-800 dark:text-amber-400 text-sm">ลำดับที่ยังไม่ครบถ้วน หรือตกหล่น:</div>
+                                <div class="flex flex-wrap gap-2 w-full max-h-48 overflow-y-auto pr-2 custom-scrollbar">`;
+                    missing.forEach(num => {
+                        html += `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="inline-flex items-center justify-center min-w-[3rem] px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-500/30 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-amber-400 transition-all cursor-pointer font-bold text-amber-700 dark:text-amber-400 text-sm">${num}</a>`;
+                    });
+                    html += `   </div>
+                            </div>`;
                 }
-                
+
                 if (duplicates.length > 0) {
-                    let dupShort = duplicates.length > 12 ? duplicates.slice(0, 12) : duplicates;
-                    let dupLinks = dupShort.map(num => `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="underline decoration-rose-400 hover:text-rose-900 dark:hover:text-rose-100 transition-colors cursor-pointer px-0.5" title="คลิกเพื่อเลื่อนไปยังลำดับที่ ${num}">${num}</a>`).join(', ');
-                    if (duplicates.length > 12) dupLinks += '...';
-                    
-                    htmlParts.push(`
-                        <div class="mt-2 pt-2 border-t border-amber-200/50 dark:border-amber-700/50">
-                            <div class="font-bold text-rose-700 dark:text-rose-400">พบการแจ้งลำดับซ้ำกัน (${duplicates.length} ลำดับ)</div>
-                            <div class="text-xs text-rose-600 dark:text-rose-400/90 mt-0.5">เลขที่ซ้ำ: ${dupLinks}</div>
-                        </div>
-                    `);
-                    alertMessages.push(`ลำดับที่ซ้ำกันทั้งหมด (${duplicates.length} ลำดับ):\\n${duplicates.join(', ')}`);
+                    html += `
+                            <div class="flex flex-col gap-2 ${missing.length > 0 ? "pt-4 border-t border-slate-200 dark:border-slate-700/50" : ""}">
+                                <div class="font-bold text-rose-800 dark:text-rose-400 text-sm">พบการแจ้งลำดับซ้ำกัน:</div>
+                                <div class="flex flex-wrap gap-2 w-full max-h-48 overflow-y-auto pr-2 custom-scrollbar">`;
+                    duplicates.forEach(num => {
+                        html += `<a href="javascript:void(0)" onclick="scrollToSequence(${num})" class="inline-flex items-center justify-center min-w-[3rem] px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 rounded-lg shadow-sm hover:shadow-md hover:ring-2 hover:ring-rose-400 transition-all cursor-pointer font-bold text-rose-700 dark:text-rose-400 text-sm">${num}</a>`;
+                    });
+                    html += `   </div>
+                            </div>`;
                 }
-                
-                statsContainer.innerHTML = `
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 w-full">
-                        <div class="flex items-start gap-2">
-                            <div class="p-1 flex-shrink-0 text-amber-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>
-                            <div class="flex-1 w-full flex flex-col justify-center">
-                                ${htmlParts.join('')}
-                            </div>
+
+                html += `
                         </div>
-                        <button onclick="alert('${alertMessages.join('\\n\\n')}')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition text-xs font-bold text-amber-700 dark:text-amber-400 shadow-sm self-start sm:self-center">ดูทั้งหมด</button>
                     </div>
-                `;
+                </details>`;
+                statsContainer.innerHTML = html;
             } else {
                 statsContainer.innerHTML = `
-                    <div class="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-400">
-                        <span>✅</span>
-                        <span>ลำดับที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น หรือซ้ำกัน</span>
+                <div class="w-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl shadow-sm p-3">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="font-bold text-emerald-800 dark:text-emerald-400 text-sm">ลำดับที่ 1 ถึง ${maxNum} ครบถ้วน ไม่มีตกหล่น หรือซ้ำกัน</span>
                     </div>
-                `;
+                </div>`;
             }
         }
 
@@ -3316,6 +3697,8 @@ function updateWorkModeUI() {
             }
 
             updateSequenceStats(finalRenderData);
+            updateTeamStats(finalRenderData);
+            
             updateSubstitutionStats(currentlyDisplayedData);
 
             if (finalRenderData.length === 0) {
@@ -3665,23 +4048,35 @@ function updateWorkModeUI() {
                 return obj;
             }
 
+            // 🌟 สร้างชื่อไฟล์จากชื่อใบงาน + รหัสสุ่มกันซ้ำ
+            const randomSuffix = Math.random().toString(36).substring(2, 7);
+            const roomDisplayName = (document.getElementById('currentRoomNameDisplay')?.innerText || 'report').replace(/[^a-zA-Z0-9ก-๙_\- ]/g, '').trim() || 'report';
+
             if (currentMode === 'separate') {
-                Object.keys(allFilesData).forEach(fileName => {
-                    const activeRecords = allFilesData[fileName].filter(item => {
-                        // 🌟 ถ้าซ่อนอยู่ และ ไม่ได้กดกรองซ่อน ให้ข้าม
-                        if (item.isFaded && !activeCategoryFilters.includes('faded')) return false;
-                        if (!isItemMatchSearch(item)) return false;
-                        return isItemMatchFilters(item);
-                    });
-                    const cleanRecords = activeRecords.map(item => prepareRow(item, false));
-                    if(cleanRecords.length === 0) return;
-                    const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
-                    worksheet['!cols'] = Object.keys(cleanRecords[0]).map(() => ({wch: 22}));
-                    let sheetName = fileName.replace(/\.[^/.]+$/, "").substring(0, 30);
-                    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+                // 🌟 ดาวน์โหลดเฉพาะใบงานปัจจุบันที่เลือกอยู่
+                const selectedFile = document.getElementById('fileSelectDropdown').value;
+                const fileData = allFilesData[selectedFile];
+                if (!fileData || fileData.length === 0) return alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
+
+                const activeRecords = fileData.filter(item => {
+                    if (item.isFaded && !activeCategoryFilters.includes('faded')) return false;
+                    if (!isItemMatchSearch(item)) return false;
+                    return isItemMatchFilters(item);
                 });
-                if (workbook.SheetNames.length === 0) return alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
-                XLSX.writeFile(workbook, "Separate_Students_Report.xlsx");
+                const cleanRecords = activeRecords.map(item => prepareRow(item, false));
+                if (cleanRecords.length === 0) return alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
+
+                // 🌟 ส่งออกเป็น CSV (UTF-8 with BOM เพื่อให้ Excel เปิดภาษาไทยได้)
+                const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
+                const csvContent = "\uFEFF" + XLSX.utils.sheet_to_csv(worksheet);
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const fileDisplayName = selectedFile.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9ก-๙_\- ]/g, '').trim() || 'report';
+                a.download = `${fileDisplayName}_${randomSuffix}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
             } else {
                 let mergedList = [];
                 let mergedGroups = {};
@@ -3719,8 +4114,15 @@ function updateWorkModeUI() {
                 if(cleanRecords.length === 0) return alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
                 const worksheet = XLSX.utils.json_to_sheet(cleanRecords);
                 worksheet['!cols'] = Object.keys(cleanRecords[0]).map(() => ({wch: 22}));
-                XLSX.utils.book_append_sheet(workbook, worksheet, "All_Merged_Students");
-                XLSX.writeFile(workbook, "Merged_All_Students_Report.xlsx");
+                // 🌟 ส่งออกเป็น CSV (UTF-8 with BOM เพื่อให้ Excel เปิดภาษาไทยได้)
+                const csvContent = "\uFEFF" + XLSX.utils.sheet_to_csv(worksheet);
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${roomDisplayName}_รวม_${randomSuffix}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
             }
         }
 
@@ -3833,13 +4235,14 @@ function updateWorkModeUI() {
                 
                 // --- อัปเกรดคลังคำศัพท์ และระบบดักจับแท็กเปล่า ---
                 const imgKeywords = [
-                    "รายงานตัว", "ลงทะเบียน", "ส่งงาน", "ส่งรูป",
+                    "รายงานตัว", "ลงทะเบียน", "ส่งงาน", "ส่งรูป", "รูป", "ภาพ", "วิดีโอ", "video", "คลิป", "clip",
                     "ก่อน", "ระหว่าง", "รหว่าง", "ขณะ", "กำลัง", "กะลัง", 
                     "เสร็จ", "เสร็ด", "เส็ด", "เสด", "เรียบร้อย", "จบ", "แร้ว",
                     "หลังทำ", "หลังปฏิบัติ", "หลังปฎิบัติ", "ปฎิบัติ",
                     "ค่าบ", "ค้าบ", "ค๊าบ", "คัฟ", "งับ", "ครัช", 
                     "ค้ะ", "คร่ะ", "คร่า", "จ้า", "จร้า",
-                    "เก็บ", "อุปกรณ์", "เล่ม" // ดักจับคำเพิ่มเติมจากใบงานล่าสุด
+                    "เก็บ", "อุปกรณ์", "เล่ม",
+                    "http", "scontent", ".jpg", ".png", ".jpeg", "[image]", "[รูปภาพ]"
                 ];
                 
                 const cleanText = displayText.replace(/\s+/g, '');
@@ -3855,9 +4258,12 @@ function updateWorkModeUI() {
                 });
                 textWithoutTags = textWithoutTags.replace(/[@\s]/g, '').trim();
                 const isOnlyTag = (textWithoutTags === "" && !isEmpty);
+                
+                // ถ้านี่คือคอมเมนต์ย่อย (isReply) และมีการพิมพ์รหัสนักศึกษาลงไป ถือว่าเป็นการแนบรูปของคนๆ นั้นชัวร์ๆ
+                const isIdInReply = c.isReply && !!displayText.match(/\d{7,9}/);
 
-                // ถ้าระบุว่ามีภาพจากเงื่อนไขใดเงื่อนไขหนึ่ง
-                const hasImage = isEmpty || isMatchKeyword || isOnlyTag;
+                // ถ้าระบุว่ามีภาพจากเงื่อนไขใดเงื่อนไขหนึ่ง (รวม c.hasImage จาก rawThreadsData ด้วย)
+                const hasImage = isEmpty || isMatchKeyword || isOnlyTag || isIdInReply || c.hasImage === true;
                 // ------------------------------------------------
 
                 const isHighlighted = c.id === highlightId;
@@ -3975,10 +4381,18 @@ function updateWorkModeUI() {
             try {
                 sessionStorage.setItem('allFilesData', JSON.stringify(allFilesData));
                 sessionStorage.setItem('currentMode', currentMode);
+                sessionStorage.setItem('workMode', workMode);
                 sessionStorage.setItem('fileScores', JSON.stringify(fileScores));
-                // เพิ่มคำสั่งให้จำข้อมูลดิบสำหรับหน้าต่างจำลอง Facebook
                 sessionStorage.setItem('rawThreadsData', JSON.stringify(rawThreadsData)); 
                 sessionStorage.setItem('roomModeMemory', JSON.stringify(roomModeMemory));
+                
+                const colIds = ['col_checked', 'col_file', 'col_seq', 'col_team', 'col_id', 'col_name', 'col_surname', 'col_status', 'col_type', 'col_score', 'col_likes', 'col_original'];
+                const colState = {};
+                colIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) colState[id] = el.checked;
+                });
+                sessionStorage.setItem(`colState_${workMode}`, JSON.stringify(colState));
                 
                 const fileNamesStr = document.getElementById('fileNames').innerText;
                 if (fileNamesStr) sessionStorage.setItem('fileNamesStr', fileNamesStr);
@@ -3991,21 +4405,30 @@ function updateWorkModeUI() {
             try {
                 const savedData = sessionStorage.getItem('allFilesData');
                 const savedScores = sessionStorage.getItem('fileScores');
-                // โหลดข้อมูลดิบสำหรับหน้าต่างจำลอง Facebook กลับมา
                 const savedRawThreads = sessionStorage.getItem('rawThreadsData'); 
                 const savedModeMemory = sessionStorage.getItem('roomModeMemory');
+                const savedWorkMode = sessionStorage.getItem('workMode');
+                
+                if (savedWorkMode) workMode = savedWorkMode;
+                
+                const savedColState = sessionStorage.getItem(`colState_${workMode}`);
+                
                 if (savedModeMemory) roomModeMemory = JSON.parse(savedModeMemory);
-
                 if (savedScores) { fileScores = JSON.parse(savedScores); }
                 if (savedRawThreads) { rawThreadsData = JSON.parse(savedRawThreads); }
+                if (savedColState) {
+                    const colState = JSON.parse(savedColState);
+                    Object.keys(colState).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.checked = colState[id];
+                    });
+                }
 
                 if (savedData) {
                     const parsed = JSON.parse(savedData);
                     if (Object.keys(parsed).length > 0) {
                         allFilesData = parsed;
                         
-                        // 🌟 ข้อมูล isFaded ถูกบันทึกไว้ใน sessionStorage/Firebase แล้ว ไม่ต้อง overwrite
-
                         const savedMode = sessionStorage.getItem('currentMode');
                         if (savedMode) currentMode = savedMode;
                         const savedNames = sessionStorage.getItem('fileNamesStr');
@@ -4151,22 +4574,102 @@ function updateWorkModeUI() {
             }, 100);
         }
 
-        function clearData() {
-            if (!confirm("⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)")) { return; }
-            allFilesData = {}; activeThread = null; activeCategoryFilters = [];
-            document.getElementById('csvFiles').value = ""; 
-            document.getElementById('fileNames').innerText = ""; 
-            document.getElementById('searchInput').value = "";
+        async function clearData() {
+            let filesCount = Object.keys(allFilesData).length;
+            if (filesCount === 0) return;
             
-            sessionStorage.clear();
-            
-            // 🔥 สั่งเคลียร์ข้อมูลบน Firebase ด้วยเมื่อกดเริ่มใหม่
+            const dropdown = document.getElementById('fileSelectDropdown');
+            const currentFile = dropdown ? dropdown.value : null;
+
+            if (filesCount === 1 || currentMode === 'merged' || !currentFile) {
+                let conf = await showCustomDialog({
+                    message: "⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่ใช่หรือไม่?\n\n(ข้อมูลที่ยังไม่ได้ดาวน์โหลดเป็น Excel จะหายไปทั้งหมด)", 
+                    isConfirm: true, 
+                    confirmOnly: true
+                });
+                if (!conf) return;
+                executeClear(true);
+            } else {
+                let modalHtml = `
+                <div id="clearConfirmModal" class="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-in fade-in zoom-in duration-200">
+                        <div class="text-rose-500 mb-4 flex justify-center">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white text-center mb-2">เลือกลบข้อมูล</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-6">คุณมีใบงานหลายไฟล์ คุณต้องการลบเฉพาะใบงานปัจจุบัน หรือลบทิ้งทั้งหมด?</p>
+                        
+                        <div class="flex flex-col gap-3">
+                            <button onclick="executeClear(false)" class="w-full py-2.5 px-4 bg-white dark:bg-slate-700 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/30 transition shadow-sm flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                                ลบแค่ใบงานปัจจุบัน
+                            </button>
+                            <button onclick="executeClear(true)" class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                ลบทั้งหมด (เริ่มใหม่)
+                            </button>
+                            <button onclick="document.getElementById('clearConfirmModal').remove()" class="w-full py-2.5 px-4 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition">ยกเลิก</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            }
+        }
+
+        function executeClear(clearAll) {
+            const modal = document.getElementById('clearConfirmModal');
+            if (modal) modal.remove();
+
+            const dropdown = document.getElementById('fileSelectDropdown');
+
+            if (clearAll) {
+                allFilesData = {}; activeThread = null; activeCategoryFilters = [];
+                document.getElementById('csvFiles').value = ""; 
+                document.getElementById('fileNames').innerText = ""; 
+                document.getElementById('searchInput').value = "";
+                if (dropdown) dropdown.innerHTML = "";
+                sessionStorage.clear();
+            } else {
+                const targetFile = dropdown ? dropdown.value : null;
+                
+                if (targetFile && allFilesData[targetFile]) {
+                    delete allFilesData[targetFile];
+                    activeThread = null; activeCategoryFilters = [];
+                    
+                    let remainingFiles = Object.keys(allFilesData);
+                    if (remainingFiles.length > 0) {
+                        document.getElementById('fileNames').innerText = `อัปโหลดสำเร็จ (รวมทั้งหมด ${remainingFiles.length} ไฟล์)`;
+                        // Clear the value so initUIAfterLoad won't try to restore it
+                        if (dropdown) {
+                            dropdown.value = ""; 
+                            dropdown.innerHTML = "";
+                            remainingFiles.forEach(fileName => {
+                                let opt = document.createElement('option'); opt.value = fileName; opt.innerText = fileName;
+                                dropdown.appendChild(opt);
+                            });
+                            dropdown.value = remainingFiles[0];
+                        }
+                    } else {
+                        document.getElementById('csvFiles').value = ""; 
+                        document.getElementById('fileNames').innerText = ""; 
+                        if (dropdown) dropdown.innerHTML = "";
+                    }
+                }
+            }
+
             if (currentRoomId) {
                 syncAllData();
                 triggerRoomUpdate();
             }
             
-            renderTable();
+            if (Object.keys(allFilesData).length > 0) {
+                initUIAfterLoad();
+            } else {
+                renderTable(); // Fallback when all files deleted
+            }
+
+            alert("🗑️ ลบใบงานสำเร็จเรียบร้อยแล้ว");
         }
 
         function updateRecord(fileName, recordIndex, field, newValue) {
@@ -4353,7 +4856,8 @@ function updateWorkModeUI() {
             let errorFiles = [];
             activeThread = null; activeCategoryFilters = []; // 🌟 ไม่ลบ allFilesData ของเก่าแล้ว!
 
-            // 🌟 เพิ่มข้อความแจ้งเตือนให้อุ่นใจว่ากำลังอัปโหลด
+            // 🌟 แสดงหน้าโหลดเดอร์กลางจอตอนอัปโหลดไฟล์
+            showFullScreenLoader("กำลังอัปโหลดไฟล์...", `กำลังอ่านข้อมูล ${files.length} ไฟล์ โปรดรอสักครู่...`);
             document.getElementById('fileNames').innerText = "⏳ กำลังอ่านไฟล์และบันทึกขึ้นคลาวด์ โปรดรอสักครู่...";
 
             function onFileComplete(fileName, success) {
@@ -4364,11 +4868,16 @@ function updateWorkModeUI() {
                     errorFiles.push(fileName);
                 }
                 if (loadedCount === files.length) {
+                    hideFullScreenLoader();
                     if (errorFiles.length > 0) {
                         document.getElementById('fileNames').innerText = `เพิ่ม/อัปเดตไฟล์ (รวม ${Object.keys(allFilesData).length} ไฟล์) - ผิดพลาด ${errorFiles.length} ไฟล์`;
                         alert("⚠️ ไม่สามารถอ่านไฟล์ได้: " + errorFiles.join(", ") + "\n\nลองวิธีแก้:\n1. เปิดไฟล์ใน Excel แล้ว Save As เป็น CSV UTF-8\n2. หรือลอง Save As เป็น .xlsx แล้วอัปโหลดใหม่");
                     } else {
                         document.getElementById('fileNames').innerText = `อัปโหลดสำเร็จ (รวมทั้งหมด ${Object.keys(allFilesData).length} ไฟล์)`;
+                        // หน่วงเวลาเล็กน้อยให้ Loader ปิดสนิทก่อนแสดง Alert
+                        setTimeout(() => {
+                            alert(`✅ อัปโหลดและประมวลผลข้อมูลเสร็จสมบูรณ์!\n(ดึงข้อมูลมาทั้งหมด ${Object.keys(allFilesData).length} ไฟล์)`);
+                        }, 300);
                     }
                     if (Object.keys(allFilesData).length > 0) {
                         initUIAfterLoad();
@@ -4525,7 +5034,7 @@ function updateWorkModeUI() {
 
             const hasKeyword = (text, kw) => text.includes(kw);
             const localLines = lines.map(line => 
-                line.replace(/(คะแนน)?(ความดี|จิตอาสา|ใจอาสา)\s*(ด้าน|เรื่อง)?\s*(?=รักชาติ|กตัญญู|ภาวะผู้นำ|วินัย|แก้|ชั่วโมง)/g, '')
+                line.replace(/(คะแนน)?(ความดี|จิตอาสา|ใจอาสา)[^\\d]{0,20}?(?=รักชาติ|กตัญญู|ภาวะผู้นำ|วินัย|แก้|ชั่วโมง|รู้วินัย|ความประพฤติ)/g, '')
             );
 
             let currentLine = localLines[currentIndex];
@@ -4717,15 +5226,14 @@ function updateWorkModeUI() {
                     if (seqStart !== null) {
                         let currentSeq = seqStart;
                         threads[threadNo].main.forEach(r => {
-                            // ดึงเลขที่ TA พิมพ์มาตรงๆ ใส่ในช่องทีม โดยไม่ใช้สูตรหาร
-                            r["ทีม"] = seqStart.toString();
-
                             if (currentSeq <= seqEnd) {
                                 r["ลำดับที่"] = currentSeq.toString();
+                                r["ทีม"] = currentSeq.toString(); // ให้เลขทีมเหมือนเลขลำดับเป๊ะๆ
                                 currentSeq++;
                                 r.isFaded = false; 
                             } else {
                                 r["ลำดับที่"] = "";
+                                r["ทีม"] = "";
                                 r.isFaded = true; 
                             }
                         });
@@ -4786,6 +5294,7 @@ function updateWorkModeUI() {
             const likeIdx = indexOfRegex(headers, /^(Like Count|Likes|ถูกใจ)$/i);
             const replyToIdx = indexOfRegex(headers, /^(Reply To Comment|Reply To|Parent)$/i);
             const urlIdx = indexOfRegex(headers, /^(Comment URL|URL|ลิงก์)$/i);
+            const attachIdx = indexOfRegex(headers, /^(Image|Images|Attachment|Attachments|Media|Photo|Photos|Picture|Pictures|รูปภาพ|ไฟล์แนบ|รูป|Image URL)$/i);
 
             let parentMap = {}; let allIds = [];
             let urlMap = {}; 
@@ -4852,12 +5361,24 @@ function updateWorkModeUI() {
                 const authorName = authorIdx !== -1 && cols[authorIdx] ? cols[authorIdx].trim() : "ผู้ใช้งาน";
                 const timeIdx = indexOfRegex(headers, /^(Comment Time|Time|Date|เวลา)$/i); 
                 const commentTime = timeIdx !== -1 && cols[timeIdx] ? cols[timeIdx].trim() : "";
+                const attachmentData = attachIdx !== -1 && cols[attachIdx] ? cols[attachIdx].trim() : "";
                 let commentId = commentIdIdx !== -1 && cols[commentIdIdx] ? cols[commentIdIdx].trim() : "";
                 let threadNo = threadMap[fileName + "_" + commentId] || "-";
                 const resolvedUrl = resolveUrl(commentId);
 
                 if (!rawThreadsData[fileName]) rawThreadsData[fileName] = {};
                 if (!rawThreadsData[fileName][threadNo]) rawThreadsData[fileName][threadNo] = [];
+                // คาดเดาการมีรูปภาพจากคอมเมนต์นี้เลย (เพื่อบันทึกลง rawThreadsData)
+                const imgKeywordsRaw = ["รายงานตัว", "ลงทะเบียน", "ส่งงาน", "ส่งรูป", "รูป", "ภาพ", "วิดีโอ", "video", "คลิป", "clip", "ก่อน", "ระหว่าง", "รหว่าง", "ขณะ", "กำลัง", "กะลัง", "เสร็จ", "เสร็ด", "เส็ด", "เสด", "เรียบร้อย", "จบ", "แร้ว", "หลังทำ", "หลังปฏิบัติ", "หลังปฎิบัติ", "ปฎิบัติ", "ค่าบ", "ค้าบ", "ค๊าบ", "คัฟ", "งับ", "ครัช", "ค้ะ", "คร่ะ", "คร่า", "จ้า", "จร้า", "เก็บ", "อุปกรณ์", "เล่ม", "http", "scontent", ".jpg", ".png", ".jpeg", "[image]", "[รูปภาพ]"];
+                let txtForImgRaw = fullText.replace(/@[^\s]+/g, '').replace(/\[[^\]]+\]/g, '').trim();
+                let cleanRaw = txtForImgRaw.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+                let cHasImage = false;
+                if (attachmentData && attachmentData !== "" && attachmentData.toLowerCase() !== "false" && attachmentData !== "-") {
+                    cHasImage = true;
+                } else {
+                    cHasImage = cleanRaw === "" || imgKeywordsRaw.some(kw => cleanRaw.includes(kw));
+                }
+
                 const isAlreadyAdded = rawThreadsData[fileName][threadNo].some(item => item.id === commentId);
                 if (!isAlreadyAdded) {
                     rawThreadsData[fileName][threadNo].push({
@@ -4867,7 +5388,8 @@ function updateWorkModeUI() {
                         url: resolvedUrl,
                         author: authorName,
                         likes: likeCount,
-                        time: commentTime
+                        time: commentTime,
+                        hasImage: cHasImage
                     });
                 }
 
@@ -4896,6 +5418,28 @@ function updateWorkModeUI() {
 
                         let pointType = detectPointType(cleanLines, lineIndex);
 
+                        // 🌟 ตรวจสอบว่าคอมเมนต์นี้น่าจะมีรูปภาพแนบมาด้วยหรือไม่
+                        const imgCheckKeywords = [
+                            "รายงานตัว", "ลงทะเบียน", "ส่งงาน", "ส่งรูป", "รูป",
+                            "ก่อน", "ระหว่าง", "รหว่าง", "ขณะ", "กำลัง", "กะลัง", 
+                            "เสร็จ", "เสร็ด", "เส็ด", "เสด", "เรียบร้อย", "จบ", "แร้ว",
+                            "หลังทำ", "หลังปฏิบัติ", "หลังปฎิบัติ", "ปฎิบัติ",
+                            "ค่าบ", "ค้าบ", "ค๊าบ", "คัฟ", "งับ", "ครัช", 
+                            "ค้ะ", "คร่ะ", "คร่า", "จ้า", "จร้า",
+                            "เก็บ", "อุปกรณ์", "เล่ม",
+                            "http", "scontent", ".jpg", ".png", ".jpeg", "[image]", "[รูปภาพ]"
+                        ];
+                        // ลบแท็กและการเรียกชื่อออกเบื้องต้น
+                        let textForImg = fullText.replace(/@[^\s]+/g, '').replace(/\[[^\]]+\]/g, '').trim();
+                        const imgCheckClean = textForImg.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+                        let hasImageInComment = false;
+                        if (attachmentData && attachmentData !== "" && attachmentData.toLowerCase() !== "false" && attachmentData !== "-") {
+                            hasImageInComment = true; // ค้นพบจากคอลัมน์รูปภาพโดยตรง
+                        } else {
+                            // ใช้ heuristic คาดเดาจากข้อความ
+                            hasImageInComment = imgCheckClean === "" || imgCheckKeywords.some(kw => imgCheckClean.includes(kw));
+                        }
+                        
                         fileRecords.push({
                             "recordIndex": fileRecords.length, "fileName": fileName, 
                             "ลำดับที่": "", "ทีม": "", 
@@ -4905,7 +5449,9 @@ function updateWorkModeUI() {
                             "isReply": isReply, "ประเภทงาน": pointType, "ยอดไลก์": likeCount,
                             "คอมเมนต์เต็มต้นฉบับ": fullText, "isFaded": false,
                             "commentUrl": resolvedUrl,
-                            "commentId": commentId
+                            "commentId": commentId,
+                            "hasImage": hasImageInComment,
+                            "author": authorName
                         });
                     });
                 });
@@ -5227,9 +5773,12 @@ function updateWorkModeUI() {
         }
 
         // --- ระบบลบทิ้งถาวร ---
-        function deleteCurrentRoom() {
+        async function deleteCurrentRoom() {
             if(!currentRoomId) return;
-            let conf = confirm("⚠️ ต้องการย้ายห้องนี้ไปที่ 'ห้องรอเคลียร์ทิ้ง' ใช่หรือไม่?\n(คุณสามารถกู้คืนหรือลบทิ้งถาวรได้จากหน้า Hub ครับ)");
+            let conf = await showCustomDialog({
+                message: "⚠️ ต้องการย้ายห้องนี้ไปที่ 'ห้องรอเคลียร์ทิ้ง' ใช่หรือไม่?\n(คุณสามารถกู้คืนหรือลบทิ้งถาวรได้จากหน้า Hub ครับ)",
+                isConfirm: true, confirmOnly: true
+            });
             if (conf) {
                 // ฝังสถานะ isDeleted ไว้ที่ป้ายหน้าห้อง
                 db.ref('rooms_meta/' + currentRoomId + '/isDeleted').set(true).then(() => {
@@ -5312,18 +5861,6 @@ function updateWorkModeUI() {
         // ==========================================
         // 🌟 1. ระบบลบลงถังขยะ (Soft Delete) และกู้คืน
         // ==========================================
-        function deleteCurrentRoom() {
-            if(!currentRoomId) return;
-            let conf = confirm("⚠️ ต้องการย้ายห้องนี้ไปที่ 'ห้องรอเคลียร์ทิ้ง' ใช่หรือไม่?\n(คุณสามารถกู้คืนหรือลบทิ้งถาวรได้จากหน้า Hub ครับ)");
-            if (conf) {
-                // ฝังสถานะ isDeleted ไว้ที่ป้ายหน้าห้อง
-                db.ref('rooms_meta/' + currentRoomId + '/isDeleted').set(true).then(() => {
-                    alert("🗑️ ย้ายห้องไปที่ถังขยะเรียบร้อยแล้วครับ");
-                    showHub();
-                });
-            }
-        }
-
         function restoreRoom(event, roomId) {
             event.stopPropagation();
             db.ref('rooms_meta/' + roomId + '/isDeleted').remove();
@@ -5331,9 +5868,12 @@ function updateWorkModeUI() {
             loadHubRooms();
         }
 
-        function forceDeleteRoom(event, roomId) {
+        async function forceDeleteRoom(event, roomId) {
             event.stopPropagation();
-            let conf = confirm("⚠️ ยืนยันการลบห้อง " + roomId + " ถาวรใช่ไหม?\nข้อมูลทั้งหมดจะหายไปและไม่สามารถกู้คืนได้!");
+            let conf = await showCustomDialog({
+                message: "⚠️ ยืนยันการลบห้อง " + roomId + " ถาวรใช่ไหม?\nข้อมูลทั้งหมดจะหายไปและไม่สามารถกู้คืนได้!",
+                isConfirm: true, confirmOnly: true
+            });
             if (conf) {
                 db.ref('rooms/' + roomId).remove();
                 db.ref('rooms_meta/' + roomId).remove();
@@ -5523,9 +6063,12 @@ function updateWorkModeUI() {
             loadHubRooms();
         }
 
-        function forceDeleteRoom(event, roomId) {
+        async function forceDeleteRoom(event, roomId) {
             event.stopPropagation();
-            let conf = confirm("⚠️ ยืนยันการลบห้อง " + roomId + " ถาวรใช่ไหม?\nข้อมูลทั้งหมดจะหายไปและไม่สามารถกู้คืนได้!");
+            let conf = await showCustomDialog({
+                message: "⚠️ ยืนยันการลบห้อง " + roomId + " ถาวรใช่ไหม?\nข้อมูลทั้งหมดจะหายไปและไม่สามารถกู้คืนได้!",
+                isConfirm: true, confirmOnly: true
+            });
             if (conf) {
                 db.ref('rooms/' + roomId).remove();
                 db.ref('rooms_meta/' + roomId).remove();
@@ -5536,7 +6079,7 @@ function updateWorkModeUI() {
         // ==========================================
         // 🌟 ระบบเคลียร์ถังขยะ (ลบห้องทั้งหมดที่อยู่ในหมวดรอเคลียร์)
         // ==========================================
-        function clearAllArchivedRooms() {
+        async function clearAllArchivedRooms() {
             const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
             const now = Date.now();
             
@@ -5552,7 +6095,10 @@ function updateWorkModeUI() {
             }
 
             // 2. ถามย้ำเพื่อความชัวร์ เพราะลบแล้วกู้ไม่ได้
-            let conf = confirm(`⚠️ คำเตือนขั้นเด็ดขาด!\n\nคุณกำลังจะลบห้องจำนวน ${roomsToDelete.length} ห้อง ทิ้งแบบถาวร\nข้อมูลทั้งหมดจะหายไปและ "ไม่สามารถกู้คืนได้อีก"\n\nยืนยันที่จะลบทิ้งใช่หรือไม่?`);
+            let conf = await showCustomDialog({
+                message: `⚠️ คำเตือนขั้นเด็ดขาด!\n\nคุณกำลังจะลบห้องจำนวน ${roomsToDelete.length} ห้อง ทิ้งแบบถาวร\nข้อมูลทั้งหมดจะหายไปและ "ไม่สามารถกู้คืนได้อีก"\n\nยืนยันที่จะลบทิ้งใช่หรือไม่?`,
+                isConfirm: true, confirmOnly: true
+            });
             
             if (conf) {
                 let updates = {};
