@@ -1378,8 +1378,10 @@
         let myHue = Math.floor(Math.random() * 360); 
         let myCursorColor = `hsl(${myHue}, 80%, 45%)`; 
         let myHighlightBg = `hsl(${myHue}, 80%, 90%)`; 
-        let roomFocusData = {}; 
-        let roomCursorData = {}; 
+        let roomFocusData = {};
+        let roomCursorData = {};
+        let coOpChannel = null;
+        let coOpChannelRoomId = null;
         
         const supabaseClient = window.supabase.createClient(
             window.WU_SUPABASE_CONFIG.url,
@@ -1707,6 +1709,70 @@
             });
         }
 
+        // Ephemeral collaboration channel: cursor/focus data should never be
+        // written to PostgreSQL on every mouse movement.
+        function setupCoOpRealtime() {
+            if (!currentRoomId) return;
+            if (coOpChannel && coOpChannelRoomId === currentRoomId) return;
+
+            if (coOpChannel) supabaseClient.removeChannel(coOpChannel);
+            roomFocusData = {};
+            roomCursorData = {};
+            coOpChannelRoomId = currentRoomId;
+
+            const roomCode = currentRoomId;
+            const channel = supabaseClient.channel('wu-coop-' + roomCode, {
+                config: {
+                    broadcast: { self: false },
+                    presence: { key: myUserId }
+                }
+            });
+
+            channel
+                .on('broadcast', { event: 'cursor' }, ({ payload }) => {
+                    if (!payload || payload.uid === myUserId) return;
+                    if (payload.data) {
+                        roomCursorData[payload.uid] = { ...payload.data, _lastSeen: Date.now() };
+                    } else {
+                        delete roomCursorData[payload.uid];
+                    }
+                })
+                .on('broadcast', { event: 'focus' }, ({ payload }) => {
+                    if (!payload || payload.uid === myUserId) return;
+                    if (payload.data) roomFocusData[payload.uid] = payload.data;
+                    else delete roomFocusData[payload.uid];
+                    if (isEditing) pendingFirebaseUpdate = true;
+                    else renderTable();
+                })
+                .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+                    (leftPresences || []).forEach(presence => {
+                        const uid = presence.userId || presence.user_id || presence.key;
+                        if (!uid || uid === myUserId) return;
+                        delete roomCursorData[uid];
+                        delete roomFocusData[uid];
+                    });
+                    if (!isEditing) renderTable();
+                });
+
+            coOpChannel = channel;
+            channel.subscribe(async status => {
+                if (status === 'SUBSCRIBED') {
+                    try {
+                        await channel.track({ userId: myUserId });
+                    } catch (error) {
+                        console.warn('Co-op presence tracking failed:', error);
+                    }
+                }
+            });
+        }
+
+        function sendCoOpBroadcast(event, payload) {
+            if (!coOpChannel) return;
+            coOpChannel.send({ type: 'broadcast', event, payload }).catch(error => {
+                console.warn('Co-op broadcast failed:', error);
+            });
+        }
+
         function sendCursorData() {
             if (!currentRoomId || !isMouseInside) return;
             
@@ -1738,15 +1804,17 @@
             const currentFilter = activeCategoryFilters.join(',');
             const currentSearch = document.getElementById('searchInput').value;
             
-            db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).set({
-                anchor: anchorData,
-                color: myCursorColor, 
-                mode: currentMode, 
-                file: currentMode === 'separate' ? currentFile : 'all',
-                filter: currentFilter,
-                search: currentSearch
+            sendCoOpBroadcast('cursor', {
+                uid: myUserId,
+                data: {
+                    anchor: anchorData,
+                    color: myCursorColor,
+                    mode: currentMode,
+                    file: currentMode === 'separate' ? currentFile : 'all',
+                    filter: currentFilter,
+                    search: currentSearch
+                }
             });
-            db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).onDisconnect().remove();
         }
 
         function initLiveCursor() {
@@ -1784,7 +1852,7 @@
             document.addEventListener('touchmove', handleCursorMove, {passive: true});
             document.addEventListener('mouseleave', () => { 
                 isMouseInside = false;
-                if (currentRoomId) db.ref('rooms/' + currentRoomId + '/cursors/' + myUserId).remove(); 
+                if (currentRoomId) sendCoOpBroadcast('cursor', { uid: myUserId, data: null });
             });
             document.addEventListener('scroll', () => {
                 if (!currentRoomId || !isMouseInside) return;
@@ -1809,6 +1877,10 @@
             const currentFile = document.getElementById('fileSelectDropdown').value;
             const currentFilter = activeCategoryFilters.join(',');
             const currentSearch = document.getElementById('searchInput').value;
+            const cursorNow = Date.now();
+            Object.entries(roomCursorData).forEach(([uid, cursor]) => {
+                if (cursor._lastSeen && cursorNow - cursor._lastSeen > 5000) delete roomCursorData[uid];
+            });
             const activeUsers = Object.keys(roomCursorData);
 
             Array.from(overlay.children).forEach(child => {
@@ -1917,14 +1989,16 @@
             clearTimeout(focusTimer); // 🌟 ยกเลิกการล้างโฟกัส ถ้ามีการกดเปลี่ยนช่องทันที
             isEditing = true;
             if (currentRoomId) {
-                db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).set({ 
-                    fileName: fileName, 
-                    recordIndex: recordIndex, 
-                    field: field,
-                    color: myCursorColor,
-                    bgColor: myHighlightBg
+                sendCoOpBroadcast('focus', {
+                    uid: myUserId,
+                    data: {
+                        fileName: fileName,
+                        recordIndex: recordIndex,
+                        field: field,
+                        color: myCursorColor,
+                        bgColor: myHighlightBg
+                    }
                 });
-                db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).onDisconnect().remove(); 
             }
         }
 
@@ -1932,7 +2006,7 @@
             // 🌟 หน่วงเวลา 200ms ก่อนรีเฟรชตาราง ป้องกันช่องพิมพ์หายวับไป
             focusTimer = setTimeout(() => {
                 isEditing = false;
-                if (currentRoomId) db.ref('rooms/' + currentRoomId + '/focus/' + myUserId).remove();
+                if (currentRoomId) sendCoOpBroadcast('focus', { uid: myUserId, data: null });
                 checkPendingUpdate();
             }, 200);
         }
@@ -2007,6 +2081,7 @@
         }
 
         function startListening() {
+            setupCoOpRealtime();
             db.ref('rooms/' + currentRoomId + '/allFilesData').on('value', snapshot => {
                 if (snapshot.exists()) {
                     allFilesData = decodeAllFilesData(snapshot.val()); 
@@ -2023,14 +2098,6 @@
                     fileScores = normalizeFileScores(snapshot.val()); 
                     if (isEditing) pendingFirebaseUpdate = true; else renderTable();
                 }
-            });
-            db.ref('rooms/' + currentRoomId + '/focus').on('value', snapshot => {
-                roomFocusData = snapshot.val() || {}; 
-                // 🌟 แก้ตรงนี้: ถ้ากำลังพิมพ์อยู่ ให้รอพิมพ์เสร็จก่อนค่อยรีเฟรช
-                if (isEditing) pendingFirebaseUpdate = true; else renderTable(); 
-            });
-            db.ref('rooms/' + currentRoomId + '/cursors').on('value', snapshot => {
-                roomCursorData = snapshot.val() || {};
             });
         }
         // ==========================================
@@ -5499,8 +5566,13 @@ function updateWorkModeUI() {
             if(currentRoomId) {
                 db.ref('rooms/' + currentRoomId + '/allFilesData').off();
                 db.ref('rooms/' + currentRoomId + '/fileScores').off();
-                db.ref('rooms/' + currentRoomId + '/focus').off();
-                db.ref('rooms/' + currentRoomId + '/cursors').off();
+                if (coOpChannel) {
+                    supabaseClient.removeChannel(coOpChannel);
+                    coOpChannel = null;
+                    coOpChannelRoomId = null;
+                }
+                roomFocusData = {};
+                roomCursorData = {};
             }
             currentRoomId = null; 
             loadHubRooms();
