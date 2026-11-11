@@ -3825,8 +3825,8 @@ function updateWorkModeUI() {
                     tr.setAttribute('data-seq', getItemSeq(item) || ""); 
                     if (!cols.original && !item._mergedSources) tr.setAttribute('title', `📄 คอมเมนต์ต้นฉบับ:\n${item["คอมเมนต์เต็มต้นฉบับ"]}`);
 
-                    let focusStyleId = "", focusStyleName = "", focusStyleSurname = "", focusStyleScore = "", focusStyleSeq = "";
-                    let focusClassId = "", focusClassName = "", focusClassSurname = "", focusClassScore = "", focusClassSeq = "";
+                    let focusStyleId = "", focusStyleName = "", focusStyleSurname = "", focusStyleScore = "", focusStyleSeq = "", focusStyleTeam = "";
+                    let focusClassId = "", focusClassName = "", focusClassSurname = "", focusClassScore = "", focusClassSeq = "", focusClassTeam = "";
 
                     for (let uid in roomFocusData) {
                         if (uid === myUserId) continue; 
@@ -3842,6 +3842,7 @@ function updateWorkModeUI() {
                             if (focus.field === 'นามสกุล') { focusStyleSurname = inlineStyle; focusClassSurname = baseClass; }
                             if (focus.field === 'คะแนน') { focusStyleScore = inlineStyle; focusClassScore = baseClass; }
                             if (focus.field === 'ลำดับที่') { focusStyleSeq = inlineStyle; focusClassSeq = baseClass; }
+                            if (focus.field === 'ทีม') { focusStyleTeam = inlineStyle; focusClassTeam = baseClass; }
                         }
                     }
 
@@ -3938,8 +3939,16 @@ function updateWorkModeUI() {
                             let teams = [...new Set(item._mergedSources.map(s => s["ทีม"]).filter(Boolean))].join(", ");
                             rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-400 flex justify-center">${teams}</div>`, type: 'center', colname: 'ทีม' });
                         } else {
-                            let teamVal = item["ทีม"] || "";
-                            rowCells.push({ content: `<div class="row-content font-bold text-slate-700 dark:text-slate-400 flex justify-center">${teamVal}</div>`, type: 'center', colname: 'ทีม' });
+                            let teamVal = item["ทีม"] ?? "";
+                            let teamSpan = `<span contenteditable="true" spellcheck="false"
+                                ontouchstart="isEditing = true; setFocus('${item.fileName}', ${item.recordIndex}, 'ทีม')"
+                                onfocus="setFocus('${item.fileName}', ${item.recordIndex}, 'ทีม')"
+                                onclick="event.stopPropagation()"
+                                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                                onblur="clearFocus(); updateRecord('${item.fileName}', ${item.recordIndex}, 'ทีม', this.innerText);"
+                                class="editable-cell font-bold text-slate-700 dark:text-slate-400 text-center ${focusClassTeam}"
+                                style="${focusStyleTeam}">${teamVal}</span>`;
+                            rowCells.push({ content: `<div class="row-content flex justify-center">${teamSpan}</div>`, type: 'center', colname: 'ทีม' });
                         }
                     }
 
