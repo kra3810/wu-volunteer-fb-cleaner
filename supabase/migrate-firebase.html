@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ย้ายข้อมูล Firebase → Supabase</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./config.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;padding:32px 18px;background:#0b1220;color:#e5e7eb;font:16px/1.6 system-ui,sans-serif}main{max-width:760px;margin:auto;background:#111c30;border:1px solid #26364f;border-radius:18px;padding:28px}h1{font-size:25px;margin:0 0 8px}p{color:#b9c5d8}.warn{padding:14px;border-radius:10px;background:#422006;color:#fde68a;margin:18px 0}button{border:0;border-radius:10px;background:#6366f1;color:white;padding:13px 20px;font-weight:700;font-size:15px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#08101e;padding:16px;border-radius:10px;min-height:90px;color:#c7d2fe}.muted{font-size:13px;color:#94a3b8}</style></head>
+<body><main><h1>ย้ายข้อมูล Firebase → Supabase</h1><p>คัดลอกเฉพาะห้องที่มี Metadata ใน rooms_meta ซึ่งเป็นแหล่งข้อมูลที่หน้า Hub ใช้แสดงรายการห้อง</p><div class="warn"><strong>หมายเหตุ:</strong> จะไม่สร้างห้องจาก key ที่พบเฉพาะใน rooms เพราะอาจเป็นข้อมูลตกค้าง/ห้องกำพร้า การย้ายจะไม่ลบข้อมูล Firebase และไม่ลบห้องอื่นที่มีอยู่ใน Supabase</div><button id="start">เริ่มย้ายข้อมูล</button><p class="muted">ใช้ Firebase REST API อ่านข้อมูลเดิม และ Supabase Publishable key สำหรับเขียนข้อมูล</p><pre id="log">พร้อมทำงาน</pre></main>
+<script>
+const FIREBASE_URL='https://wu-volunteer-score-default-rtdb.asia-southeast1.firebasedatabase.app';
+const sections=['allFilesData','fileScores','rawThreadsData','modeMemory'];
+const logBox=document.getElementById('log'),button=document.getElementById('start');
+function log(s){logBox.textContent+='\n'+s;}
+function iso(v,f){if(v===undefined||v===null||v==='')return f;const d=new Date(v);return Number.isNaN(d.getTime())?f:d.toISOString();}
+async function getFirebase(path){const r=await fetch(FIREBASE_URL+'/'+path+'.json');if(!r.ok)throw new Error('Firebase อ่าน '+path+' ไม่สำเร็จ: HTTP '+r.status);return r.json();}
+async function migrate(){
+ button.disabled=true;logBox.textContent='กำลังเชื่อมต่อ...';
+ try{
+  const client=window.supabase.createClient(window.WU_SUPABASE_CONFIG.url,window.WU_SUPABASE_CONFIG.publishableKey);
+  log('กำลังอ่าน rooms และ rooms_meta จาก Firebase...');
+  const [legacyRooms,legacyMeta]=await Promise.all([getFirebase('rooms'),getFirebase('rooms_meta')]);
+  const rooms=legacyRooms||{},meta=legacyMeta||{};
+  // The Hub is driven by rooms_meta. Never create visible rooms from orphan keys in rooms.
+  const codes=Object.keys(meta);
+  const orphanCount=Object.keys(rooms).filter(code=>!Object.prototype.hasOwnProperty.call(meta,code)).length;
+  if(!codes.length){log('ไม่พบรายการห้องใน rooms_meta จึงหยุดเพื่อป้องกันการสร้างห้องผิดพลาด');return;}
+  log('พบรายการห้องที่ Hub ใช้งานจริง '+codes.length+' ห้อง');
+  log('ข้ามข้อมูลห้องที่ไม่มี Metadata รองรับ '+orphanCount+' รายการ');
+  const now=new Date().toISOString(),roomRows=[],dataRows=[];
+  for(const code of codes){
+   const m=meta[code]||{},data=rooms[code]||{};
+   roomRows.push({code,name:m.name||'ใบงานไม่มีชื่อ',created_at:iso(m.createdAt,now),last_updated:iso(m.lastUpdated||m.createdAt,now),is_deleted:!!m.isDeleted});
+   for(const section of sections)if(data[section]!==undefined&&data[section]!==null)dataRows.push({room_code:code,section,data:data[section],updated_at:now});
+  }
+  for(let i=0;i<roomRows.length;i+=8){const {error}=await client.from('rooms').upsert(roomRows.slice(i,i+8),{onConflict:'code'});if(error)throw new Error('บันทึก Metadata ไม่สำเร็จ: '+error.message);log('บันทึก Metadata แล้ว '+Math.min(i+8,roomRows.length)+'/'+roomRows.length+' ห้อง');}
+  let saved=0;
+  for(const row of dataRows){let lastError=null;for(let attempt=1;attempt<=3;attempt++){const {error}=await client.from('room_data').upsert(row,{onConflict:'room_code,section'});if(!error){lastError=null;break;}lastError=error;if(attempt<3)await new Promise(r=>setTimeout(r,1000*attempt));}if(lastError)throw new Error('บันทึก '+row.room_code+'/'+row.section+' ไม่สำเร็จ: '+lastError.message);saved++;if(saved%5===0||saved===dataRows.length)log('บันทึกข้อมูลแล้ว '+saved+'/'+dataRows.length+' ชุด');}
+  log('เสร็จสมบูรณ์: ย้าย '+roomRows.length+' ห้อง และข้อมูล '+saved+' ชุด');
+  log('การย้ายครั้งต่อไปจะไม่สร้างห้องจากข้อมูลที่ไม่มี Metadata ใน rooms_meta อีก');
+ }catch(e){console.error(e);log('เกิดข้อผิดพลาด: '+(e.message||String(e)));}finally{button.disabled=false;}
+}
+button.addEventListener('click',migrate);
+</script></body></html>
