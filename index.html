@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facebook Comment Clean & Export</title>
-    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase/config.js"></script>
+    <script src="./supabase/legacy-adapter.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
@@ -1380,16 +1381,11 @@
         let roomFocusData = {}; 
         let roomCursorData = {}; 
         
-        firebase.initializeApp({
-            apiKey: "AIzaSyCf9UZgJQDBG42YfK8I6jjpS2cS0Sf0Hwo",
-            authDomain: "wu-volunteer-score.firebaseapp.com",
-            databaseURL: "https://wu-volunteer-score-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "wu-volunteer-score",
-            storageBucket: "wu-volunteer-score.firebasestorage.app",
-            messagingSenderId: "606122852780",
-            appId: "1:606122852780:web:4708fc48cfe66d8832fa09"
-        });
-        const db = firebase.database();
+        const supabaseClient = window.supabase.createClient(
+            window.WU_SUPABASE_CONFIG.url,
+            window.WU_SUPABASE_CONFIG.publishableKey
+        );
+        const db = window.createSupabaseRoomAdapter(supabaseClient);
 
         // 🎯 1. ระบบดักจับเมาส์แบบใหม่ (ใช้เปอร์เซ็นต์แก้ปัญหาจอคอม vs แท็บเล็ต)
         let lastClientX = -1000;
@@ -5471,7 +5467,7 @@ function updateWorkModeUI() {
         
         // ส่งสัญญาณบอก Firebase ว่าเพิ่งมีการขยับ
         function triggerRoomUpdate() {
-            if (currentRoomId) db.ref('rooms_meta/' + currentRoomId + '/lastUpdated').set(firebase.database.ServerValue.TIMESTAMP);
+            if (currentRoomId) db.ref('rooms_meta/' + currentRoomId + '/lastUpdated').set(Date.now());
         }
 
         // ดักเวลาที่เราแก้คะแนน หรือซ่อนแถว ให้สั่งอัปเดตเวลาด้วย
@@ -5503,6 +5499,8 @@ function updateWorkModeUI() {
             if(currentRoomId) {
                 db.ref('rooms/' + currentRoomId + '/allFilesData').off();
                 db.ref('rooms/' + currentRoomId + '/fileScores').off();
+                db.ref('rooms/' + currentRoomId + '/focus').off();
+                db.ref('rooms/' + currentRoomId + '/cursors').off();
             }
             currentRoomId = null; 
             loadHubRooms();
@@ -5864,7 +5862,7 @@ function updateWorkModeUI() {
         function restoreRoom(event, roomId) {
             event.stopPropagation();
             db.ref('rooms_meta/' + roomId + '/isDeleted').remove();
-            db.ref('rooms_meta/' + roomId + '/lastUpdated').set(firebase.database.ServerValue.TIMESTAMP);
+            db.ref('rooms_meta/' + roomId + '/lastUpdated').set(Date.now());
             loadHubRooms();
         }
 
@@ -6059,7 +6057,7 @@ function updateWorkModeUI() {
         function restoreRoom(event, roomId) {
             event.stopPropagation();
             db.ref('rooms_meta/' + roomId + '/isDeleted').remove();
-            db.ref('rooms_meta/' + roomId + '/lastUpdated').set(firebase.database.ServerValue.TIMESTAMP);
+            db.ref('rooms_meta/' + roomId + '/lastUpdated').set(Date.now());
             loadHubRooms();
         }
 
