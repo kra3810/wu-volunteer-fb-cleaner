@@ -181,10 +181,17 @@
             };
             const section = parts[2];
             if (parts.length >= 3 && SECTION_NAMES.has(section)) {
-              channel.on('postgres_changes', roomDataFilter, async payload => {
+              channel.on('postgres_changes', roomDataFilter, payload => {
                 const changedSection = payload.new?.section ?? payload.old?.section;
                 if (changedSection !== section) return;
-                try { callback(snapshot(await readPath(key))); } catch (e) { console.error(e); }
+                // Consume the changed row directly; avoid a second HTTP read.
+                if (payload.eventType === 'DELETE') {
+                  callback(snapshot(null, false));
+                  return;
+                }
+                let value = payload.new?.data ?? null;
+                for (const part of parts.slice(3)) value = value == null ? null : value[part];
+                callback(snapshot(value));
               });
             } else {
               channel.on('postgres_changes', roomDataFilter, async () => {
