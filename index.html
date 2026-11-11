@@ -3183,8 +3183,14 @@ function updateWorkModeUI() {
 
         // รับค่าคะแนนที่ถูกแก้ด้วยมือ
         function updateManualScore(fileName, recordIndex, value) {
-            let val = value.trim();
+            if (value === null || value === undefined) return;
+            let val = String(value).trim();
+            if (val === 'undefined' || val === 'null') return;
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
+                const currentManualScore = allFilesData[fileName][recordIndex].manualScore;
+                if ((val === '' && currentManualScore === undefined) ||
+                    (val !== '' && !isNaN(parseFloat(val)) &&
+                     Number(currentManualScore) === parseFloat(val))) return;
                 if (val === '' || isNaN(parseFloat(val))) {
                     delete allFilesData[fileName][recordIndex].manualScore;
                     if (currentRoomId) db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(fileName)}/${recordIndex}/manualScore`).remove();
@@ -4736,8 +4742,14 @@ function updateWorkModeUI() {
         }
 
         function updateRecord(fileName, recordIndex, field, newValue) {
-            let val = newValue.trim();
+            // contenteditable fires onblur even when a user only taps a cell.
+            // Never persist placeholder text or rewrite a record when unchanged.
+            if (newValue === null || newValue === undefined) return;
+            let val = String(newValue).trim();
+            if (val === 'undefined' || val === 'null') return;
             if (allFilesData[fileName] && allFilesData[fileName][recordIndex]) {
+                const previousValue = allFilesData[fileName][recordIndex][field];
+                if (String(previousValue ?? '').trim() === val) return;
                 allFilesData[fileName][recordIndex][field] = val;
                 
                 if (currentRoomId) db.ref(`rooms/${currentRoomId}/allFilesData/${encodeSafe(fileName)}/${recordIndex}/${encodeSafe(field)}`).set(val);
