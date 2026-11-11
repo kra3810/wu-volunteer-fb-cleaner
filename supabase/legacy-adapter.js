@@ -181,17 +181,13 @@
             };
             const section = parts[2];
             if (parts.length >= 3 && SECTION_NAMES.has(section)) {
-              channel.on('postgres_changes', roomDataFilter, payload => {
+              channel.on('postgres_changes', roomDataFilter, async payload => {
                 const changedSection = payload.new?.section ?? payload.old?.section;
                 if (changedSection !== section) return;
-                // Consume the changed row directly; avoid a second HTTP read.
-                if (payload.eventType === 'DELETE') {
-                  callback(snapshot(null, false));
-                  return;
-                }
-                let value = payload.new?.data ?? null;
-                for (const part of parts.slice(3)) value = value == null ? null : value[part];
-                callback(snapshot(value));
+                // Read through the compatibility layer so encoded Firebase
+                // keys, nested paths, and snapshot shape stay consistent.
+                try { callback(snapshot(await readPath(key))); }
+                catch (e) { console.error('Realtime room read failed:', e); }
               });
             } else {
               channel.on('postgres_changes', roomDataFilter, async () => {
