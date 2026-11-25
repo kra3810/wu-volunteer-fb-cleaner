@@ -1,0 +1,38 @@
+# Read-only database activity for Supabase Free projects.
+# This reduces (but does not eliminate) the possibility of inactivity pausing.
+# The publishable key is public by design. Never use secret/service_role keys.
+name: Supabase database activity check
+
+on:
+  schedule:
+    # Four times per day, in UTC, even when the developer's computer is off.
+    - cron: "17 0,6,12,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-database-activity
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Read heartbeat row
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Make a read-only request against the project database
+        shell: bash
+        env:
+          SUPABASE_URL: https://ikpwtvcqjiybvkrluwpz.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: "sb_publishable_k_0LAO-ZZCnNYciCLaL39w_bhShfRBu"
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error \
+            --connect-timeout 10 --max-time 25 --retry 2 --retry-delay 3 \
+            -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+            -H "Accept: application/json" \
+            "${SUPABASE_URL}/rest/v1/wu_keepalive?select=id&limit=1")"
+          python3 -c 'import json,sys; rows=json.load(sys.stdin); assert rows == [{"id": 1}], "Unexpected heartbeat response"' <<< "${response}"
+          echo "Read-only Supabase heartbeat succeeded."
