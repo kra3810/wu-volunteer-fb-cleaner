@@ -2099,6 +2099,13 @@
                     if (isEditing) pendingFirebaseUpdate = true; else renderTable();
                 }
             });
+            const threadRoomId = currentRoomId;
+            const threadRef = db.ref('rooms/' + threadRoomId + '/rawThreadsData');
+            threadRef.off();
+            threadRef.on('value', snapshot => {
+                if (currentRoomId !== threadRoomId) return;
+                rawThreadsData = decodeKeys(snapshot.val() || {});
+            });
         }
         // ==========================================
 
@@ -4287,29 +4294,41 @@ function updateWorkModeUI() {
             const contentDiv = document.getElementById('fbPopupContent');
             contentDiv.innerHTML = ''; 
 
-            if (!rawThreadsData[fileName] || !rawThreadsData[fileName][threadNo]) {
+            // Firebase may store numeric thread keys as a sparse array with null entries.
+            const fileThreads = rawThreadsData[fileName];
+            const validComments = thread => {
+                const values = Array.isArray(thread) ? thread :
+                    (thread && typeof thread === 'object' ? Object.values(thread) : []);
+                return values.filter(c => c && typeof c === 'object' && !Array.isArray(c));
+            };
+            const threads = fileThreads && typeof fileThreads === 'object'
+                ? Object.values(fileThreads).map(validComments).filter(thread => thread.length)
+                : [];
+            let threadComments = validComments(fileThreads?.[threadNo]);
+            const matchesId = c => highlightId != null && highlightId !== '' && String(c.id) === String(highlightId);
+            if (highlightId != null && highlightId !== '' && !threadComments.some(matchesId)) {
+                threadComments = threads.find(thread => thread.some(matchesId)) || threadComments;
+            }
+
+            if (!threadComments.length) {
                 contentDiv.innerHTML = '<p class="text-center text-slate-500 mt-4">ไม่พบข้อมูลสายสนทนานี้</p>';
                 modal.classList.remove('hidden');
                 return;
             }
 
-            const threadComments = rawThreadsData[fileName][threadNo];
-            
             let allAuthorsInFile = ["จิตอาสา ม.วลัยลักษณ์"];
-            if (rawThreadsData[fileName]) {
-                Object.values(rawThreadsData[fileName]).forEach(thread => {
-                    thread.forEach(c => {
-                        if (c.author) allAuthorsInFile.push(c.author.trim());
-                    });
+            threads.forEach(thread => {
+                thread.forEach(c => {
+                    if (typeof c.author === 'string' && c.author.trim()) allAuthorsInFile.push(c.author.trim());
                 });
-            }
+            });
             const threadAuthors = [...new Set(allAuthorsInFile)].filter(a => a && a.length > 2).sort((a, b) => b.length - a.length);
             
             let html = '<div class="py-2 flex flex-col">';
 
             threadComments.forEach((c, index) => {
                 const isMain = !c.isReply;
-                let displayText = c.text || "";
+                let displayText = String(c.text ?? "");
                 
                 // --- อัปเกรดคลังคำศัพท์ และระบบดักจับแท็กเปล่า ---
                 const imgKeywords = [
@@ -4344,7 +4363,7 @@ function updateWorkModeUI() {
                 const hasImage = isEmpty || isMatchKeyword || isOnlyTag || isIdInReply || c.hasImage === true;
                 // ------------------------------------------------
 
-                const isHighlighted = c.id === highlightId;
+                const isHighlighted = matchesId(c);
                 
                 let highlightClass = '';
                 if (isHighlighted) {
@@ -5587,6 +5606,7 @@ function updateWorkModeUI() {
             if(currentRoomId) {
                 db.ref('rooms/' + currentRoomId + '/allFilesData').off();
                 db.ref('rooms/' + currentRoomId + '/fileScores').off();
+                db.ref('rooms/' + currentRoomId + '/rawThreadsData').off();
                 if (coOpChannel) {
                     supabaseClient.removeChannel(coOpChannel);
                     coOpChannel = null;
