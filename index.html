@@ -5193,6 +5193,22 @@ function updateWorkModeUI() {
             return "ไม่ได้ระบุ";
         }
 
+        function detectNumberingMode(fileThreads, threadNumbers) {
+            for (const threadNo of threadNumbers) {
+                const thread = fileThreads?.[threadNo];
+                const comments = Array.isArray(thread) ? thread :
+                    (thread && typeof thread === 'object' ? Object.values(thread) : []);
+                for (const c of comments) {
+                    const cleanText = String(c?.text ?? '').replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+                    const team = /(?:ธีม|ทีมที่|ทีม|กลุ่ม)\s*[:=]?\s*(\d{1,4})/i.exec(cleanText);
+                    const seq = /ลำดับ(?:ที่)?\s*[:=]?\s*(\d{1,4})/i.exec(cleanText);
+                    if (team && (!seq || team.index < seq.index)) return 'team';
+                    if (seq) return 'sequence';
+                }
+            }
+            return 'sequence';
+        }
+
         function assignSequenceNumbers(fileName) {
             if (!allFilesData[fileName] || !rawThreadsData[fileName]) return;
 
@@ -5206,23 +5222,8 @@ function updateWorkModeUI() {
                 else threads[t].main.push(r);
             });
 
-            // 1. ตรวจสอบว่าไฟล์นี้ใช้ระบบอะไร โดยดูจากคอมเมนต์แรกๆ ที่มีคีย์เวิร์ด
-            let isTeamMode = false;
-            for (let threadNo in threads) {
-                let rawThread = rawThreadsData[fileName][threadNo];
-                if (!rawThread) continue;
-                for (let c of rawThread) {
-                    let cleanText = c.text.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
-                    if (cleanText.match(/(?:ธีม|ทีม|ทีมที่|กลุ่ม)\s*[:=]?\s*(\d{1,4})/i)) {
-                        isTeamMode = true;
-                        break;
-                    }
-                    if (cleanText.match(/ลำดับ(?:ที่)?\s*[:=]?\s*(\d{1,4})/i)) {
-                        break;
-                    }
-                }
-                if (isTeamMode) break;
-            }
+            // ยึดคีย์เวิร์ดแรกของไฟล์ ไม่เปลี่ยนโหมดเมื่อพบคีย์เวิร์ดภายหลัง
+            const isTeamMode = detectNumberingMode(rawThreadsData[fileName], Object.keys(threads)) === 'team';
 
             if (isTeamMode) {
                 // ระบบทีม (ธีม/ทีม)
